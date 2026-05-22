@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f8fa;
+  --foreground: #1f2937;
+  --primary-maroon: #6e1a37;
+  --accent-rose: #ae2448;
+  --soft-teal: #72baa9;
+  --soft-bg: #f7f8fa;
+  --border-gray: #e5e7eb;
+  --text-dark: #1f2937;
+  --text-muted: #6b7280;
+  --danger: #dc2626;
+  --warning: #f59e0b;
+  --success: #16a34a;
+  --whatsapp-green: #25d366;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary-maroon: var(--primary-maroon);
+  --color-accent-rose: var(--accent-rose);
+  --color-soft-teal: var(--soft-teal);
+  --color-soft-bg: var(--soft-bg);
+  --color-border-gray: var(--border-gray);
+  --color-text-dark: var(--text-dark);
+  --color-text-muted: var(--text-muted);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --color-whatsapp-green: var(--whatsapp-green);
+  --font-sans: Inter, "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Inter, "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Utility classes for design system */
+.btn-primary {
+  @apply bg-primary-maroon text-white px-4 py-2 rounded-md hover:bg-primary-maroon/90 transition-colors font-medium;
+}
+
+.btn-secondary {
+  @apply bg-accent-rose text-white px-4 py-2 rounded-md hover:bg-accent-rose/90 transition-colors font-medium;
+}
+
+.btn-teal {
+  @apply bg-soft-teal text-white px-4 py-2 rounded-md hover:bg-soft-teal/90 transition-colors font-medium;
+}
+
+.btn-whatsapp {
+  @apply bg-whatsapp-green text-white px-4 py-2 rounded-md hover:bg-whatsapp-green/90 transition-colors font-medium flex items-center gap-2;
+}
+
+.badge {
+  @apply inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full;
+}
+
+.badge-promo {
+  @apply bg-accent-rose/20 text-accent-rose;
+}
+
+.badge-ready {
+  @apply bg-success/20 text-success;
+}
+
+.badge-low-stock {
+  @apply bg-warning/20 text-warning;
+}
+
+.badge-retail {
+  @apply bg-soft-teal/20 text-soft-teal;
+}

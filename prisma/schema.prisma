@@ -1,0 +1,391 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum RetailStatus {
+  REGISTERED
+  PENDING_RETAIL
+  RETAIL_ACTIVE
+  RETAIL_REJECTED
+  SUSPENDED
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum StockStatus {
+  READY
+  LOW_STOCK
+  OUT_OF_STOCK
+  PREORDER
+}
+
+enum VoucherAudience {
+  PUBLIC
+  RETAIL
+}
+
+enum VoucherStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  DISABLED
+}
+
+enum RetailTokenStatus {
+  ACTIVE
+  USED
+  EXPIRED
+  REVOKED
+}
+
+enum FeatureFlagScope {
+  GLOBAL
+  ROLE
+  USER
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+enum AdminActionRisk {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// Permission system simplified - using role-based access control via UserRole enum
+// and feature flags for granular control
+
+model User {
+  id                    String               @id
+  name                  String
+  email                 String               @unique
+  emailVerified         Boolean              @default(false)
+  image                 String?
+  role                  UserRole             @default(USER)
+  retailStatus          RetailStatus         @default(REGISTERED)
+  whatsappNumber        String?              @db.VarChar(32)
+  storeName             String?
+  address               String?              @db.Text
+  userCode              String               @unique
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  sessions              Session[]
+  accounts              Account[]
+  assignedRetailTokens  RetailToken[]        @relation("RetailTokenAssignee")
+  generatedRetailTokens RetailToken[]        @relation("RetailTokenGenerator")
+  whatsappInquiries     WhatsappInquiryLog[]
+  activityLogs          AdminActivityLog[]   @relation("ActivityActor")
+  featureFlagUpdates    FeatureFlag[]        @relation("FeatureFlagUpdater")
+  targetedFeatureFlags  FeatureFlag[]        @relation("FeatureFlagUserTarget")
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?  @db.Text
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?   @db.Text
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String    @db.Text
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+  vouchers Voucher[] @relation("VoucherCategories")
+}
+
+model Brand {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  logoUrl     String?  @db.Text
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+
+  @@index([isActive, sortOrder])
+}
+
+enum MarginType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model Product {
+  id                 String        @id @default(cuid())
+  name               String
+  sku                String        @unique
+  slug               String?       @unique
+  description        String        @db.Text
+  shortSpecification String?
+  specifications     Json?
+  costPrice          Decimal       @db.Decimal(14, 2)
+  publicMarginType   MarginType
+  publicMarginValue  Decimal       @db.Decimal(10, 2)
+  retailMarginType   MarginType
+  retailMarginValue  Decimal       @db.Decimal(10, 2)
+  publicPrice        Decimal       @db.Decimal(14, 2)
+  retailPrice        Decimal?      @db.Decimal(14, 2)
+  marginPercent      Decimal?      @db.Decimal(5, 2)
+  stockQuantity      Int           @default(0)
+  stockStatus        StockStatus   @default(READY)
+  status             ProductStatus @default(DRAFT)
+  isRecommended      Boolean       @default(false)
+  isNewArrival       Boolean       @default(false)
+  isFeatured         Boolean       @default(false)
+  isPromo            Boolean       @default(false)
+  warrantyInfo       String?
+  primaryImageUrl    String?       @db.Text
+  categoryId         String
+  brandId            String
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  category          Category             @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  brand             Brand                @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  images            ProductImage[]
+  vouchers          ProductVoucher[]
+  whatsappInquiries WhatsappInquiryLog[]
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([status, stockStatus])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  url       String   @db.Text
+  altText   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, sortOrder])
+}
+
+enum VoucherDiscountType {
+  FIXED_AMOUNT
+  PERCENTAGE
+}
+
+enum VoucherScope {
+  ALL
+  PRODUCTS
+  CATEGORIES
+}
+
+model Voucher {
+  id              String          @id @default(cuid())
+  code            String          @unique
+  title           String
+  description     String?         @db.Text
+  audience        VoucherAudience @default(PUBLIC)
+  status          VoucherStatus   @default(DRAFT)
+  discountType    VoucherDiscountType
+  discountValue   Decimal         @db.Decimal(10, 2)
+  minimumPurchase Decimal?        @db.Decimal(14, 2)
+  startsAt        DateTime
+  endsAt          DateTime
+  isActive        Boolean         @default(true)
+  usageQuota      Int
+  scope           VoucherScope    @default(ALL)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  categoryId      String? // For category-specific vouchers (deprecated, use categories relation instead)
+  categories      Category[]      @relation("VoucherCategories")
+  products        ProductVoucher[]
+}
+
+model ProductVoucher {
+  productId String
+  voucherId String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  voucher Voucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+
+  @@id([productId, voucherId])
+}
+
+model RetailToken {
+  id                String            @id @default(cuid())
+  tokenHash         String            @unique
+  tokenPreview      String
+  status            RetailTokenStatus @default(ACTIVE)
+  assignedToUserId  String?
+  generatedByUserId String
+  expiresAt         DateTime
+  usedAt            DateTime?
+  revokedAt         DateTime?
+  notes             String?           @db.Text
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  assignedTo  User? @relation("RetailTokenAssignee", fields: [assignedToUserId], references: [id], onDelete: SetNull)
+  generatedBy User  @relation("RetailTokenGenerator", fields: [generatedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([assignedToUserId])
+  @@index([generatedByUserId])
+  @@index([status, expiresAt])
+}
+
+model PromoBanner {
+  id        String    @id @default(cuid())
+  title     String
+  subtitle  String?
+  imageUrl  String?   @db.Text
+  linkUrl   String?   @db.Text
+  isActive  Boolean   @default(false)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model WhatsappInquiryLog {
+  id             String        @id @default(cuid())
+  userId         String?
+  productId      String?
+  customerName   String?
+  whatsappNumber String?       @db.VarChar(32)
+  message        String        @db.Text
+  waUrl          String        @db.Text
+  sourcePage     String?
+  status         InquiryStatus @default(NEW)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([productId])
+  @@index([status, createdAt])
+}
+
+model FeatureFlag {
+  id              String           @id @default(cuid())
+  key             String           @unique
+  name            String
+  description     String           @db.Text
+  scope           FeatureFlagScope @default(GLOBAL)
+  enabled         Boolean          @default(false)
+  roleTarget      UserRole?
+  userTargetId    String?
+  updatedByUserId String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  userTarget User? @relation("FeatureFlagUserTarget", fields: [userTargetId], references: [id], onDelete: SetNull)
+  updatedBy  User? @relation("FeatureFlagUpdater", fields: [updatedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([scope, enabled])
+  @@index([roleTarget])
+  @@index([userTargetId])
+}
+
+model StoreSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String   @db.Text
+  description String?  @db.Text
+  isSecret    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AdminActivityLog {
+  id         String          @id @default(cuid())
+  actorId    String?
+  actorRole  UserRole?
+  action     String
+  targetType String
+  targetId   String?
+  risk       AdminActionRisk @default(MEDIUM)
+  metadata   Json?
+  ipAddress  String?
+  userAgent  String?         @db.Text
+  createdAt  DateTime        @default(now())
+
+  actor User? @relation("ActivityActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+}
