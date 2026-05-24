@@ -53,12 +53,12 @@ export async function activateRetailToken(
     };
   }
 
-  const token = String(formData.get("token") ?? "").trim();
+  const token = String(formData.get("token") || "").trim();
 
   if (!token) {
     return {
       status: "error",
-      message: "Please enter a retail activation token.",
+      message: "Masukkan token aktivasi ritel.",
     };
   }
 
@@ -83,21 +83,44 @@ export async function activateRetailToken(
     };
   }
 
-  await db.$transaction([
-    db.retailToken.update({
-      where: { id: tokenRecord.id },
+  // Atomically consume the token. The defensive where-clause (status ACTIVE,
+  // usedAt null, revokedAt null) means a concurrent or replayed activation
+  // updates 0 rows and is rejected — the token is strictly single-use.
+  const activated = await db.$transaction(async (tx) => {
+    const consumed = await tx.retailToken.updateMany({
+      where: {
+        id: tokenRecord.id,
+        status: "ACTIVE",
+        usedAt: null,
+        revokedAt: null,
+      },
       data: {
         status: "USED",
         usedAt: now,
       },
-    }),
-     db.user.update({
-       where: { id: userId },
-       data: {
-         retailStatus: "RETAIL_ACTIVE",
-       },
-     }),
-  ]);
+    });
+
+    if (consumed.count === 0) {
+      return false;
+    }
+
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        retailStatus: "RETAIL_ACTIVE",
+      },
+    });
+
+    return true;
+  });
+
+  if (!activated) {
+    // Do not reveal whether the token exists — same message as a bad token.
+    return {
+      status: "error",
+      message: "The token is invalid, already used, expired, revoked, or not assigned to your account.",
+    };
+  }
 
   revalidatePath("/retail/activate");
 

@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "badImages": [],
+    "brokenDomImages": []
+  },
+  {
+    "path": "/products",
+    "status": 200,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "badImages": [],
+    "brokenDomImages": []
+  }
+]

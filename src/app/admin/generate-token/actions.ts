@@ -1,10 +1,9 @@
 "use server";
 
 import { createHash, randomBytes } from "node:crypto";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { getDb } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { getCurrentUser } from "@/lib/session";
 import { isFeatureEnabled, safeLogAdminActivity } from "@/lib/feature-flags";
 
 export type GenerateTokenState = {
@@ -43,12 +42,9 @@ export async function generateTokenAction(
   }
 
   const db = getDb();
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const currentUser = await getCurrentUser();
   
-  // Verify user is still authenticated
-  if (!session?.user || !(session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN")) {
+  if (!currentUser || (currentUser.role !== "ADMIN" && currentUser.role !== "SUPER_ADMIN")) {
     return failure("Unauthorized");
   }
 
@@ -75,8 +71,8 @@ export async function generateTokenAction(
     return failure("User not found");
   }
 
-  if (!(user.retailStatus === "REGISTERED" || user.retailStatus === "PENDING_RETAIL")) {
-    return failure("User is not eligible for retail token");
+  if (user.retailStatus !== "PENDING_RETAIL") {
+    return failure("Hanya pengguna dengan status Menunggu yang dapat diberikan token");
   }
 
   // Generate secure token
@@ -96,7 +92,7 @@ export async function generateTokenAction(
         tokenPreview,
         status: "ACTIVE",
         assignedToUserId: userId,
-        generatedByUserId: session.user.id,
+        generatedByUserId: currentUser.id,
         expiresAt,
         notes: `Generated for user ${user.name} (${user.email})`
       }
@@ -104,8 +100,8 @@ export async function generateTokenAction(
 
     // Log admin activity (respects enable_admin_activity_log flag)
     await safeLogAdminActivity({
-      actorId: session.user.id,
-      actorRole: session.user.role,
+      actorId: currentUser.id,
+      actorRole: currentUser.role,
       action: "Generate retail token",
       targetType: "User",
       targetId: userId,

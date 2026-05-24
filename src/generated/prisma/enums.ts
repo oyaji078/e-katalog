@@ -66,6 +66,16 @@ export const VoucherStatus = {
 export type VoucherStatus = (typeof VoucherStatus)[keyof typeof VoucherStatus]
 
 
+export const VoucherClaimStatus = {
+  CLAIMED: 'CLAIMED',
+  USED: 'USED',
+  EXPIRED: 'EXPIRED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type VoucherClaimStatus = (typeof VoucherClaimStatus)[keyof typeof VoucherClaimStatus]
+
+
 export const RetailTokenStatus = {
   ACTIVE: 'ACTIVE',
   USED: 'USED',
@@ -127,3 +137,12 @@ export const VoucherScope = {
 } as const
 
 export type VoucherScope = (typeof VoucherScope)[keyof typeof VoucherScope]
+
+
+export const PromoBannerAudience = {
+  PUBLIC: 'PUBLIC',
+  AUTHENTICATED: 'AUTHENTICATED',
+  RETAIL: 'RETAIL'
+} as const
+
+export type PromoBannerAudience = (typeof PromoBannerAudience)[keyof typeof PromoBannerAudience]

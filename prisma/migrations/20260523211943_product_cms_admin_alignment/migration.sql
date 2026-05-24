@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE `Product` ADD COLUMN `isFlashSale` BOOLEAN NOT NULL DEFAULT false;
+
+-- AlterTable
+ALTER TABLE `PromoBanner` ADD COLUMN `audience` ENUM('PUBLIC', 'AUTHENTICATED', 'RETAIL') NOT NULL DEFAULT 'PUBLIC',
+    ADD COLUMN `ctaLabel` VARCHAR(191) NULL;

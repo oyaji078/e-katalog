@@ -1,5 +1,6 @@
 "use client";
 
+import { MessageCircle } from "lucide-react";
 import { useCallback, useState } from "react";
 
 type WhatsAppInquiryButtonProps = {
@@ -13,7 +14,6 @@ type WhatsAppInquiryButtonProps = {
 export default function WhatsAppInquiryButton({
   productId,
   productSlug,
-  sourcePage = "catalog",
   label = "Tanya via WhatsApp",
   className = "",
 }: WhatsAppInquiryButtonProps) {
@@ -31,7 +31,6 @@ export default function WhatsAppInquiryButton({
         body: JSON.stringify({
           productId,
           ...(productSlug ? { productSlug } : {}),
-          sourcePage,
         }),
       });
 
@@ -51,7 +50,7 @@ export default function WhatsAppInquiryButton({
     } finally {
       setLoading(false);
     }
-  }, [productId, productSlug, sourcePage]);
+  }, [productId, productSlug]);
 
   return (
     <div>
@@ -59,8 +58,9 @@ export default function WhatsAppInquiryButton({
         type="button"
         onClick={handleClick}
         disabled={loading}
-        className={`rounded-md bg-whatsapp-green px-4 py-2 text-center text-xs font-bold text-white transition enabled:hover:bg-whatsapp-green/90 disabled:opacity-60 ${className}`}
+        className={`inline-flex items-center justify-center gap-2 rounded-md bg-whatsapp-green px-4 py-2 text-center text-xs font-bold text-white transition enabled:hover:bg-whatsapp-green/90 disabled:opacity-60 ${className}`}
       >
+        <MessageCircle className="size-4" />
         {loading ? "Memproses..." : label}
       </button>
       {error ? (

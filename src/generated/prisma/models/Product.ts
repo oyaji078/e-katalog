@@ -34,6 +34,9 @@ export type ProductAvgAggregateOutputType = {
   retailPrice: runtime.Decimal | null
   marginPercent: runtime.Decimal | null
   stockQuantity: number | null
+  viewCount: number | null
+  clickCount: number | null
+  inquiryCount: number | null
 }
 
 export type ProductSumAggregateOutputType = {
@@ -44,6 +47,9 @@ export type ProductSumAggregateOutputType = {
   retailPrice: runtime.Decimal | null
   marginPercent: runtime.Decimal | null
   stockQuantity: number | null
+  viewCount: number | null
+  clickCount: number | null
+  inquiryCount: number | null
 }
 
 export type ProductMinAggregateOutputType = {
@@ -65,13 +71,14 @@ export type ProductMinAggregateOutputType = {
   stockStatus: $Enums.StockStatus | null
   status: $Enums.ProductStatus | null
   isRecommended: boolean | null
-  isNewArrival: boolean | null
   isFeatured: boolean | null
-  isPromo: boolean | null
   warrantyInfo: string | null
   primaryImageUrl: string | null
   categoryId: string | null
   brandId: string | null
+  viewCount: number | null
+  clickCount: number | null
+  inquiryCount: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -95,13 +102,14 @@ export type ProductMaxAggregateOutputType = {
   stockStatus: $Enums.StockStatus | null
   status: $Enums.ProductStatus | null
   isRecommended: boolean | null
-  isNewArrival: boolean | null
   isFeatured: boolean | null
-  isPromo: boolean | null
   warrantyInfo: string | null
   primaryImageUrl: string | null
   categoryId: string | null
   brandId: string | null
+  viewCount: number | null
+  clickCount: number | null
+  inquiryCount: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -126,13 +134,14 @@ export type ProductCountAggregateOutputType = {
   stockStatus: number
   status: number
   isRecommended: number
-  isNewArrival: number
   isFeatured: number
-  isPromo: number
   warrantyInfo: number
   primaryImageUrl: number
   categoryId: number
   brandId: number
+  viewCount: number
+  clickCount: number
+  inquiryCount: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -147,6 +156,9 @@ export type ProductAvgAggregateInputType = {
   retailPrice?: true
   marginPercent?: true
   stockQuantity?: true
+  viewCount?: true
+  clickCount?: true
+  inquiryCount?: true
 }
 
 export type ProductSumAggregateInputType = {
@@ -157,6 +169,9 @@ export type ProductSumAggregateInputType = {
   retailPrice?: true
   marginPercent?: true
   stockQuantity?: true
+  viewCount?: true
+  clickCount?: true
+  inquiryCount?: true
 }
 
 export type ProductMinAggregateInputType = {
@@ -178,13 +193,14 @@ export type ProductMinAggregateInputType = {
   stockStatus?: true
   status?: true
   isRecommended?: true
-  isNewArrival?: true
   isFeatured?: true
-  isPromo?: true
   warrantyInfo?: true
   primaryImageUrl?: true
   categoryId?: true
   brandId?: true
+  viewCount?: true
+  clickCount?: true
+  inquiryCount?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -208,13 +224,14 @@ export type ProductMaxAggregateInputType = {
   stockStatus?: true
   status?: true
   isRecommended?: true
-  isNewArrival?: true
   isFeatured?: true
-  isPromo?: true
   warrantyInfo?: true
   primaryImageUrl?: true
   categoryId?: true
   brandId?: true
+  viewCount?: true
+  clickCount?: true
+  inquiryCount?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -239,13 +256,14 @@ export type ProductCountAggregateInputType = {
   stockStatus?: true
   status?: true
   isRecommended?: true
-  isNewArrival?: true
   isFeatured?: true
-  isPromo?: true
   warrantyInfo?: true
   primaryImageUrl?: true
   categoryId?: true
   brandId?: true
+  viewCount?: true
+  clickCount?: true
+  inquiryCount?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -357,13 +375,14 @@ export type ProductGroupByOutputType = {
   stockStatus: $Enums.StockStatus
   status: $Enums.ProductStatus
   isRecommended: boolean
-  isNewArrival: boolean
   isFeatured: boolean
-  isPromo: boolean
   warrantyInfo: string | null
   primaryImageUrl: string | null
   categoryId: string
   brandId: string
+  viewCount: number
+  clickCount: number
+  inquiryCount: number
   createdAt: Date
   updatedAt: Date
   _count: ProductCountAggregateOutputType | null
@@ -411,13 +430,14 @@ export type ProductWhereInput = {
   stockStatus?: Prisma.EnumStockStatusFilter<"Product"> | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFilter<"Product"> | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFilter<"Product"> | boolean
-  isNewArrival?: Prisma.BoolFilter<"Product"> | boolean
   isFeatured?: Prisma.BoolFilter<"Product"> | boolean
-  isPromo?: Prisma.BoolFilter<"Product"> | boolean
   warrantyInfo?: Prisma.StringNullableFilter<"Product"> | string | null
   primaryImageUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   categoryId?: Prisma.StringFilter<"Product"> | string
   brandId?: Prisma.StringFilter<"Product"> | string
+  viewCount?: Prisma.IntFilter<"Product"> | number
+  clickCount?: Prisma.IntFilter<"Product"> | number
+  inquiryCount?: Prisma.IntFilter<"Product"> | number
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
@@ -425,6 +445,7 @@ export type ProductWhereInput = {
   images?: Prisma.ProductImageListRelationFilter
   vouchers?: Prisma.ProductVoucherListRelationFilter
   whatsappInquiries?: Prisma.WhatsappInquiryLogListRelationFilter
+  flashSaleProducts?: Prisma.FlashSaleProductListRelationFilter
 }
 
 export type ProductOrderByWithRelationInput = {
@@ -447,13 +468,14 @@ export type ProductOrderByWithRelationInput = {
   stockStatus?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isRecommended?: Prisma.SortOrder
-  isNewArrival?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
-  isPromo?: Prisma.SortOrder
   warrantyInfo?: Prisma.SortOrderInput | Prisma.SortOrder
   primaryImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   brandId?: Prisma.SortOrder
+  viewCount?: Prisma.SortOrder
+  clickCount?: Prisma.SortOrder
+  inquiryCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   category?: Prisma.CategoryOrderByWithRelationInput
@@ -461,6 +483,7 @@ export type ProductOrderByWithRelationInput = {
   images?: Prisma.ProductImageOrderByRelationAggregateInput
   vouchers?: Prisma.ProductVoucherOrderByRelationAggregateInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogOrderByRelationAggregateInput
+  flashSaleProducts?: Prisma.FlashSaleProductOrderByRelationAggregateInput
   _relevance?: Prisma.ProductOrderByRelevanceInput
 }
 
@@ -487,13 +510,14 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   stockStatus?: Prisma.EnumStockStatusFilter<"Product"> | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFilter<"Product"> | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFilter<"Product"> | boolean
-  isNewArrival?: Prisma.BoolFilter<"Product"> | boolean
   isFeatured?: Prisma.BoolFilter<"Product"> | boolean
-  isPromo?: Prisma.BoolFilter<"Product"> | boolean
   warrantyInfo?: Prisma.StringNullableFilter<"Product"> | string | null
   primaryImageUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   categoryId?: Prisma.StringFilter<"Product"> | string
   brandId?: Prisma.StringFilter<"Product"> | string
+  viewCount?: Prisma.IntFilter<"Product"> | number
+  clickCount?: Prisma.IntFilter<"Product"> | number
+  inquiryCount?: Prisma.IntFilter<"Product"> | number
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
@@ -501,6 +525,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   images?: Prisma.ProductImageListRelationFilter
   vouchers?: Prisma.ProductVoucherListRelationFilter
   whatsappInquiries?: Prisma.WhatsappInquiryLogListRelationFilter
+  flashSaleProducts?: Prisma.FlashSaleProductListRelationFilter
 }, "id" | "sku" | "slug">
 
 export type ProductOrderByWithAggregationInput = {
@@ -523,13 +548,14 @@ export type ProductOrderByWithAggregationInput = {
   stockStatus?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isRecommended?: Prisma.SortOrder
-  isNewArrival?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
-  isPromo?: Prisma.SortOrder
   warrantyInfo?: Prisma.SortOrderInput | Prisma.SortOrder
   primaryImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   brandId?: Prisma.SortOrder
+  viewCount?: Prisma.SortOrder
+  clickCount?: Prisma.SortOrder
+  inquiryCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProductCountOrderByAggregateInput
@@ -562,13 +588,14 @@ export type ProductScalarWhereWithAggregatesInput = {
   stockStatus?: Prisma.EnumStockStatusWithAggregatesFilter<"Product"> | $Enums.StockStatus
   status?: Prisma.EnumProductStatusWithAggregatesFilter<"Product"> | $Enums.ProductStatus
   isRecommended?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
-  isNewArrival?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   isFeatured?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
-  isPromo?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
   warrantyInfo?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   primaryImageUrl?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   categoryId?: Prisma.StringWithAggregatesFilter<"Product"> | string
   brandId?: Prisma.StringWithAggregatesFilter<"Product"> | string
+  viewCount?: Prisma.IntWithAggregatesFilter<"Product"> | number
+  clickCount?: Prisma.IntWithAggregatesFilter<"Product"> | number
+  inquiryCount?: Prisma.IntWithAggregatesFilter<"Product"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
 }
@@ -593,11 +620,12 @@ export type ProductCreateInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
@@ -605,6 +633,7 @@ export type ProductCreateInput = {
   images?: Prisma.ProductImageCreateNestedManyWithoutProductInput
   vouchers?: Prisma.ProductVoucherCreateNestedManyWithoutProductInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateInput = {
@@ -627,18 +656,20 @@ export type ProductUncheckedCreateInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
   categoryId: string
   brandId: string
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   images?: Prisma.ProductImageUncheckedCreateNestedManyWithoutProductInput
   vouchers?: Prisma.ProductVoucherUncheckedCreateNestedManyWithoutProductInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductUpdateInput = {
@@ -661,11 +692,12 @@ export type ProductUpdateInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
@@ -673,6 +705,7 @@ export type ProductUpdateInput = {
   images?: Prisma.ProductImageUpdateManyWithoutProductNestedInput
   vouchers?: Prisma.ProductVoucherUpdateManyWithoutProductNestedInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateInput = {
@@ -695,18 +728,20 @@ export type ProductUncheckedUpdateInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   brandId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   images?: Prisma.ProductImageUncheckedUpdateManyWithoutProductNestedInput
   vouchers?: Prisma.ProductVoucherUncheckedUpdateManyWithoutProductNestedInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateManyInput = {
@@ -729,13 +764,14 @@ export type ProductCreateManyInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
   categoryId: string
   brandId: string
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -760,11 +796,12 @@ export type ProductUpdateManyMutationInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -789,13 +826,14 @@ export type ProductUncheckedUpdateManyInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   brandId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -836,13 +874,14 @@ export type ProductCountOrderByAggregateInput = {
   stockStatus?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isRecommended?: Prisma.SortOrder
-  isNewArrival?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
-  isPromo?: Prisma.SortOrder
   warrantyInfo?: Prisma.SortOrder
   primaryImageUrl?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   brandId?: Prisma.SortOrder
+  viewCount?: Prisma.SortOrder
+  clickCount?: Prisma.SortOrder
+  inquiryCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -855,6 +894,9 @@ export type ProductAvgOrderByAggregateInput = {
   retailPrice?: Prisma.SortOrder
   marginPercent?: Prisma.SortOrder
   stockQuantity?: Prisma.SortOrder
+  viewCount?: Prisma.SortOrder
+  clickCount?: Prisma.SortOrder
+  inquiryCount?: Prisma.SortOrder
 }
 
 export type ProductMaxOrderByAggregateInput = {
@@ -876,13 +918,14 @@ export type ProductMaxOrderByAggregateInput = {
   stockStatus?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isRecommended?: Prisma.SortOrder
-  isNewArrival?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
-  isPromo?: Prisma.SortOrder
   warrantyInfo?: Prisma.SortOrder
   primaryImageUrl?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   brandId?: Prisma.SortOrder
+  viewCount?: Prisma.SortOrder
+  clickCount?: Prisma.SortOrder
+  inquiryCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -906,13 +949,14 @@ export type ProductMinOrderByAggregateInput = {
   stockStatus?: Prisma.SortOrder
   status?: Prisma.SortOrder
   isRecommended?: Prisma.SortOrder
-  isNewArrival?: Prisma.SortOrder
   isFeatured?: Prisma.SortOrder
-  isPromo?: Prisma.SortOrder
   warrantyInfo?: Prisma.SortOrder
   primaryImageUrl?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
   brandId?: Prisma.SortOrder
+  viewCount?: Prisma.SortOrder
+  clickCount?: Prisma.SortOrder
+  inquiryCount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -925,6 +969,9 @@ export type ProductSumOrderByAggregateInput = {
   retailPrice?: Prisma.SortOrder
   marginPercent?: Prisma.SortOrder
   stockQuantity?: Prisma.SortOrder
+  viewCount?: Prisma.SortOrder
+  clickCount?: Prisma.SortOrder
+  inquiryCount?: Prisma.SortOrder
 }
 
 export type ProductScalarRelationFilter = {
@@ -1063,6 +1110,20 @@ export type ProductUpdateOneRequiredWithoutImagesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutImagesInput, Prisma.ProductUpdateWithoutImagesInput>, Prisma.ProductUncheckedUpdateWithoutImagesInput>
 }
 
+export type ProductCreateNestedOneWithoutFlashSaleProductsInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutFlashSaleProductsInput, Prisma.ProductUncheckedCreateWithoutFlashSaleProductsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutFlashSaleProductsInput
+  connect?: Prisma.ProductWhereUniqueInput
+}
+
+export type ProductUpdateOneRequiredWithoutFlashSaleProductsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductCreateWithoutFlashSaleProductsInput, Prisma.ProductUncheckedCreateWithoutFlashSaleProductsInput>
+  connectOrCreate?: Prisma.ProductCreateOrConnectWithoutFlashSaleProductsInput
+  upsert?: Prisma.ProductUpsertWithoutFlashSaleProductsInput
+  connect?: Prisma.ProductWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProductUpdateToOneWithWhereWithoutFlashSaleProductsInput, Prisma.ProductUpdateWithoutFlashSaleProductsInput>, Prisma.ProductUncheckedUpdateWithoutFlashSaleProductsInput>
+}
+
 export type ProductCreateNestedOneWithoutVouchersInput = {
   create?: Prisma.XOR<Prisma.ProductCreateWithoutVouchersInput, Prisma.ProductUncheckedCreateWithoutVouchersInput>
   connectOrCreate?: Prisma.ProductCreateOrConnectWithoutVouchersInput
@@ -1113,17 +1174,19 @@ export type ProductCreateWithoutCategoryInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   brand: Prisma.BrandCreateNestedOneWithoutProductsInput
   images?: Prisma.ProductImageCreateNestedManyWithoutProductInput
   vouchers?: Prisma.ProductVoucherCreateNestedManyWithoutProductInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutCategoryInput = {
@@ -1146,17 +1209,19 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
   brandId: string
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   images?: Prisma.ProductImageUncheckedCreateNestedManyWithoutProductInput
   vouchers?: Prisma.ProductVoucherUncheckedCreateNestedManyWithoutProductInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutCategoryInput = {
@@ -1208,13 +1273,14 @@ export type ProductScalarWhereInput = {
   stockStatus?: Prisma.EnumStockStatusFilter<"Product"> | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFilter<"Product"> | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFilter<"Product"> | boolean
-  isNewArrival?: Prisma.BoolFilter<"Product"> | boolean
   isFeatured?: Prisma.BoolFilter<"Product"> | boolean
-  isPromo?: Prisma.BoolFilter<"Product"> | boolean
   warrantyInfo?: Prisma.StringNullableFilter<"Product"> | string | null
   primaryImageUrl?: Prisma.StringNullableFilter<"Product"> | string | null
   categoryId?: Prisma.StringFilter<"Product"> | string
   brandId?: Prisma.StringFilter<"Product"> | string
+  viewCount?: Prisma.IntFilter<"Product"> | number
+  clickCount?: Prisma.IntFilter<"Product"> | number
+  inquiryCount?: Prisma.IntFilter<"Product"> | number
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
 }
@@ -1239,17 +1305,19 @@ export type ProductCreateWithoutBrandInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   images?: Prisma.ProductImageCreateNestedManyWithoutProductInput
   vouchers?: Prisma.ProductVoucherCreateNestedManyWithoutProductInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutBrandInput = {
@@ -1272,17 +1340,19 @@ export type ProductUncheckedCreateWithoutBrandInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
   categoryId: string
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   images?: Prisma.ProductImageUncheckedCreateNestedManyWithoutProductInput
   vouchers?: Prisma.ProductVoucherUncheckedCreateNestedManyWithoutProductInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutBrandInput = {
@@ -1331,17 +1401,19 @@ export type ProductCreateWithoutImagesInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   brand: Prisma.BrandCreateNestedOneWithoutProductsInput
   vouchers?: Prisma.ProductVoucherCreateNestedManyWithoutProductInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutImagesInput = {
@@ -1364,17 +1436,19 @@ export type ProductUncheckedCreateWithoutImagesInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
   categoryId: string
   brandId: string
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   vouchers?: Prisma.ProductVoucherUncheckedCreateNestedManyWithoutProductInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutImagesInput = {
@@ -1413,17 +1487,19 @@ export type ProductUpdateWithoutImagesInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   brand?: Prisma.BrandUpdateOneRequiredWithoutProductsNestedInput
   vouchers?: Prisma.ProductVoucherUpdateManyWithoutProductNestedInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutImagesInput = {
@@ -1446,15 +1522,173 @@ export type ProductUncheckedUpdateWithoutImagesInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   brandId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vouchers?: Prisma.ProductVoucherUncheckedUpdateManyWithoutProductNestedInput
+  whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedUpdateManyWithoutProductNestedInput
+}
+
+export type ProductCreateWithoutFlashSaleProductsInput = {
+  id?: string
+  name: string
+  sku: string
+  slug?: string | null
+  description: string
+  shortSpecification?: string | null
+  specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType: $Enums.MarginType
+  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType: $Enums.MarginType
+  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stockQuantity?: number
+  stockStatus?: $Enums.StockStatus
+  status?: $Enums.ProductStatus
+  isRecommended?: boolean
+  isFeatured?: boolean
+  warrantyInfo?: string | null
+  primaryImageUrl?: string | null
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.CategoryCreateNestedOneWithoutProductsInput
+  brand: Prisma.BrandCreateNestedOneWithoutProductsInput
+  images?: Prisma.ProductImageCreateNestedManyWithoutProductInput
+  vouchers?: Prisma.ProductVoucherCreateNestedManyWithoutProductInput
+  whatsappInquiries?: Prisma.WhatsappInquiryLogCreateNestedManyWithoutProductInput
+}
+
+export type ProductUncheckedCreateWithoutFlashSaleProductsInput = {
+  id?: string
+  name: string
+  sku: string
+  slug?: string | null
+  description: string
+  shortSpecification?: string | null
+  specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType: $Enums.MarginType
+  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType: $Enums.MarginType
+  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stockQuantity?: number
+  stockStatus?: $Enums.StockStatus
+  status?: $Enums.ProductStatus
+  isRecommended?: boolean
+  isFeatured?: boolean
+  warrantyInfo?: string | null
+  primaryImageUrl?: string | null
+  categoryId: string
+  brandId: string
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  images?: Prisma.ProductImageUncheckedCreateNestedManyWithoutProductInput
+  vouchers?: Prisma.ProductVoucherUncheckedCreateNestedManyWithoutProductInput
+  whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedCreateNestedManyWithoutProductInput
+}
+
+export type ProductCreateOrConnectWithoutFlashSaleProductsInput = {
+  where: Prisma.ProductWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductCreateWithoutFlashSaleProductsInput, Prisma.ProductUncheckedCreateWithoutFlashSaleProductsInput>
+}
+
+export type ProductUpsertWithoutFlashSaleProductsInput = {
+  update: Prisma.XOR<Prisma.ProductUpdateWithoutFlashSaleProductsInput, Prisma.ProductUncheckedUpdateWithoutFlashSaleProductsInput>
+  create: Prisma.XOR<Prisma.ProductCreateWithoutFlashSaleProductsInput, Prisma.ProductUncheckedCreateWithoutFlashSaleProductsInput>
+  where?: Prisma.ProductWhereInput
+}
+
+export type ProductUpdateToOneWithWhereWithoutFlashSaleProductsInput = {
+  where?: Prisma.ProductWhereInput
+  data: Prisma.XOR<Prisma.ProductUpdateWithoutFlashSaleProductsInput, Prisma.ProductUncheckedUpdateWithoutFlashSaleProductsInput>
+}
+
+export type ProductUpdateWithoutFlashSaleProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
+  publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
+  retailMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  marginPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stockQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
+  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+  isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
+  brand?: Prisma.BrandUpdateOneRequiredWithoutProductsNestedInput
+  images?: Prisma.ProductImageUpdateManyWithoutProductNestedInput
+  vouchers?: Prisma.ProductVoucherUpdateManyWithoutProductNestedInput
+  whatsappInquiries?: Prisma.WhatsappInquiryLogUpdateManyWithoutProductNestedInput
+}
+
+export type ProductUncheckedUpdateWithoutFlashSaleProductsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  sku?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
+  publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
+  retailMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  marginPercent?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  stockQuantity?: Prisma.IntFieldUpdateOperationsInput | number
+  stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
+  status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
+  isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  brandId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  images?: Prisma.ProductImageUncheckedUpdateManyWithoutProductNestedInput
   vouchers?: Prisma.ProductVoucherUncheckedUpdateManyWithoutProductNestedInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedUpdateManyWithoutProductNestedInput
 }
@@ -1479,17 +1713,19 @@ export type ProductCreateWithoutVouchersInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   brand: Prisma.BrandCreateNestedOneWithoutProductsInput
   images?: Prisma.ProductImageCreateNestedManyWithoutProductInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutVouchersInput = {
@@ -1512,17 +1748,19 @@ export type ProductUncheckedCreateWithoutVouchersInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
   categoryId: string
   brandId: string
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   images?: Prisma.ProductImageUncheckedCreateNestedManyWithoutProductInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutVouchersInput = {
@@ -1561,17 +1799,19 @@ export type ProductUpdateWithoutVouchersInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   brand?: Prisma.BrandUpdateOneRequiredWithoutProductsNestedInput
   images?: Prisma.ProductImageUpdateManyWithoutProductNestedInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutVouchersInput = {
@@ -1594,17 +1834,19 @@ export type ProductUncheckedUpdateWithoutVouchersInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   brandId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   images?: Prisma.ProductImageUncheckedUpdateManyWithoutProductNestedInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateWithoutWhatsappInquiriesInput = {
@@ -1627,17 +1869,19 @@ export type ProductCreateWithoutWhatsappInquiriesInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutProductsInput
   brand: Prisma.BrandCreateNestedOneWithoutProductsInput
   images?: Prisma.ProductImageCreateNestedManyWithoutProductInput
   vouchers?: Prisma.ProductVoucherCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductCreateNestedManyWithoutProductInput
 }
 
 export type ProductUncheckedCreateWithoutWhatsappInquiriesInput = {
@@ -1660,17 +1904,19 @@ export type ProductUncheckedCreateWithoutWhatsappInquiriesInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
   categoryId: string
   brandId: string
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   images?: Prisma.ProductImageUncheckedCreateNestedManyWithoutProductInput
   vouchers?: Prisma.ProductVoucherUncheckedCreateNestedManyWithoutProductInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedCreateNestedManyWithoutProductInput
 }
 
 export type ProductCreateOrConnectWithoutWhatsappInquiriesInput = {
@@ -1709,17 +1955,19 @@ export type ProductUpdateWithoutWhatsappInquiriesInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   brand?: Prisma.BrandUpdateOneRequiredWithoutProductsNestedInput
   images?: Prisma.ProductImageUpdateManyWithoutProductNestedInput
   vouchers?: Prisma.ProductVoucherUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutWhatsappInquiriesInput = {
@@ -1742,17 +1990,19 @@ export type ProductUncheckedUpdateWithoutWhatsappInquiriesInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   brandId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   images?: Prisma.ProductImageUncheckedUpdateManyWithoutProductNestedInput
   vouchers?: Prisma.ProductVoucherUncheckedUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductCreateManyCategoryInput = {
@@ -1775,12 +2025,13 @@ export type ProductCreateManyCategoryInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
   brandId: string
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1805,17 +2056,19 @@ export type ProductUpdateWithoutCategoryInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   brand?: Prisma.BrandUpdateOneRequiredWithoutProductsNestedInput
   images?: Prisma.ProductImageUpdateManyWithoutProductNestedInput
   vouchers?: Prisma.ProductVoucherUpdateManyWithoutProductNestedInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutCategoryInput = {
@@ -1838,17 +2091,19 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   images?: Prisma.ProductImageUncheckedUpdateManyWithoutProductNestedInput
   vouchers?: Prisma.ProductVoucherUncheckedUpdateManyWithoutProductNestedInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutCategoryInput = {
@@ -1871,12 +2126,13 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   brandId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1901,12 +2157,13 @@ export type ProductCreateManyBrandInput = {
   stockStatus?: $Enums.StockStatus
   status?: $Enums.ProductStatus
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: string | null
   primaryImageUrl?: string | null
   categoryId: string
+  viewCount?: number
+  clickCount?: number
+  inquiryCount?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1931,17 +2188,19 @@ export type ProductUpdateWithoutBrandInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutProductsNestedInput
   images?: Prisma.ProductImageUpdateManyWithoutProductNestedInput
   vouchers?: Prisma.ProductVoucherUpdateManyWithoutProductNestedInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateWithoutBrandInput = {
@@ -1964,17 +2223,19 @@ export type ProductUncheckedUpdateWithoutBrandInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   images?: Prisma.ProductImageUncheckedUpdateManyWithoutProductNestedInput
   vouchers?: Prisma.ProductVoucherUncheckedUpdateManyWithoutProductNestedInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedUpdateManyWithoutProductNestedInput
+  flashSaleProducts?: Prisma.FlashSaleProductUncheckedUpdateManyWithoutProductNestedInput
 }
 
 export type ProductUncheckedUpdateManyWithoutBrandInput = {
@@ -1997,12 +2258,13 @@ export type ProductUncheckedUpdateManyWithoutBrandInput = {
   stockStatus?: Prisma.EnumStockStatusFieldUpdateOperationsInput | $Enums.StockStatus
   status?: Prisma.EnumProductStatusFieldUpdateOperationsInput | $Enums.ProductStatus
   isRecommended?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isNewArrival?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isFeatured?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isPromo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   warrantyInfo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  viewCount?: Prisma.IntFieldUpdateOperationsInput | number
+  clickCount?: Prisma.IntFieldUpdateOperationsInput | number
+  inquiryCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2016,12 +2278,14 @@ export type ProductCountOutputType = {
   images: number
   vouchers: number
   whatsappInquiries: number
+  flashSaleProducts: number
 }
 
 export type ProductCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   images?: boolean | ProductCountOutputTypeCountImagesArgs
   vouchers?: boolean | ProductCountOutputTypeCountVouchersArgs
   whatsappInquiries?: boolean | ProductCountOutputTypeCountWhatsappInquiriesArgs
+  flashSaleProducts?: boolean | ProductCountOutputTypeCountFlashSaleProductsArgs
 }
 
 /**
@@ -2055,6 +2319,13 @@ export type ProductCountOutputTypeCountWhatsappInquiriesArgs<ExtArgs extends run
   where?: Prisma.WhatsappInquiryLogWhereInput
 }
 
+/**
+ * ProductCountOutputType without action
+ */
+export type ProductCountOutputTypeCountFlashSaleProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FlashSaleProductWhereInput
+}
+
 
 export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2076,13 +2347,14 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   stockStatus?: boolean
   status?: boolean
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: boolean
   primaryImageUrl?: boolean
   categoryId?: boolean
   brandId?: boolean
+  viewCount?: boolean
+  clickCount?: boolean
+  inquiryCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
@@ -2090,6 +2362,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   images?: boolean | Prisma.Product$imagesArgs<ExtArgs>
   vouchers?: boolean | Prisma.Product$vouchersArgs<ExtArgs>
   whatsappInquiries?: boolean | Prisma.Product$whatsappInquiriesArgs<ExtArgs>
+  flashSaleProducts?: boolean | Prisma.Product$flashSaleProductsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["product"]>
 
@@ -2115,24 +2388,26 @@ export type ProductSelectScalar = {
   stockStatus?: boolean
   status?: boolean
   isRecommended?: boolean
-  isNewArrival?: boolean
   isFeatured?: boolean
-  isPromo?: boolean
   warrantyInfo?: boolean
   primaryImageUrl?: boolean
   categoryId?: boolean
   brandId?: boolean
+  viewCount?: boolean
+  clickCount?: boolean
+  inquiryCount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "sku" | "slug" | "description" | "shortSpecification" | "specifications" | "costPrice" | "publicMarginType" | "publicMarginValue" | "retailMarginType" | "retailMarginValue" | "publicPrice" | "retailPrice" | "marginPercent" | "stockQuantity" | "stockStatus" | "status" | "isRecommended" | "isNewArrival" | "isFeatured" | "isPromo" | "warrantyInfo" | "primaryImageUrl" | "categoryId" | "brandId" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "sku" | "slug" | "description" | "shortSpecification" | "specifications" | "costPrice" | "publicMarginType" | "publicMarginValue" | "retailMarginType" | "retailMarginValue" | "publicPrice" | "retailPrice" | "marginPercent" | "stockQuantity" | "stockStatus" | "status" | "isRecommended" | "isFeatured" | "warrantyInfo" | "primaryImageUrl" | "categoryId" | "brandId" | "viewCount" | "clickCount" | "inquiryCount" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   brand?: boolean | Prisma.BrandDefaultArgs<ExtArgs>
   images?: boolean | Prisma.Product$imagesArgs<ExtArgs>
   vouchers?: boolean | Prisma.Product$vouchersArgs<ExtArgs>
   whatsappInquiries?: boolean | Prisma.Product$whatsappInquiriesArgs<ExtArgs>
+  flashSaleProducts?: boolean | Prisma.Product$flashSaleProductsArgs<ExtArgs>
   _count?: boolean | Prisma.ProductCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -2144,6 +2419,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     images: Prisma.$ProductImagePayload<ExtArgs>[]
     vouchers: Prisma.$ProductVoucherPayload<ExtArgs>[]
     whatsappInquiries: Prisma.$WhatsappInquiryLogPayload<ExtArgs>[]
+    flashSaleProducts: Prisma.$FlashSaleProductPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2165,13 +2441,14 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     stockStatus: $Enums.StockStatus
     status: $Enums.ProductStatus
     isRecommended: boolean
-    isNewArrival: boolean
     isFeatured: boolean
-    isPromo: boolean
     warrantyInfo: string | null
     primaryImageUrl: string | null
     categoryId: string
     brandId: string
+    viewCount: number
+    clickCount: number
+    inquiryCount: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["product"]>
@@ -2519,6 +2796,7 @@ export interface Prisma__ProductClient<T, Null = never, ExtArgs extends runtime.
   images<T extends Prisma.Product$imagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$imagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductImagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   vouchers<T extends Prisma.Product$vouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$vouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   whatsappInquiries<T extends Prisma.Product$whatsappInquiriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$whatsappInquiriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WhatsappInquiryLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  flashSaleProducts<T extends Prisma.Product$flashSaleProductsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Product$flashSaleProductsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FlashSaleProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2567,13 +2845,14 @@ export interface ProductFieldRefs {
   readonly stockStatus: Prisma.FieldRef<"Product", 'StockStatus'>
   readonly status: Prisma.FieldRef<"Product", 'ProductStatus'>
   readonly isRecommended: Prisma.FieldRef<"Product", 'Boolean'>
-  readonly isNewArrival: Prisma.FieldRef<"Product", 'Boolean'>
   readonly isFeatured: Prisma.FieldRef<"Product", 'Boolean'>
-  readonly isPromo: Prisma.FieldRef<"Product", 'Boolean'>
   readonly warrantyInfo: Prisma.FieldRef<"Product", 'String'>
   readonly primaryImageUrl: Prisma.FieldRef<"Product", 'String'>
   readonly categoryId: Prisma.FieldRef<"Product", 'String'>
   readonly brandId: Prisma.FieldRef<"Product", 'String'>
+  readonly viewCount: Prisma.FieldRef<"Product", 'Int'>
+  readonly clickCount: Prisma.FieldRef<"Product", 'Int'>
+  readonly inquiryCount: Prisma.FieldRef<"Product", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Product", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Product", 'DateTime'>
 }
@@ -2993,6 +3272,30 @@ export type Product$whatsappInquiriesArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.WhatsappInquiryLogScalarFieldEnum | Prisma.WhatsappInquiryLogScalarFieldEnum[]
+}
+
+/**
+ * Product.flashSaleProducts
+ */
+export type Product$flashSaleProductsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FlashSaleProduct
+   */
+  select?: Prisma.FlashSaleProductSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FlashSaleProduct
+   */
+  omit?: Prisma.FlashSaleProductOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FlashSaleProductInclude<ExtArgs> | null
+  where?: Prisma.FlashSaleProductWhereInput
+  orderBy?: Prisma.FlashSaleProductOrderByWithRelationInput | Prisma.FlashSaleProductOrderByWithRelationInput[]
+  cursor?: Prisma.FlashSaleProductWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FlashSaleProductScalarFieldEnum | Prisma.FlashSaleProductScalarFieldEnum[]
 }
 
 /**

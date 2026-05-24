@@ -64,6 +64,12 @@ const featureFlags = [
     enabled: true,
   },
   {
+    key: "enable_hero_banner",
+    name: "Hero Banner",
+    description: "Show managed hero carousel banners on the homepage.",
+    enabled: true,
+  },
+  {
     key: "enable_maintenance_mode",
     name: "Maintenance Mode",
     description: "Allow Super Admin to place the catalog in maintenance mode.",

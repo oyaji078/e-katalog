@@ -1,17 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 
-import { auth } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/session";
 import { getDb } from "@/lib/db";
 import { safeLogAdminActivity } from "@/lib/feature-flags";
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const user = await getCurrentUser();
 
-    if (session?.user?.role !== "SUPER_ADMIN") {
+    if (!user || user.role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -33,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (flagId) {
       await db.featureFlag.update({
         where: { id: flagId },
-        data: { enabled, updatedByUserId: session.user.id },
+        data: { enabled, updatedByUserId: user.id },
       });
     } else {
       await db.featureFlag.create({
@@ -42,14 +39,13 @@ export async function POST(request: NextRequest) {
           name: flagKey.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
           description: `Auto-created flag: ${flagKey}`,
           enabled,
-          updatedByUserId: session.user.id,
+          updatedByUserId: user.id,
         },
       });
     }
 
-    // Log the action (respects enable_admin_activity_log flag)
     await safeLogAdminActivity({
-      actorId: session.user.id,
+      actorId: user.id,
       actorRole: "SUPER_ADMIN",
       action: `FEATURE_FLAG_TOGGLE:${flagKey}=${enabled}`,
       targetType: "feature_flag",

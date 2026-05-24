@@ -6,9 +6,9 @@ import type { ProductStatus, StockStatus } from "@/generated/prisma/client";
 import { getAdminSession, toUserRole } from "@/lib/admin-auth";
 import { logAdminActivity } from "@/lib/activity-log";
 import { getDb } from "@/lib/db";
-import { isFeatureEnabled } from "@/lib/feature-flags";
-import { calculatePrice, parseInteger, parseMarginType, parseMoney } from "@/lib/pricing";
+import { generateProductSku } from "@/lib/sku";
 import { createProductSlug } from "@/lib/slug";
+import { deleteProductImage, isLocalUploadPath, saveProductImage } from "@/lib/upload/storage";
 
 export type ProductFormState = {
   success: boolean;
@@ -41,32 +41,24 @@ function nullableText(formData: FormData, key: string) {
   return value ? value : null;
 }
 
-function parseStockStatus(value: FormDataEntryValue | null): StockStatus {
-  if (value === "LOW_STOCK" || value === "OUT_OF_STOCK" || value === "PREORDER") {
-    return value;
-  }
-
-  return "READY";
+function parseMoney(value: string): number {
+  const cleaned = value.replace(/[Rr][Pp]\s*/g, "").replace(/\./g, "").replace(/,/g, ".").replace(/[^0-9.-]/g, "");
+  const parsed = Number(cleaned);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function parseProductStatus(value: FormDataEntryValue | null): ProductStatus {
-  if (value === "ACTIVE" || value === "ARCHIVED") {
-    return value;
-  }
-
+  if (value === "ACTIVE" || value === "ARCHIVED") return value;
   return "DRAFT";
 }
 
-function imageLines(value: string) {
-  return value
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
+function parseStockStatus(value: FormDataEntryValue | null): StockStatus {
+  if (value === "LOW_STOCK" || value === "OUT_OF_STOCK" || value === "PREORDER") return value;
+  return "READY";
 }
 
 function parseSpecifications(value: string) {
   if (!value.trim()) return undefined;
-
   try {
     return JSON.parse(value);
   } catch {
@@ -78,69 +70,10 @@ function parseSpecifications(value: string) {
         const [rawKey, ...rest] = line.split(":");
         const key = rawKey?.trim();
         const parsedValue = rest.join(":").trim();
-
-        if (key && parsedValue) {
-          acc[key] = parsedValue;
-        }
-
+        if (key && parsedValue) acc[key] = parsedValue;
         return acc;
       }, {});
   }
-}
-
-function productData(formData: FormData) {
-  const costPrice = parseMoney(formData.get("costPrice"));
-  const publicMarginType = parseMarginType(formData.get("publicMarginType"));
-  const publicMarginValue = parseMoney(formData.get("publicMarginValue"));
-  const retailMarginType = parseMarginType(formData.get("retailMarginType"));
-  const retailMarginValue = parseMoney(formData.get("retailMarginValue"));
-  const manualPublicPrice = text(formData, "publicPrice");
-  const manualRetailPrice = text(formData, "retailPrice");
-  const calculatedPublicPrice = calculatePrice(costPrice, publicMarginType, publicMarginValue);
-  const calculatedRetailPrice = calculatePrice(costPrice, retailMarginType, retailMarginValue);
-
-  return {
-    name: text(formData, "name"),
-    sku: text(formData, "sku"),
-    categoryId: text(formData, "categoryId"),
-    brandId: text(formData, "brandId"),
-    description: text(formData, "description"),
-    shortSpecification: nullableText(formData, "shortSpecification"),
-    warrantyInfo: nullableText(formData, "warrantyInfo"),
-    primaryImageUrl: nullableText(formData, "primaryImageUrl"),
-    specifications: parseSpecifications(text(formData, "specifications")),
-    costPrice,
-    publicMarginType,
-    publicMarginValue,
-    retailMarginType,
-    retailMarginValue,
-    publicPrice: manualPublicPrice ? parseMoney(formData.get("publicPrice")) : calculatedPublicPrice,
-    retailPrice: manualRetailPrice ? parseMoney(formData.get("retailPrice")) : calculatedRetailPrice,
-    stockQuantity: parseInteger(formData.get("stockQuantity")),
-    stockStatus: parseStockStatus(formData.get("stockStatus")),
-    status: parseProductStatus(formData.get("status")),
-    isRecommended: formData.get("isRecommended") === "on",
-    isNewArrival: formData.get("isNewArrival") === "on",
-    isFeatured: formData.get("isFeatured") === "on",
-    isPromo: formData.get("isPromo") === "on",
-    imageUrls: imageLines(text(formData, "imageUrls")),
-  };
-}
-
-function validateProductData(data: ReturnType<typeof productData>) {
-  if (!data.name || !data.sku || !data.categoryId || !data.brandId) {
-    return "Name, SKU, category, and brand are required.";
-  }
-
-  if (!data.description) {
-    return "Description is required.";
-  }
-
-  if (data.costPrice < 0 || data.publicPrice < 0 || Number(data.retailPrice) < 0) {
-    return "Prices cannot be negative.";
-  }
-
-  return null;
 }
 
 export async function createProductAction(
@@ -148,60 +81,92 @@ export async function createProductAction(
   formData: FormData,
 ): Promise<ProductFormState> {
   const session = await getAdminSession();
-  if (!session) return failure("Unauthorized.");
-
-  const marginEnabled = await isFeatureEnabled("enable_margin_management");
-  if (!marginEnabled) return failure("Margin management is currently disabled.");
-
-  const data = productData(formData);
-  const validationError = validateProductData(data);
-  if (validationError) return failure(validationError);
+  if (!session) return failure("Tidak memiliki akses.");
 
   const db = getDb();
-  const existingSku = await db.product.findUnique({ where: { sku: data.sku } });
-  if (existingSku) return failure("SKU is already used by another product.");
 
-  // Generate slug with duplicate detection
-  let slug = createProductSlug(data.name);
+  const name = text(formData, "name");
+  const categoryId = text(formData, "categoryId");
+  const brandId = text(formData, "brandId");
+  const description = text(formData, "description");
+  const warrantyInfo = nullableText(formData, "warrantyInfo");
+  const stockQuantity = Number(text(formData, "stockQuantity") || "0");
+  const stockStatus = parseStockStatus(formData.get("stockStatus"));
+  const status = parseProductStatus(formData.get("status"));
+  const hargaBarang = parseMoney(text(formData, "hargaBarang"));
+  const marginPublic = parseMoney(text(formData, "marginPublic"));
+  const marginRitel = parseMoney(text(formData, "marginRitel"));
+  const isRecommended = formData.get("isRecommended") === "on";
+  const isFeatured = formData.get("isFeatured") === "on";
+  const specifications = parseSpecifications(text(formData, "specifications"));
+  let primaryImageUrl = nullableText(formData, "primaryImageUrl");
+
+  // Handle file upload
+  const imageFile = formData.get("imageFile") as File | null;
+  if (imageFile && imageFile.size > 0) {
+    try {
+      primaryImageUrl = await saveProductImage(imageFile);
+    } catch (e) {
+      return failure(String(e));
+    }
+  }
+
+  if (!name) return failure("Nama produk harus diisi.");
+  if (!categoryId) return failure("Kategori harus dipilih.");
+  if (!brandId) return failure("Merek harus dipilih.");
+  if (!description) return failure("Deskripsi produk harus diisi.");
+  if (primaryImageUrl && !isLocalUploadPath(primaryImageUrl)) {
+    return failure("Gambar produk harus memakai file unggahan lokal.");
+  }
+  if (hargaBarang < 0) return failure("Harga barang tidak boleh negatif.");
+  if (marginPublic < 0) return failure("Margin publik tidak boleh negatif.");
+  if (marginRitel < 0) return failure("Margin ritel tidak boleh negatif.");
+
+  // Generate SKU
+  const category = await db.category.findUnique({ where: { id: categoryId }, select: { name: true } });
+  const brand = await db.brand.findUnique({ where: { id: brandId }, select: { name: true } });
+  if (!category) return failure("Kategori tidak ditemukan.");
+  if (!brand) return failure("Merek tidak ditemukan.");
+
+  let sku: string;
+  try {
+    sku = await generateProductSku(category.name, brand.name);
+  } catch {
+    return failure("Gagal menghasilkan SKU. Periksa kategori dan merek.");
+  }
+
+  const publicPrice = hargaBarang + marginPublic;
+  const retailPrice = hargaBarang + marginRitel;
+
+  let slug = createProductSlug(name);
   const existingSlug = await db.product.findUnique({ where: { slug } });
   if (existingSlug) {
-    // Slug conflict detected, append SKU suffix
-    slug = createProductSlug(data.name, { sku: data.sku, forceWithSuffix: true });
+    slug = createProductSlug(name, { sku, forceWithSuffix: true });
   }
 
   const product = await db.product.create({
     data: {
-      name: data.name,
-      sku: data.sku,
+      name,
+      sku,
       slug,
-      description: data.description,
-      shortSpecification: data.shortSpecification,
-      warrantyInfo: data.warrantyInfo,
-      specifications: data.specifications,
-      costPrice: data.costPrice,
-      publicMarginType: data.publicMarginType,
-      publicMarginValue: data.publicMarginValue,
-      retailMarginType: data.retailMarginType,
-      retailMarginValue: data.retailMarginValue,
-      publicPrice: data.publicPrice,
-      retailPrice: data.retailPrice,
-      stockQuantity: data.stockQuantity,
-      stockStatus: data.stockStatus,
-      status: data.status,
-      isRecommended: data.isRecommended,
-      isNewArrival: data.isNewArrival,
-      isFeatured: data.isFeatured,
-      isPromo: data.isPromo,
-      primaryImageUrl: data.primaryImageUrl,
-      categoryId: data.categoryId,
-      brandId: data.brandId,
-      images: {
-        create: data.imageUrls.map((url, index) => ({
-          url,
-          sortOrder: index,
-          altText: data.name,
-        })),
-      },
+      description,
+      warrantyInfo,
+      specifications,
+      primaryImageUrl,
+      costPrice: hargaBarang,
+      publicMarginType: "FIXED_AMOUNT",
+      publicMarginValue: marginPublic,
+      retailMarginType: "FIXED_AMOUNT",
+      retailMarginValue: marginRitel,
+      publicPrice,
+      retailPrice,
+      stockQuantity: Number.isFinite(stockQuantity) ? stockQuantity : 0,
+      stockStatus,
+      status,
+      isRecommended,
+      isFeatured,
+      categoryId,
+      brandId,
     },
   });
 
@@ -212,14 +177,11 @@ export async function createProductAction(
     targetType: "Product",
     targetId: product.id,
     risk: "MEDIUM",
-    metadata: {
-      sku: product.sku,
-      name: product.name,
-    },
+    metadata: { sku: product.sku, name: product.name },
   });
 
   revalidateProductPaths(product.id);
-  return ok("Product created.", product.id);
+  return ok("Produk berhasil disimpan.", product.id);
 }
 
 export async function updateProductAction(
@@ -227,173 +189,157 @@ export async function updateProductAction(
   formData: FormData,
 ): Promise<ProductFormState> {
   const session = await getAdminSession();
-  if (!session) return failure("Unauthorized.");
-
-  const marginEnabled = await isFeatureEnabled("enable_margin_management");
-  if (!marginEnabled) return failure("Margin management is currently disabled.");
+  if (!session) return failure("Tidak memiliki akses.");
 
   const productId = text(formData, "productId");
-  if (!productId) return failure("Product id is required.");
-
-  const data = productData(formData);
-  const validationError = validateProductData(data);
-  if (validationError) return failure(validationError);
+  if (!productId) return failure("ID produk diperlukan.");
 
   const db = getDb();
   const existingProduct = await db.product.findUnique({ where: { id: productId } });
-  if (!existingProduct) return failure("Product not found.");
+  if (!existingProduct) return failure("Produk tidak ditemukan.");
 
-  const existingSku = await db.product.findFirst({
-    where: {
-      sku: data.sku,
-      NOT: { id: productId },
-    },
-  });
-  if (existingSku) return failure("SKU is already used by another product.");
+  const name = text(formData, "name");
+  const categoryId = text(formData, "categoryId");
+  const brandId = text(formData, "brandId");
+  const description = text(formData, "description");
+  const warrantyInfo = nullableText(formData, "warrantyInfo");
+  const stockQuantity = Number(text(formData, "stockQuantity") || "0");
+  const stockStatus = parseStockStatus(formData.get("stockStatus"));
+  const status = parseProductStatus(formData.get("status"));
+  const hargaBarang = parseMoney(text(formData, "hargaBarang"));
+  const marginPublic = parseMoney(text(formData, "marginPublic"));
+  const marginRitel = parseMoney(text(formData, "marginRitel"));
+  const isRecommended = formData.get("isRecommended") === "on";
+  const isFeatured = formData.get("isFeatured") === "on";
+  const specifications = parseSpecifications(text(formData, "specifications"));
+  let primaryImageUrl = nullableText(formData, "primaryImageUrl");
 
-  // Generate or update slug with duplicate detection
-  let slug = existingProduct.slug;
-  if (data.name !== existingProduct.name) {
-    // Name changed, regenerate slug
-    slug = createProductSlug(data.name);
-    // Check for conflicts with other products (exclude current product)
-    const existingSlug = await db.product.findFirst({
-      where: {
-        slug,
-        NOT: { id: productId },
-      },
-    });
-    if (existingSlug) {
-      // Slug conflict detected, append SKU suffix
-      slug = createProductSlug(data.name, { sku: data.sku, forceWithSuffix: true });
+  // Handle file upload
+  const imageFile = formData.get("imageFile") as File | null;
+  if (imageFile && imageFile.size > 0) {
+    try {
+      primaryImageUrl = await saveProductImage(imageFile);
+      // Delete old local image if present
+      if (existingProduct.primaryImageUrl && isLocalUploadPath(existingProduct.primaryImageUrl)) {
+        deleteProductImage(existingProduct.primaryImageUrl);
+      }
+    } catch (e) {
+      return failure(String(e));
     }
   }
 
-  await db.$transaction([
-    db.product.update({
-      where: { id: productId },
-      data: {
-        name: data.name,
-        sku: data.sku,
-        slug,
-        description: data.description,
-        shortSpecification: data.shortSpecification,
-        warrantyInfo: data.warrantyInfo,
-        specifications: data.specifications,
-        costPrice: data.costPrice,
-        publicMarginType: data.publicMarginType,
-        publicMarginValue: data.publicMarginValue,
-        retailMarginType: data.retailMarginType,
-        retailMarginValue: data.retailMarginValue,
-        publicPrice: data.publicPrice,
-        retailPrice: data.retailPrice,
-        stockQuantity: data.stockQuantity,
-        stockStatus: data.stockStatus,
-        status: data.status,
-        isRecommended: data.isRecommended,
-        isNewArrival: data.isNewArrival,
-        isFeatured: data.isFeatured,
-        isPromo: data.isPromo,
-        primaryImageUrl: data.primaryImageUrl,
-        categoryId: data.categoryId,
-        brandId: data.brandId,
-      },
-    }),
-    db.productImage.deleteMany({ where: { productId } }),
-    ...data.imageUrls.map((url, index) =>
-      db.productImage.create({
-        data: {
-          productId,
-          url,
-          sortOrder: index,
-          altText: data.name,
-        },
-      }),
-    ),
-  ]);
-
-  const actorRole = toUserRole(session.user.role);
-  const priceChanged =
-    Number(existingProduct.publicPrice) !== data.publicPrice ||
-    Number(existingProduct.retailPrice ?? 0) !== Number(data.retailPrice ?? 0) ||
-    Number(existingProduct.costPrice) !== data.costPrice;
-  const marginChanged =
-    existingProduct.publicMarginType !== data.publicMarginType ||
-    Number(existingProduct.publicMarginValue) !== data.publicMarginValue ||
-    existingProduct.retailMarginType !== data.retailMarginType ||
-    Number(existingProduct.retailMarginValue) !== data.retailMarginValue;
-
-  await logAdminActivity({
-    actorId: session.user.id,
-    actorRole,
-    action: "Product updated",
-    targetType: "Product",
-    targetId: productId,
-    risk: "MEDIUM",
-    metadata: {
-      sku: data.sku,
-      name: data.name,
-    },
-  });
-
-  if (priceChanged) {
-    await logAdminActivity({
-      actorId: session.user.id,
-      actorRole,
-      action: "Product price changed",
-      targetType: "Product",
-      targetId: productId,
-      risk: "HIGH",
-      metadata: { sku: data.sku },
-    });
+  // Handle image removal
+  if (formData.get("removeImage") === "1" && existingProduct.primaryImageUrl) {
+    if (isLocalUploadPath(existingProduct.primaryImageUrl)) {
+      deleteProductImage(existingProduct.primaryImageUrl);
+    }
+    primaryImageUrl = null;
   }
 
-  if (marginChanged) {
-    await logAdminActivity({
-      actorId: session.user.id,
-      actorRole,
-      action: "Product margin changed",
-      targetType: "Product",
-      targetId: productId,
-      risk: "HIGH",
-      metadata: { sku: data.sku },
+  if (!name) return failure("Nama produk harus diisi.");
+  if (!categoryId) return failure("Kategori harus dipilih.");
+  if (!brandId) return failure("Merek harus dipilih.");
+  if (!description) return failure("Deskripsi produk harus diisi.");
+  if (primaryImageUrl && !isLocalUploadPath(primaryImageUrl)) {
+    return failure("Gambar produk harus memakai file unggahan lokal.");
+  }
+  if (hargaBarang < 0) return failure("Harga barang tidak boleh negatif.");
+  if (marginPublic < 0) return failure("Margin publik tidak boleh negatif.");
+  if (marginRitel < 0) return failure("Margin ritel tidak boleh negatif.");
+
+  const publicPrice = hargaBarang + marginPublic;
+  const retailPrice = hargaBarang + marginRitel;
+
+  let slug = existingProduct.slug;
+  if (name !== existingProduct.name) {
+    slug = createProductSlug(name);
+    const existingSlug = await db.product.findFirst({
+      where: { slug, NOT: { id: productId } },
     });
+    if (existingSlug) {
+      slug = createProductSlug(name, { sku: existingProduct.sku, forceWithSuffix: true });
+    }
   }
 
-  revalidateProductPaths(productId);
-  return ok("Product updated.", productId);
-}
-
-export async function archiveProductAction(
-  _previousState: ProductFormState,
-  formData: FormData,
-): Promise<ProductFormState> {
-  const session = await getAdminSession();
-  if (!session) return failure("Unauthorized.");
-
-  const productId = text(formData, "productId");
-  if (!productId) return failure("Product id is required.");
-
-  const product = await getDb().product.update({
+  await db.product.update({
     where: { id: productId },
-    data: { status: "ARCHIVED" },
+    data: {
+      name,
+      slug,
+      description,
+      warrantyInfo,
+      specifications,
+      primaryImageUrl,
+      costPrice: hargaBarang,
+      publicMarginType: "FIXED_AMOUNT",
+      publicMarginValue: marginPublic,
+      retailMarginType: "FIXED_AMOUNT",
+      retailMarginValue: marginRitel,
+      publicPrice,
+      retailPrice,
+      stockQuantity: Number.isFinite(stockQuantity) ? stockQuantity : 0,
+      stockStatus,
+      status,
+      isRecommended,
+      isFeatured,
+      categoryId,
+      brandId,
+    },
   });
 
   await logAdminActivity({
     actorId: session.user.id,
     actorRole: toUserRole(session.user.role),
-    action: "Product archived",
+    action: "Product updated",
     targetType: "Product",
     targetId: productId,
-    risk: "HIGH",
-    metadata: {
-      sku: product.sku,
-      name: product.name,
-    },
+    risk: "MEDIUM",
+    metadata: { sku: existingProduct.sku, name },
   });
 
   revalidateProductPaths(productId);
-  return ok("Product archived.", productId);
+  return ok("Produk berhasil disimpan.", productId);
+}
+
+export async function deleteProductAction(productId: string): Promise<{ success: boolean; error: string }> {
+  const session = await getAdminSession();
+  if (!session) return { success: false, error: "Tidak memiliki akses." };
+
+  if (!productId) return { success: false, error: "ID produk diperlukan." };
+
+  const db = getDb();
+  const product = await db.product.findUnique({
+    where: { id: productId },
+    include: { images: { select: { id: true, url: true } } },
+  });
+
+  if (!product) return { success: false, error: "Produk tidak ditemukan." };
+
+  // Delete local uploaded product images
+  if (product.primaryImageUrl && isLocalUploadPath(product.primaryImageUrl)) {
+    deleteProductImage(product.primaryImageUrl);
+  }
+  for (const img of product.images) {
+    if (isLocalUploadPath(img.url)) {
+      deleteProductImage(img.url);
+    }
+  }
+
+  // Delete product (cascades to ProductImage, ProductVoucher, etc.)
+  await db.product.delete({ where: { id: productId } });
+
+  await logAdminActivity({
+    actorId: session.user.id,
+    actorRole: toUserRole(session.user.role),
+    action: "Product deleted",
+    targetType: "Product",
+    targetId: productId,
+    risk: "HIGH",
+    metadata: { sku: product.sku, name: product.name },
+  });
+
+  revalidateProductPaths(productId);
+  return { success: true, error: "" };
 }
 
 function revalidateProductPaths(productId: string) {
@@ -401,5 +347,4 @@ function revalidateProductPaths(productId: string) {
   revalidatePath("/products");
   revalidatePath(`/products/${productId}`);
   revalidatePath("/admin/products");
-  revalidatePath("/admin/prices");
 }

@@ -53,15 +53,45 @@ export default async function CiCdPage() {
       </div>
 
       <div className="mt-6 rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-lg font-bold text-text-dark">CI/CD Setup Checklist</h2>
-        <ul className="grid gap-3 text-sm">
-          <ChecklistItem label="GitHub Actions workflow configured" done={false} />
-          <ChecklistItem label="Hostinger deployment credentials configured" done={false} />
-          <ChecklistItem label="Environment secrets set in GitHub" done={false} />
-          <ChecklistItem label="Database migration step in pipeline" done={false} />
-          <ChecklistItem label="Build and test steps configured" done={false} />
-          <ChecklistItem label="Deployment notification configured" done={false} />
+        <h2 className="mb-3 text-lg font-bold text-text-dark">Continuous Integration (CI)</h2>
+        <p className="mb-3 text-sm text-text-muted">
+          A GitHub Actions workflow (<code className="rounded bg-bg-gray px-1.5 py-0.5 text-xs">.github/workflows/ci.yml</code>) runs on
+          every push and pull request to <strong>main</strong> and <strong>develop</strong>. It validates:
+        </p>
+        <ul className="mb-4 grid gap-2 text-sm">
+          <li className="flex items-center gap-2 text-text-muted">
+            <span className="text-success">✓</span> Prisma schema validation &amp; client generation
+          </li>
+          <li className="flex items-center gap-2 text-text-muted">
+            <span className="text-success">✓</span> TypeScript type checking
+          </li>
+          <li className="flex items-center gap-2 text-text-muted">
+            <span className="text-success">✓</span> ESLint
+          </li>
+          <li className="flex items-center gap-2 text-text-muted">
+            <span className="text-success">✓</span> Production build
+          </li>
         </ul>
+        <p className="mb-4 text-sm text-text-muted">
+          <strong>Note:</strong> CI is validation-only. It does not deploy. Deployment automation is a future enhancement.
+        </p>
+      </div>
+
+      <div className="mt-6 rounded-lg border border-border-gray bg-white p-5 shadow-sm">
+        <h2 className="mb-3 text-lg font-bold text-text-dark">Continuous Deployment (CD) — Not Configured</h2>
+        <p className="mb-3 text-sm text-text-muted">
+          Automated deployment to Hostinger is <strong>not yet implemented</strong>. Deployment is currently a manual process:
+        </p>
+        <ol className="mb-4 ml-5 list-decimal space-y-2 text-sm text-text-muted">
+          <li>Run local validation (lint, typecheck, build)</li>
+          <li>Merge to <strong>main</strong> branch</li>
+          <li>Manually trigger deploy in Hostinger control panel (or upload via FTP)</li>
+          <li>Apply database migrations via SSH or deployment step</li>
+          <li>Run post-deployment smoke test</li>
+        </ol>
+        <p className="text-sm text-text-muted">
+          See <code className="rounded bg-bg-gray px-1.5 py-0.5 text-xs">docs/PRODUCTION_DEPLOYMENT_GUIDE.md</code> for full instructions.
+        </p>
       </div>
     </main>
   );
@@ -76,17 +106,4 @@ function DeploymentField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ChecklistItem({ label, done }: { label: string; done: boolean }) {
-  return (
-    <li className="flex items-center gap-3">
-      <span
-        className={`flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${
-          done ? "bg-success" : "bg-border-gray"
-        }`}
-      >
-        {done ? "✓" : "○"}
-      </span>
-      <span className={done ? "text-text-dark" : "text-text-muted"}>{label}</span>
-    </li>
-  );
-}
+

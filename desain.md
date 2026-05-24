@@ -1,982 +1,1041 @@
-# desain.md — AI Design Guardrail for Computer & Electronics E-Catalog
+# desain.md — E-Katalog UI/UX Design Guardrail
 
-This file is the official UI/UX design guardrail for this project. Every AI coding agent, developer, UI designer, and contributor MUST follow this document before creating or modifying any page, layout, component, dashboard, or role-based interface.
+## 1. Purpose
 
-The goal of this file is to keep the product design consistent, marketplace-like, responsive, and aligned with the business model.
+This file is the official UI/UX and interaction guardrail for the e-katalog project.
 
----
+Every AI coding agent, developer, or refactor task must follow this file before editing public UI, admin UI, voucher UI, pricing UI, product cards, navigation, layouts, or role-based screens.
 
-## 1. Project Design Identity
-
-### Product Type
-Computer and electronics e-catalog website.
-
-### Design Concept
-Marketplace-style electronics catalog.
-
-### Main UX Reference
-Use the general UX pattern of large Indonesian marketplace websites: strong search bar, category navigation, promo banner, voucher cards, product grids, filter sidebar, and product detail pages.
-
-Do NOT copy Tokopedia branding, logo, icons, exact layout, illustrations, color identity, spacing, or visual assets.
-
-### Visual Personality
-The interface must feel:
-
-- Modern
-- Clean
-- Fast
-- Professional
-- Product-focused
-- Mobile-first
-- Easy to scan
-- Suitable for computer and electronic accessories
-- Optimized for WhatsApp inquiry conversion
-
-The interface must NOT feel like:
-
-- A personal blog
-- A wedding invitation
-- A generic landing page
-- A copied marketplace clone
-- A checkout-heavy e-commerce platform
+If another prompt conflicts with this file, follow this file unless the project owner explicitly approves a design change.
 
 ---
 
-## 2. Business Model Rules
+## 2. Product Context
 
-This app is NOT a full marketplace.
+This application is a computer and electronic accessories e-catalog.
 
-This app is NOT a checkout/payment system.
-
-This app is an e-catalog for one computer/electronics store. Users browse products, view prices, view vouchers, see retail pricing if eligible, and contact the seller through WhatsApp.
-
-### Main Conversion Flow
+Core business flow:
 
 ```text
-User browses product
-→ User opens product detail
-→ User checks price/specification/voucher
-→ User clicks WhatsApp button
-→ WhatsApp opens with a prefilled product inquiry message
+User browses products → User opens product detail → User contacts seller via WhatsApp
 ```
 
-### Forbidden Business Features Unless Explicitly Requested
+This app is NOT:
 
-Do NOT add these features unless the project owner explicitly asks for them:
+```text
+Cart system
+Checkout system
+Payment gateway system
+Shipping/logistics system
+Order management system
+Multi-seller marketplace
+```
 
-- Internal checkout
-- Payment gateway
-- Shopping cart system
-- Courier/logistics system
-- Multi-seller marketplace
-- Seller dashboard
-- Product bidding
-- Wallet system
-- Complex ERP modules
-
----
-
-## 3. Official Color Palette
-
-Use these colors as the official design system colors.
-
-| Token | Hex | Usage |
-|---|---|---|
-| `primary-maroon` | `#6E1A37` | Main brand color, header accents, admin sidebar, primary buttons |
-| `accent-rose` | `#AE2448` | Promo badge, voucher, highlight, secondary action |
-| `soft-teal` | `#72BAA9` | Tech accent, success-friendly accent, light highlight, hover accent |
-| `white` | `#FFFFFF` | Card background, page surfaces |
-| `soft-bg` | `#F7F8FA` | Main page background |
-| `border-gray` | `#E5E7EB` | Borders, tables, inputs |
-| `text-dark` | `#1F2937` | Primary text |
-| `text-muted` | `#6B7280` | Secondary text |
-| `danger` | `#DC2626` | Delete, error, dangerous status |
-| `warning` | `#F59E0B` | Warning, low stock, pending |
-| `success` | `#16A34A` | Success, active status |
-| `whatsapp-green` | `#25D366` | WhatsApp buttons only |
-
-### Color Rules
-
-- The website must mainly use `#6E1A37`, `#AE2448`, and `#72BAA9`.
-- Do NOT use Tokopedia green as the main brand color.
-- Do NOT introduce a new primary color without updating this file.
-- Use `#25D366` only for WhatsApp-related buttons.
-- Use `#AE2448` for promotions, vouchers, and price highlights.
-- Use `#72BAA9` for light technology accents, soft labels, hover states, and supporting UI.
-- Keep product areas bright and readable with white cards and light backgrounds.
+Do not add cart, checkout, payment, shipping, order, or multi-seller behavior.
 
 ---
 
-## 4. Typography
+## 3. Visual Design Direction
 
-Use a modern sans-serif font.
+The public UI should follow a modern Indonesian marketplace-style layout inspired by the provided Figma Make reference, but adapted for a single-store computer and electronics e-catalog.
 
-Recommended stack:
+Use these design patterns:
+
+```text
+Sticky gradient marketplace header
+Large rounded search bar
+Category chips/grid
+Hero banner carousel
+Service badges
+Voucher banner strip
+Promo/voucher cards
+Responsive product grid
+Role-aware user menu
+WhatsApp-first CTA
+Mobile bottom navigation
+Rounded cards and soft shadows
+```
+
+Do NOT copy unrelated Figma business elements such as:
+
+```text
+Shopping cart
+Cart count
+Checkout CTA
+Payment flow
+Fashion/beauty/food category copy
+Multi-seller copy
+Seller onboarding copy
+```
+
+Replace cart-related UI with:
+
+```text
+WhatsApp inquiry
+Voucher claim
+Retail access
+User account/logout
+```
+
+---
+
+## 4. Brand Colors
+
+Use the official project colors:
+
+```text
+Primary Maroon: #6E1A37
+Accent Rose:   #AE2448
+Soft Teal:     #72BAA9
+```
+
+Recommended usage:
+
+| Color | Usage |
+|---|---|
+| `#6E1A37` | Main brand, header gradient start, primary buttons, retail price emphasis |
+| `#AE2448` | Accent, promo labels, warnings, voucher highlight, active states |
+| `#72BAA9` | Support color, service badges, voucher background, success/soft emphasis |
+| White | Cards, search input, clean content areas |
+| Light gray | Page background, section separation |
+| Dark text | Product name, price, admin table text |
+
+Header gradient:
 
 ```css
-font-family: Inter, "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+linear-gradient(135deg, #6E1A37 0%, #AE2448 100%)
 ```
 
-### Font Size Guidelines
-
-| Element | Size |
-|---|---|
-| Page title | 24–32px |
-| Section title | 20–24px |
-| Product card title | 14–16px |
-| Product price | 16–20px, bold |
-| Short description | 13–14px |
-| Badge text | 11–12px |
-| Body text | 14–16px |
-| Admin table text | 13–14px |
-
-### Typography Rules
-
-- Product names inside cards must be limited to 2 lines.
-- Price must be visually stronger than description.
-- Do not use decorative fonts.
-- Do not use tiny text on mobile.
-- Do not use invitation/poster-style typography.
+Do not use Tokopedia green or exact Tokopedia branding.
 
 ---
 
-## 5. Global Layout Rules
+## 5. Typography and Spacing
 
-Use a marketplace-style page structure.
+Use clean, readable marketplace-style typography.
+
+Recommended font direction:
 
 ```text
-Top Bar
-Main Header
-Search Bar
+Inter
+Nunito
+Plus Jakarta Sans
+system sans-serif fallback
+```
+
+General UI rules:
+
+```text
+Use readable text sizes.
+Use strong visual hierarchy.
+Use rounded cards.
+Use consistent spacing.
+Avoid cramped product cards.
+Avoid excessive text in cards.
+Mobile-first layout is required.
+```
+
+---
+
+## 6. Public Layout Structure
+
+The public homepage should use this structure:
+
+```text
+Sticky Header
 Category Navigation
-Hero Banner
-Voucher / Promo Section
-Category Grid
-Product Grid
-Brand Section
+Hero Banner Carousel
+Service Badges
+Voucher Banner Strip
+Featured Categories
+Promo/Voucher Cards
+Recommended Products
+New Products
 Footer
+Mobile Bottom Navigation
 ```
 
-### Container Width
-
-- Desktop max width: `1200px` to `1280px`
-- Tablet padding: `24px`
-- Mobile padding: `16px`
-
-### Spacing
-
-- Desktop section spacing: `32px` to `48px`
-- Mobile section spacing: `20px` to `28px`
-- Card padding: `12px` to `16px`
-- Button padding: `10px` to `16px`
-- Card border radius: `12px` to `16px`
-
-### Card Style
-
-Cards must use:
-
-- White background
-- Light border
-- Soft shadow or hover shadow
-- Rounded corners
-- Consistent image ratio
-- Clear spacing
-
----
-
-## 6. Public Website Pages
-
-### 6.1 Homepage
-
-The homepage must look like a modern marketplace catalog homepage.
-
-Required section order:
-
-1. Top bar with store information
-2. Main header with logo, category menu, search bar, retail login, and WhatsApp
-3. Hero promo banner
-4. Quick category menu
-5. Active voucher and promo cards
-6. Recommended products
-7. New products
-8. Best-selling or featured products
-9. Featured brands
-10. Footer
-
-Homepage wireframe:
+The product catalog page should use this structure:
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│ Top Bar: Promo | Warranty | Help | Retail Login | WhatsApp  │
-├─────────────────────────────────────────────────────────────┤
-│ Logo | Category | Product Search | Voucher | Login | WA      │
-├─────────────────────────────────────────────────────────────┤
-│ Hero Banner: Computer & Accessories Promo                   │
-├─────────────────────────────────────────────────────────────┤
-│ Categories: Laptop | PC | Monitor | Keyboard | Mouse        │
-├─────────────────────────────────────────────────────────────┤
-│ Voucher & Promo Cards                                       │
-├─────────────────────────────────────────────────────────────┤
-│ Recommended Products                                        │
-│ [Card] [Card] [Card] [Card] [Card]                          │
-├─────────────────────────────────────────────────────────────┤
-│ New Products                                                │
-│ [Card] [Card] [Card] [Card] [Card]                          │
-└─────────────────────────────────────────────────────────────┘
+Sticky Header
+Search / Sort / Filter Controls
+Filter Sidebar on desktop
+Filter Drawer on mobile
+Product Grid
+Voucher/Promo Highlight when relevant
 ```
 
----
-
-### 6.2 Product Catalog Page
-
-The catalog page must focus on search, filter, sorting, and product grid browsing.
-
-Required elements:
-
-- Sticky or always-visible search header
-- Breadcrumb
-- Category title or search result title
-- Desktop filter sidebar
-- Mobile filter drawer
-- Sorting control
-- Product grid
-- Empty state when no product is found
-
-Required filters:
-
-- Category
-- Brand
-- Price range
-- Stock status
-- Promo
-- Voucher
-- Retail price availability
-- Category-specific technical specifications
-
-Example technical filters:
-
-- Processor
-- RAM
-- Storage
-- Screen size
-- Printer type
-- Connection type
-- Capacity
-
-Catalog wireframe:
+The product detail page should use this structure:
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│ Header + Search Bar                                         │
-├───────────────┬─────────────────────────────────────────────┤
-│ Filter        │ Search result or category title             │
-│ - Category    │ Sort: Newest | Lowest Price | Promo         │
-│ - Brand       │ [Card] [Card] [Card] [Card]                 │
-│ - Price       │ [Card] [Card] [Card] [Card]                 │
-│ - Stock       │ [Card] [Card] [Card] [Card]                 │
-│ - Promo       │                                             │
-└───────────────┴─────────────────────────────────────────────┘
+Sticky Header
+Breadcrumb or Back to Catalog
+Product Image Gallery
+Product Name + SKU + Stock
+Public/Retail Price Block
+Applicable Voucher Section
+Specification Section
+Warranty Info
+Primary WhatsApp Inquiry CTA
+Related Products
 ```
 
 ---
 
-### 6.3 Product Detail Page
+## 7. Header / Navbar Rules
 
-The product detail page must highlight image gallery, price, specifications, stock, vouchers, and WhatsApp inquiry.
+The header must be role-aware.
 
-Required elements:
+### Guest Navbar
 
-1. Breadcrumb
-2. Product image gallery
-3. Product name
-4. SKU / product code
-5. Status badges: promo, ready stock, low stock, retail
-6. Public price
-7. Retail price if user is active retail user
-8. Retail login prompt if user is not logged in
-9. Available vouchers
-10. Stock status
-11. Warranty information
-12. Technical specifications
-13. Product description
-14. WhatsApp inquiry button
-15. Related products
-
-Product detail wireframe:
+Show:
 
 ```text
-┌─────────────────────────────────────────────────────────────┐
-│ Header + Search Bar                                         │
-├──────────────┬───────────────────────────┬──────────────────┤
-│ Image Gallery│ Product Name              │ Action Panel      │
-│ Thumbnails   │ SKU                       │ Price             │
-│ Thumbnails   │ Public Price              │ Stock             │
-│ Thumbnails   │ Retail Price/Login Prompt │ Voucher           │
-│              │ Short specification       │ [Ask via WA]      │
-├──────────────┴───────────────────────────┴──────────────────┤
-│ Product Specifications                                      │
-│ Product Description                                         │
-│ Related Products                                            │
-└─────────────────────────────────────────────────────────────┘
+Logo
+Search bar
+Categories
+Voucher
+Login
+Daftar Ritel / Retail Login
+WhatsApp / Tanya Admin
+```
+
+Do not show logout.
+Do not show admin dashboard link.
+
+### Logged-in REGISTERED User
+
+Show:
+
+```text
+Logo
+Search bar
+Voucher
+Request Token / Aktivasi Ritel
+Logout
+```
+
+Do not show Retail Login.
+
+### PENDING_RETAIL User
+
+Show:
+
+```text
+Aktivasi Token
+Logout
+```
+
+Show a clear path to `/retail/activate`.
+
+### RETAIL_ACTIVE User
+
+Show:
+
+```text
+Harga Ritel Aktif badge
+Voucher Ritel
+Katalog
+Logout
+```
+
+Do not show Retail Login.
+
+### ADMIN User
+
+Show:
+
+```text
+Dashboard Admin
+Logout
+```
+
+Admin must not see Super Admin menu.
+
+### SUPER_ADMIN User
+
+Show:
+
+```text
+Super Admin
+Dashboard Admin if useful
+Logout
+```
+
+Super Admin may access all admin-level routes.
+
+### Technical Rule
+
+Navbar state should come from a safe server-side current user lookup where possible.
+Do not rely on stale `session.user.role` for protected role decisions.
+Do not use `useSession` in Server Components.
+
+---
+
+## 8. Mobile Bottom Navigation
+
+Mobile bottom navigation should include:
+
+```text
+Beranda
+Kategori
+Voucher
+Produk
+Akun/Login
+```
+
+Role-aware behavior:
+
+```text
+Guest: Akun/Login
+REGISTERED: Request Token or Akun
+PENDING_RETAIL: Aktivasi Token
+RETAIL_ACTIVE: Akun Ritel
+ADMIN: Admin
+SUPER_ADMIN: Super Admin
+```
+
+Do not include cart.
+
+---
+
+## 9. Category Rules
+
+Only use computer/electronics-related categories.
+
+Recommended categories:
+
+```text
+Laptop
+PC Rakitan
+Monitor
+Keyboard
+Mouse
+Printer
+Networking
+CCTV
+Storage
+Aksesoris
+Sparepart
+Software
+```
+
+Do not use unrelated categories such as:
+
+```text
+Fashion
+Beauty
+Food
+Books
+Household
+Sports
+Automotive
+```
+
+Unless the project owner explicitly changes the store domain.
+
+---
+
+## 10. Product Card Rules
+
+Product cards must show:
+
+```text
+Product image
+Product badge if available
+Product name
+Short specification
+Public price
+Retail price only when allowed
+Voucher badge if applicable
+Stock status
+WhatsApp inquiry button
+```
+
+Product cards must NOT show:
+
+```text
+Add to Cart
+Checkout
+Payment
+Shipping option
+Order button
+```
+
+Primary CTA:
+
+```text
+Tanya via WhatsApp
+Hubungi via WhatsApp
+```
+
+### Product Card Pricing
+
+For Guest / USER / PENDING_RETAIL:
+
+```text
+Show public price only.
+Optionally show helper: Aktifkan akun ritel untuk melihat harga khusus.
+```
+
+For RETAIL_ACTIVE when `enable_retail_price` is ON:
+
+```text
+Public price: smaller, muted, crossed out.
+Retail price: larger, dominant, Primary Maroon.
+Badge: Harga Ritel or Harga Khusus Ritel Aktif.
+```
+
+For RETAIL_ACTIVE when `enable_retail_price` is OFF:
+
+```text
+Show public price only.
+Do not show retail price.
+```
+
+Never expose `costPrice` outside Admin/Super Admin pages.
+
+---
+
+## 11. Product Detail Rules
+
+Product detail must use the same pricing and role logic as product cards.
+
+For RETAIL_ACTIVE users with retail price enabled:
+
+```text
+Show public price crossed out.
+Show retail price as the main price.
+Show badge: Harga Khusus Ritel Aktif.
+```
+
+Product detail must include:
+
+```text
+Image/gallery
+Product name
+SKU
+Stock status
+Public/retail price block
+Applicable vouchers
+Specifications
+Warranty info
+WhatsApp inquiry CTA
+Back to catalog link
+```
+
+Product detail must NOT include:
+
+```text
+Cart panel
+Checkout panel
+Payment method
+Shipping calculation
+Order summary
 ```
 
 ---
 
-### 6.4 Promo and Voucher Page
+## 12. Catalog Filter and Return Behavior
 
-This page displays public vouchers and retail-only vouchers.
+The product catalog must always show filter controls.
+
+Desktop:
+
+```text
+Filter sidebar + product grid
+```
+
+Mobile:
+
+```text
+Filter drawer or collapsible filter section
+```
+
+Filter state should use URL query params where possible.
+
+Example:
+
+```text
+/products?category=laptop&brand=asus&sort=latest
+```
+
+Product detail links should preserve a safe `returnUrl` when possible.
+
+Example:
+
+```text
+/products/asus-vivobook?returnUrl=/products?category=laptop&brand=asus
+```
+
+Safe `returnUrl` rules:
+
+```text
+Must start with /
+Must not start with //
+Must not contain http://
+Must not contain https://
+```
+
+Product detail should show:
+
+```text
+Kembali ke Katalog
+```
+
+using safe `returnUrl`, or fallback to `/products`.
+
+---
+
+## 13. Voucher Design Direction
+
+Voucher must look like a marketplace promo element, but must match the e-catalog WhatsApp-first business model.
+
+Voucher is NOT a checkout discount.
+Voucher is a claimable promo that is included in WhatsApp inquiry for admin verification.
+
+Voucher flow:
+
+```text
+User sees voucher banner/card
+User clicks Klaim Voucher
+Voucher is saved as claimed
+Product card/detail shows applicable claimed voucher
+User clicks WhatsApp inquiry
+WhatsApp message includes claimed voucher info
+Admin verifies voucher manually during WhatsApp transaction
+```
+
+---
+
+## 14. Voucher Banner Rules
+
+Voucher banner must be visually prominent.
+
+VoucherBanner should show:
+
+```text
+Banner title
+Banner subtitle
+Discount label
+Voucher code if safe
+Audience badge: Umum / Ritel
+Expiry date
+CTA: Klaim Voucher
+```
+
+Recommended visual style:
+
+```text
+Soft Teal gradient background
+Rounded card
+Accent Rose discount label
+Primary Maroon CTA
+```
+
+Voucher banners should be database-driven when voucher records exist.
+Avoid hardcoded-only voucher banners.
+
+---
+
+## 15. Voucher Card Rules
+
+VoucherCard should show:
+
+```text
+Voucher code
+Title
+Description
+Discount value
+Minimum purchase
+Applicable product/category
+Audience: Public/Retail
+Expiry date
+Claim button
+Claimed state
+```
+
+Claim button states:
+
+```text
+Klaim Voucher
+Sudah Diklaim
+Login untuk Klaim
+Tidak Berlaku
+Kuota Habis
+Expired
+```
+
+---
+
+## 16. Voucher Claim Logic
+
+Voucher claim must be server-side validated.
 
 Rules:
 
-- Show vouchers as cards.
-- Clearly separate public vouchers and retail vouchers.
-- Locked retail vouchers must show login/retail activation prompt.
-- Show minimum purchase, applicable category/product, validity period, and status.
+```text
+Logged-in user can claim public voucher.
+Retail voucher can only be claimed by RETAIL_ACTIVE user.
+Guest should be asked to login before claiming voucher.
+Voucher must be active.
+Voucher must be within startDate/endDate.
+Voucher quota must not be exceeded.
+Duplicate claim by same user must be blocked.
+Missing feature flag defaults false.
+Claiming voucher must not create checkout/order/payment.
+```
+
+Feature flags:
+
+```text
+enable_public_voucher
+enable_retail_voucher
+```
+
+Voucher claim must not trust client-submitted role, retail status, discount value, or userId.
 
 ---
 
-## 7. Retail User Flow and Pages
+## 17. VoucherClaim Model Direction
 
-Retail access is NOT automatic.
-
-A user must register first, contact admin via WhatsApp, receive a token generated by admin, and enter the token to activate retail access.
-
-### 7.1 Account Registration Page
-
-Required fields:
-
-- Full name
-- Email
-- WhatsApp number
-- Password
-- Confirm password
-- Store / institution name, optional
-- Address, optional
-
-After successful registration, show this instruction:
+If voucher claim is implemented, use a model similar to:
 
 ```text
-Your account has been created. To activate retail access, contact admin through WhatsApp and request a retail activation token.
+VoucherClaim
+- id
+- voucherId
+- userId nullable
+- sessionId nullable
+- status: CLAIMED / USED / EXPIRED / CANCELLED
+- claimedAt
+- usedAt nullable
+- createdAt
+- updatedAt
+```
+
+For MVP, prefer requiring login to claim voucher.
+Guest voucher claim via anonymous session can be added later.
+
+---
+
+## 18. WhatsApp Inquiry + Voucher Rules
+
+WhatsApp inquiry must remain the conversion path.
+
+When user clicks WhatsApp inquiry:
+
+```text
+Server resolves product.
+Server resolves current user.
+Server resolves allowed price.
+Server resolves applicable claimed vouchers.
+Server builds WhatsApp message.
+Server returns waUrl.
+```
+
+Client must not submit:
+
+```text
+Final price
+User role
+Retail status
+Discount value
+Seller WhatsApp number
+```
+
+If claimed voucher applies, message should include:
+
+```text
+Voucher: [code/title] - [discount label]
+```
+
+If voucher exists but is not claimed:
+
+```text
+Voucher tersedia. Klaim voucher sebelum menghubungi admin.
+```
+
+Do not create checkout discount calculation.
+
+---
+
+## 19. Retail Account UX Rules
+
+Retail activation flow:
+
+```text
+Register account
+Request retail token via WhatsApp
+Admin verifies user
+Admin generates token
+User inputs token at /retail/activate
+Account becomes RETAIL_ACTIVE
+Retail price becomes visible if enable_retail_price is ON
+```
+
+Required pages:
+
+```text
+/retail/request-token
+/retail/activate
+/retail/activate/success
+/retail/activate/failed
+```
+
+Request token page must show:
+
+```text
+Minta Token via WhatsApp
+Sudah punya token? Aktifkan Akun Ritel
+```
+
+Activation page must show:
+
+```text
+Token input form
+Clear error/success state
+Helper: Masukkan token lengkap yang dikirim admin, bukan token preview atau token hash dari database.
 ```
 
 ---
 
-### 7.2 Request Retail Token via WhatsApp
+## 20. Admin UI Rules
 
-Show a clear WhatsApp button:
+Admin pages should use a clean dashboard style.
 
-```text
-Contact Admin for Retail Token
-```
-
-Prefilled WhatsApp message:
+Admin can manage:
 
 ```text
-Hello Admin, I want to activate my retail account.
-
-Name:
-Email:
-WhatsApp Number:
-Store/Institution Name:
-User Code:
-
-Please help me get a retail activation token.
-```
-
----
-
-### 7.3 Retail Token Activation Page
-
-This page is used to enter the token given by admin.
-
-Required elements:
-
-- Short explanation
-- Token input
-- Activate Retail button
-- Success/error status
-- Contact admin button if token fails
-
-Success message:
-
-```text
-Your retail account has been activated. You can now view retail prices and retail vouchers.
-```
-
-Error message:
-
-```text
-The token is invalid, already used, expired, revoked, or not assigned to your account.
-```
-
----
-
-### 7.4 Retail Price Display Rules
-
-If user is not logged in:
-
-```text
-Retail price is available. Log in as a retail user to view special pricing.
-```
-
-If user is logged in but not retail-active:
-
-```text
-Retail access is not active yet. Contact admin to request a retail activation token.
-```
-
-If user is active retail user:
-
-```text
-Public Price: Rp x.xxx.xxx
-Retail Price: Rp x.xxx.xxx
-Badge: Special Retail Price
-```
-
----
-
-## 8. Admin Dashboard
-
-Admin manages store operations only.
-
-Admin must NOT access system-level technical features.
-
-### Admin Menu
-
-```text
-Dashboard
 Products
 Categories
 Brands
-Price & Margin
+Prices and margins
 Vouchers
-Retail Users
-Generate Retail Token
-Promo Banners
-WhatsApp Inquiries
+Retail users
+Retail token generation
+Promo banners
+WhatsApp inquiries
 Reports
-Store Settings
+Store settings
 ```
 
-### Admin Dashboard Required Content
-
-- Total products
-- Active products
-- Low-stock products
-- Total retail users
-- Total WhatsApp inquiries
-- Active vouchers
-- Most viewed products
-- Latest activity
-
-### Admin UI Rules
-
-- Use fixed sidebar on desktop.
-- Use drawer menu on mobile.
-- Use clean tables.
-- Use status badges.
-- Important actions require confirmation.
-- Forms must be clear and not overcrowded.
-
-Admin must NOT see these menus:
+Admin must not access:
 
 ```text
-Admin Management
-Role & Permission
-Feature Flags
-Deployment Center
-CI/CD Status
-Maintenance Mode
-System Logs
-Security Settings
-Environment Info
+Feature flags
+Deployment center
+CI/CD status
+Environment secrets
+System logs if Super Admin only
+Admin account management
 ```
 
----
-
-## 9. Super Admin Dashboard
-
-Super Admin controls system-level features.
-
-### Super Admin Menu
+Admin dashboard should use:
 
 ```text
-Dashboard
-Products
-Categories
-Brands
-Price & Margin
-Vouchers
-Retail Users
-Generate Retail Token
-Promo Banners
-WhatsApp Inquiries
-Reports
-Store Settings
-
-Admin Management
-Role & Permission
-Feature Flags
-Deployment Center
-CI/CD Status
-Maintenance Mode
-System Logs
-Backup Info
-Security Settings
-Environment Info
+Sidebar
+Metric cards
+Data tables
+Status badges
+Clear action buttons
+Safe empty states
 ```
-
-### Super Admin Rules
-
-Super Admin can:
-
-- Create admin accounts
-- Manage admin role and permission
-- Manage feature flags
-- View deployment status
-- View CI/CD status
-- Enable maintenance mode
-- View system logs
-- View safe environment information
-
-Super Admin must NOT see raw secrets.
-
-Never display:
-
-- Database password
-- Auth secret
-- GitHub token
-- Hostinger token
-- SMTP password
-- API private key
-- Any raw secret value
 
 ---
 
-## 10. Role-Based UI Rules
+## 21. Super Admin UI Rules
 
-### Roles
+Super Admin can access:
 
 ```text
-guest
-user
-retail_pending
-retail_active
-admin
-super_admin
+All Admin features
+Admin users
+Roles and permissions
+Feature flags
+Deployment center
+CI/CD status
+Maintenance mode
+System logs
+Security settings
+Environment info
 ```
 
-### Access Summary
+Super Admin pages must never display secrets.
 
-| Feature | Guest | User | Retail Pending | Retail Active | Admin | Super Admin |
-|---|---:|---:|---:|---:|---:|---:|
-| Browse catalog | Yes | Yes | Yes | Yes | Yes | Yes |
-| View product detail | Yes | Yes | Yes | Yes | Yes | Yes |
-| WhatsApp inquiry | Yes | Yes | Yes | Yes | Yes | Yes |
-| Register account | Yes | No | No | No | No | No |
-| Request retail token | No | Yes | Yes | No | No | No |
-| Enter retail token | No | Yes | Yes | No | No | No |
-| View retail price | No | No | No | Yes | Yes | Yes |
-| Manage products | No | No | No | No | Yes | Yes |
-| Manage vouchers | No | No | No | No | Yes | Yes |
-| Generate retail token | No | No | No | No | Yes | Yes |
-| Manage admin accounts | No | No | No | No | No | Yes |
-| Feature flags | No | No | No | No | No | Yes |
-| Deployment center | No | No | No | No | No | Yes |
-| CI/CD status | No | No | No | No | No | Yes |
-| Maintenance mode | No | No | No | No | No | Yes |
-| System logs | No | No | No | No | No | Yes |
-
----
-
-## 11. Product Card Component
-
-ProductCard is the most important public UI component.
-
-Required elements:
-
-1. Product image
-2. Promo/stock/retail badges if available
-3. Product name, maximum 2 lines
-4. Short specification
-5. Public price
-6. Retail price if user is retail-active
-7. Voucher badge if available
-8. Stock status
-9. WhatsApp inquiry button
-
-Product card wireframe:
+Allowed environment info:
 
 ```text
-┌──────────────────────┐
-│ Product Image         │
-│ [PROMO] [READY]       │
-├──────────────────────┤
-│ ASUS Vivobook 14      │
-│ i5 / 8GB / SSD 512GB  │
-│ Rp 7.450.000          │
-│ Voucher available     │
-│ [Ask via WhatsApp]    │
-└──────────────────────┘
+NODE_ENV
+App environment
+Node version
+Runtime target
+Database connected/not connected
+App version
+Build version
+Domain if configured
+CDN status if configured
 ```
 
-Product card rules:
-
-- Use consistent image ratio, preferably 1:1.
-- Use light hover effect on desktop.
-- Do not make cards too tall.
-- Do not show overly long specifications.
-- WhatsApp button must be clear.
-- Product card must work in 2-column mobile grid.
-
----
-
-## 12. Button System
-
-### Primary Button
-
-Color: `#6E1A37`
-
-Use for:
-
-- Save
-- Login
-- View products
-- Activate token
-- Main admin action
-
-### Secondary Button
-
-Color: `#AE2448`
-
-Use for:
-
-- View promo
-- Use voucher
-- Supporting action
-
-### Teal Accent Button
-
-Color: `#72BAA9`
-
-Use for:
-
-- Active filter
-- Light labels
-- Minor action
-
-### WhatsApp Button
-
-Color: `#25D366`
-
-Use only for:
-
-- Ask via WhatsApp
-- Contact admin
-- Request retail token
-
-Button rules:
-
-- Do not use WhatsApp green for non-WhatsApp actions.
-- Do not use too many button colors on one page.
-- Use one main primary action per section when possible.
-
----
-
-## 13. Badge System
-
-Use small badges for status and labels.
-
-| Badge | Color |
-|---|---|
-| Promo | `#AE2448` |
-| Ready Stock | `#16A34A` |
-| Low Stock | `#F59E0B` |
-| Retail | `#72BAA9` |
-| Inactive | `#6B7280` |
-| Pending | `#F59E0B` |
-| Expired | `#DC2626` |
-
----
-
-## 14. Form Design
-
-Form rules:
-
-- Labels must be visible.
-- Placeholder must not replace label.
-- Required fields must be marked.
-- Error message must appear below the field.
-- Price input must support Rupiah formatting.
-- Margin input must support percent and nominal modes if needed.
-- Product image upload must show preview.
-
-Important forms:
-
-- Login
-- Register
-- Retail token input
-- Add product
-- Edit product
-- Add voucher
-- Generate retail token
-- Store settings
-- Feature flag settings
-
----
-
-## 15. Admin Table Design
-
-Admin tables must be clean and easy to scan.
-
-Required table features:
-
-- Search
-- Filter
-- Sorting
-- Pagination
-- Status badge
-- Action menu
-- Bulk action only if needed
-
-Common actions:
-
-- Detail
-- Edit
-- Enable/disable
-- Delete
-
-Sensitive actions must require confirmation.
-
----
-
-## 16. Feature Flag UI
-
-Feature Flag UI must be visible only to Super Admin.
-
-Table columns:
+Forbidden:
 
 ```text
-Feature Name | Key | Scope | Status | Last Updated | Action
+DATABASE_URL
+BETTER_AUTH_SECRET
+GitHub token
+Hostinger credentials
+SMTP password
+API secrets
+Private keys
 ```
 
-Required elements:
+---
 
-- Enable/disable toggle
-- Scope badge: global, role, user
-- Feature description
-- Change log
-- Confirmation before changing important flags
+## 22. Login / Logout UX Rules
 
-Important feature flags:
+Login behavior:
+
+```text
+SUPER_ADMIN → /super-admin
+ADMIN → /admin
+RETAIL_ACTIVE → /products
+PENDING_RETAIL → /retail/activate or /retail/request-token
+REGISTERED → /retail/request-token
+USER/default → /
+```
+
+If a safe `callbackUrl` exists, use it.
+
+Safe callback URL rules:
+
+```text
+Must start with /
+Must not start with //
+Must not include http://
+Must not include https://
+```
+
+Logout:
+
+```text
+Admin and Super Admin dashboards must show Logout.
+Public navbar must show Logout for logged-in users.
+Logout clears session and redirects to /login or /.
+Navbar must update after logout.
+```
+
+---
+
+## 23. Server / Client Component Rules
+
+Do not pass raw Prisma objects with unsupported values to Client Components.
+
+Before passing to Client Components:
+
+```text
+Convert Prisma Decimal to string.
+Convert Date to ISO string.
+Convert BigInt to string if any.
+```
+
+Do not import these in Client Components:
+
+```text
+Prisma
+getDb
+next/headers
+next/cache
+server auth helpers
+```
+
+Client Components may handle:
+
+```text
+Mobile menu
+Carousel state
+Filter drawer
+Voucher claim loading state
+WhatsApp button loading state
+Logout click
+Copy-to-clipboard
+```
+
+Server Components should handle:
+
+```text
+Current user lookup
+Role/retail status
+Price visibility
+Voucher visibility
+Database queries
+Protected route checks
+```
+
+---
+
+## 24. Security Rules
+
+Always enforce these rules:
+
+```text
+Do not expose secrets.
+Do not expose DATABASE_URL.
+Do not expose BETTER_AUTH_SECRET.
+Do not expose Hostinger credentials.
+Do not expose GitHub tokens.
+Do not expose SMTP passwords.
+Do not expose costPrice to public/retail users.
+Do not trust client-submitted price.
+Do not trust client-submitted role.
+Do not trust client-submitted retailStatus.
+Do not trust client-submitted seller WhatsApp number.
+Do not log passwords.
+Do not log plain activation tokens.
+Do not store plain activation tokens in the database.
+```
+
+---
+
+## 25. Feature Flag Rules
+
+Feature flags must be checked server-side.
+
+Standard flags:
 
 ```text
 enable_retail_registration
 enable_retail_token_activation
+enable_retail_whatsapp_request
 enable_retail_price
 enable_public_voucher
 enable_retail_voucher
 enable_margin_management
 enable_inquiry_tracking
 enable_product_import
+enable_promo_banner
 enable_maintenance_mode
+enable_admin_activity_log
 ```
 
----
+Missing feature flags must not crash the app.
 
-## 17. Deployment Center UI
-
-Deployment Center must be visible only to Super Admin.
-
-Allowed information:
-
-- Active environment
-- Production branch
-- Last commit
-- Last deployment time
-- Build status
-- App status
-- Safe repository link
-- App version
-
-Forbidden information:
-
-- Database password
-- Auth secret
-- GitHub token
-- Hostinger token
-- SMTP password
-- API private key
-- Raw secret values
-
----
-
-## 18. CI/CD Status UI
-
-CI/CD Status must be visible only to Super Admin.
-
-Required display:
+For feature access:
 
 ```text
-Build Status: Passed/Failed
-Branch: main/develop
-Last Commit: commit message
-Last Deploy: date time
-Deployment Provider: Hostinger
-CI Provider: GitHub Actions
+Missing flag → false
+Database error → fail closed
 ```
 
-If status fails, show a safe general message and direct Super Admin to check GitHub Actions or Hostinger dashboard.
-
-Do not expose raw logs if they contain secrets.
-
----
-
-## 19. Responsive Design Rules
-
-The app must be mobile-first.
-
-### Mobile
-
-- Product grid: 2 columns
-- Header becomes sticky search bar
-- Filter becomes drawer
-- Admin sidebar becomes drawer
-- WhatsApp button must be easy to reach
-- Bottom navigation may be used for public pages
-
-Public bottom navigation:
+For logging:
 
 ```text
-Home | Category | Promo | Retail | WhatsApp
+Logging error → do not break main mutation
 ```
-
-### Tablet
-
-- Product grid: 3 columns
-- Filter may become collapsible sidebar
-
-### Desktop
-
-- Product grid: 4–5 columns
-- Filter sidebar visible
-- Full header visible
-- Admin sidebar visible
 
 ---
 
-## 20. Required Reusable Components
+## 26. Figma Reference Adaptation Rules
 
-Create and reuse these components consistently:
+From the Figma reference, take:
 
 ```text
-AppHeader
-TopBar
-SearchBar
-CategoryDropdown
-CategoryGrid
-HeroBanner
-PromoBanner
-VoucherCard
-ProductCard
-ProductGrid
-ProductFilterSidebar
-ProductFilterDrawer
-ProductDetailGallery
-RetailPriceBadge
-WhatsAppButton
-BottomNavigationMobile
-AdminSidebar
-AdminHeader
-AdminDataTable
-AdminStatsCard
-FeatureFlagToggle
-DeploymentStatusCard
-CICDStatusCard
-MaintenanceModePanel
-RetailTokenInput
-RetailTokenGenerator
+Gradient navbar
+Large search bar
+Hero carousel
+Category chips/grid
+Flash sale / promo strip style
+Voucher banner cards
+Product grid rhythm
+Bottom mobile navigation
+Rounded card style
+Soft shadow
+Compact mobile-first layout
 ```
 
----
-
-## 21. Design Restrictions
-
-Do NOT:
-
-1. Copy Tokopedia UI exactly.
-2. Use Tokopedia logo, icon, color identity, or visual assets.
-3. Build a blog-like interface.
-4. Build invitation-style visuals.
-5. Add checkout/payment gateway without explicit instruction.
-6. Add full shopping cart without explicit instruction.
-7. Use colors outside the official palette as primary colors.
-8. Remove WhatsApp button from product card or product detail.
-9. Show Super Admin menus to Admin.
-10. Show technical secrets in the dashboard.
-11. Make user become retail automatically without admin-generated token.
-12. Build high-risk features without feature flag control.
-13. Make UI too crowded with too many colors.
-14. Use unreadably small text.
-15. Create products without category, brand, price, and stock status.
-
----
-
-## 22. AI Coding Agent Rules
-
-AI coding agent MUST:
-
-1. Read this `desain.md` file before creating or modifying UI.
-2. Follow the official colors: `#6E1A37`, `#AE2448`, `#72BAA9`.
-3. Keep marketplace-style experience without copying Tokopedia.
-4. Use mobile-first responsive design.
-5. Build reusable components.
-6. Separate Public, Retail, Admin, and Super Admin interfaces.
-7. Implement correct role-based rendering.
-8. Keep retail access controlled by admin-generated token.
-9. Keep WhatsApp as the main conversion flow.
-10. Show feature flag, deployment, CI/CD, and admin management only to Super Admin.
-11. Avoid creating out-of-scope features.
-12. Update this file if the global design direction changes.
-
-If there is conflict between this file and an AI assumption, follow this file.
-
----
-
-## 23. UI Merge Checklist
-
-Before merging any UI change, verify:
-
-- [ ] Colors follow the official palette.
-- [ ] Header and search bar follow marketplace-style UX.
-- [ ] Product cards are consistent.
-- [ ] Product detail has WhatsApp inquiry button.
-- [ ] Catalog has filter and sorting.
-- [ ] Mobile layout is clean.
-- [ ] Admin cannot see Super Admin menus.
-- [ ] Super Admin can see technical menus.
-- [ ] Retail token activation flow exists.
-- [ ] Feature Flag UI is Super Admin only.
-- [ ] Deployment Center does not show secrets.
-- [ ] No checkout/payment gateway was added without instruction.
-- [ ] No exact visual copying from Tokopedia.
-
----
-
-## 24. Final Design Direction
-
-The final design direction is:
+Replace:
 
 ```text
-Marketplace-style catalog
-+ computer and electronic accessories focus
-+ search-first experience
-+ product card grid
-+ public price and retail price
-+ voucher system
-+ WhatsApp-first inquiry
-+ professional admin dashboard
-+ Super Admin system control
+ShoppingCart → WhatsApp / Voucher / Inquiry icon
+cartCount → claimed voucher count or no counter
+Belanja Sekarang → Lihat Produk / Tanya Admin / Klaim Voucher
+Jual di eKatalog → Login Ritel / Daftar Ritel
+Fashion/beauty/food copy → computer/electronics copy
 ```
 
-This file is the primary design reference. All UI work must follow it.
+Never add:
+
+```text
+Cart
+Checkout
+Payment
+Shipping
+Order
+Multi-seller seller portal
+```
+
+---
+
+## 27. Manual UI Test Checklist
+
+After any UI/UX update, manually test:
+
+```text
+Guest homepage
+Guest product catalog
+Guest product detail
+Guest voucher page
+Logged-in registered user navbar
+Pending retail user navbar
+Retail active user navbar
+Admin navbar/dashboard link
+Super Admin navbar/dashboard link
+Logout behavior
+Retail price display
+Public price crossed out for retail active users
+Product detail retail pricing
+Voucher banner display
+Voucher claim button
+Voucher claimed state
+WhatsApp inquiry with claimed voucher
+Catalog filter visibility
+Back to catalog returnUrl
+Mobile bottom navigation
+```
+
+---
+
+## 28. Required Verification Commands
+
+After implementation, run:
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
+npx prisma validate
+npx prisma generate
+npx prisma migrate status
+```
+
+Do not claim success unless all required commands pass.
+
+---
+
+## 29. Final Implementation Rule
+
+Every UI/UX change must preserve these core decisions:
+
+```text
+E-katalog only
+Single-store product catalog
+Computer and electronic accessories domain
+WhatsApp-first inquiry
+Role-aware navbar
+Retail token activation
+Retail price visibility by role and feature flag
+Voucher claim as WhatsApp promo, not checkout discount
+Admin vs Super Admin separation
+No secrets exposed
+No cart/checkout/payment/shipping/order
+```

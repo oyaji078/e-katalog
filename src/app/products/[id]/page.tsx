@@ -1,71 +1,88 @@
-import { Laptop } from "lucide-react";
+import {
+  BadgePercent,
+  CheckCircle,
+  ChevronLeft,
+  PackageCheck,
+  ShieldCheck,
+} from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import WhatsAppInquiryButton from "@/components/ui/WhatsAppInquiryButton";
+import FigmaFooter from "@/components/layout/FigmaFooter";
 import ProductGrid from "@/components/ui/ProductGrid";
+import FigmaSiteHeader from "@/components/layout/FigmaSiteHeader";
+import VoucherClaimButton from "@/components/ui/VoucherClaimButton";
+import WhatsAppInquiryButton from "@/components/ui/WhatsAppInquiryButton";
 import {
   canSeeRetailPrice,
+  canUseRetailVoucher,
   formatRupiah,
   getApplicableVouchers,
   getVisibleVouchers,
   productBadge,
+  productCardSelect,
+  productDetailSelect,
+  safeImageSrc,
+  stockLabel,
   voucherLabel,
 } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { toProductCardProps } from "@/lib/product-card-mapper";
-import { getCurrentSession } from "@/lib/session";
+import { getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 type ProductDetailPageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
+function isSafeReturnUrl(url: string | null): boolean {
+  if (!url) return false;
+  if (!url.startsWith("/")) return false;
+  if (url.startsWith("//")) return false;
+  if (url.includes("http://") || url.includes("https://")) return false;
+  return true;
+}
+
+export default async function ProductDetailPage({ params, searchParams }: ProductDetailPageProps) {
   const { id } = await params;
+  const sp = await searchParams;
+  const requestedReturnUrl = firstParam(sp.returnUrl);
+  const returnUrl = isSafeReturnUrl(requestedReturnUrl) ? requestedReturnUrl : "/products";
   const db = getDb();
-  const [session, retailPriceEnabled, publicVoucherEnabled, retailVoucherEnabled] =
+  const [user, retailPriceEnabled, publicVoucherEnabled, retailVoucherEnabled] =
     await Promise.all([
-      getCurrentSession().catch(() => null),
+      getCurrentUser().catch(() => null),
       isFeatureEnabled("enable_retail_price"),
       isFeatureEnabled("enable_public_voucher"),
       isFeatureEnabled("enable_retail_voucher"),
     ]);
 
-  // Try to find product by slug first, then by ID (for backward compatibility)
   let product = await db.product.findFirst({
     where: { slug: id, status: "ACTIVE" },
-    include: {
-      brand: true,
-      category: true,
-      images: { orderBy: { sortOrder: "asc" } },
-    },
+    select: productDetailSelect,
   });
 
-  // If not found by slug, try by ID
   if (!product) {
     product = await db.product.findFirst({
       where: { id, status: "ACTIVE" },
-      include: {
-        brand: true,
-        category: true,
-        images: { orderBy: { sortOrder: "asc" } },
-      },
+      select: productDetailSelect,
     });
   }
 
   if (!product) notFound();
 
-  const [vouchers, relatedProducts] = await Promise.all([
+  const [vouchers, relatedProducts, claims] = await Promise.all([
     db.voucher.findMany({
       where: { isActive: true, status: "ACTIVE" },
       include: {
         categories: { select: { id: true } },
         products: { select: { productId: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ endsAt: "asc" }, { createdAt: "desc" }],
     }),
     db.product.findMany({
       where: {
@@ -73,132 +90,238 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         categoryId: product.categoryId,
         NOT: { id: product.id },
       },
-      include: {
-        brand: true,
-        category: true,
-        images: { orderBy: { sortOrder: "asc" } },
-      },
+      select: productCardSelect,
       orderBy: [{ isRecommended: "desc" }, { createdAt: "desc" }],
-      take: 4,
+      take: 5,
     }),
+    user
+      ? db.voucherClaim.findMany({
+          where: { userId: user.id, status: "CLAIMED" },
+          select: { voucherId: true },
+        })
+      : Promise.resolve([]),
   ]);
 
-  const showRetail = canSeeRetailPrice(session?.user, retailPriceEnabled);
-  const visibleVouchers = getVisibleVouchers(getApplicableVouchers(product, vouchers), {
+  const showRetail = canSeeRetailPrice(user, retailPriceEnabled);
+  const canSeeRetailVouchers = canUseRetailVoucher(user);
+  const applicableVouchers = getApplicableVouchers(product, vouchers);
+  const visibleVouchers = getVisibleVouchers(applicableVouchers, {
     publicVoucherEnabled,
     retailVoucherEnabled,
-    canSeeRetail: showRetail,
+    canSeeRetail: canSeeRetailVouchers,
   });
+  const claimedIds = new Set(claims.map((claim) => claim.voucherId));
+  const claimedVisibleVouchers = visibleVouchers.filter((voucher) => claimedIds.has(voucher.id));
   const relatedCards = relatedProducts.map((item) =>
     toProductCardProps(item, {
-      user: session?.user,
+      user,
       retailPriceEnabled,
       publicVoucherEnabled,
       retailVoucherEnabled,
       vouchers,
     }),
   );
-  const gallery = uniqueImages([product.primaryImageUrl, ...product.images.map((image) => image.url)]);
+  const gallery = uniqueImages(
+    [product.primaryImageUrl, ...product.images.map((image) => image.url)].map(safeImageSrc),
+  );
   const specs = specRows(product.specifications);
 
   return (
-    <main className="min-h-screen bg-soft-bg text-text-dark">
-      <header className="border-b border-border-gray bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link href="/" className="text-xl font-bold text-primary-maroon">
-            E-Katalog Komputer
-          </Link>
-          <Link href="/products" className="text-sm font-bold text-primary-maroon">
-            Kembali ke produk
-          </Link>
-        </div>
-      </header>
+    <main className="min-h-screen bg-soft-bg pb-20 text-text-dark lg:pb-8">
+      <FigmaSiteHeader />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-        <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-          <section className="grid gap-3">
-            <div className="aspect-square overflow-hidden rounded-lg border border-border-gray bg-white">
-              {gallery[0] ? (
-                <div
-                  aria-label={product.name}
-                  className="h-full w-full bg-cover bg-center"
-                  style={{ backgroundImage: `url("${gallery[0]}")` }}
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-soft-bg">
-                  <Laptop className="size-20 text-primary-maroon" />
-                </div>
-              )}
+        <Link
+          href={returnUrl}
+          className="mb-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-primary-maroon shadow-sm transition hover:bg-primary-maroon hover:text-white"
+        >
+          <ChevronLeft className="size-4" />
+          Kembali ke Katalog
+        </Link>
+
+        <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="grid gap-3">
+            <div className="relative overflow-hidden rounded-3xl border border-border-gray bg-white shadow-sm">
+              <div className="relative aspect-square bg-soft-bg">
+                {gallery[0] ? (
+                  <Image
+                    src={gallery[0]}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 45vw"
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary-maroon/10 via-white to-soft-teal/20">
+                    <div className="flex flex-col items-center gap-3">
+                      <svg className="size-20 text-primary-maroon/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                      </svg>
+                      <span className="rounded-xl bg-white/90 px-4 py-2 text-sm font-black text-primary-maroon shadow-sm">
+                        {product.category.name}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                <span className="rounded-full bg-primary-maroon px-3 py-1 text-xs font-black text-white">
+                  {productBadge(product)}
+                </span>
+                {visibleVouchers.length > 0 ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-accent-rose px-3 py-1 text-xs font-black text-white">
+                    <BadgePercent className="size-4" />
+                    Voucher
+                  </span>
+                ) : null}
+              </div>
             </div>
+
             {gallery.length > 1 ? (
               <div className="grid grid-cols-4 gap-3">
                 {gallery.slice(1, 5).map((image) => (
                   <div
                     key={image}
-                    aria-label={product.name}
-                    className="aspect-square rounded-lg border border-border-gray bg-cover bg-center"
-                    style={{ backgroundImage: `url("${image}")` }}
-                  />
+                    className="relative aspect-square overflow-hidden rounded-2xl border border-border-gray shadow-sm"
+                  >
+                    <Image
+                      src={image}
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 1024px) 25vw, 12vw"
+                      className="object-cover"
+                    />
+                  </div>
                 ))}
               </div>
             ) : null}
-          </section>
+          </div>
 
-          <section className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
+          <section className="rounded-3xl border border-border-gray bg-white p-5 shadow-sm sm:p-6">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-soft-teal/15 px-2 py-1 text-xs font-bold text-primary-maroon">
-                {productBadge(product)}
-              </span>
-              <span className="rounded-full bg-primary-maroon/10 px-2 py-1 text-xs font-bold text-primary-maroon">
+              <span className="rounded-full bg-soft-teal/15 px-3 py-1 text-xs font-black text-primary-maroon">
                 {product.category.name}
               </span>
-              <span className="rounded-full bg-accent-rose/10 px-2 py-1 text-xs font-bold text-accent-rose">
+              <span className="rounded-full bg-primary-maroon/10 px-3 py-1 text-xs font-black text-primary-maroon">
                 {product.brand.name}
+              </span>
+              <span className="rounded-full bg-soft-bg px-3 py-1 text-xs font-bold text-text-muted">
+                SKU {product.sku}
               </span>
             </div>
 
-            <h1 className="mt-4 text-2xl font-bold">{product.name}</h1>
-            <p className="mt-2 font-mono text-xs text-text-muted">SKU: {product.sku}</p>
+            <h1 className="mt-4 text-3xl font-black leading-tight text-text-dark">
+              {product.name}
+            </h1>
             {product.shortSpecification ? (
-              <p className="mt-3 text-sm leading-6 text-text-muted">{product.shortSpecification}</p>
+              <p className="mt-3 text-sm leading-6 text-text-muted">
+                {product.shortSpecification}
+              </p>
             ) : null}
 
-            <div className="mt-5 rounded-lg border border-border-gray bg-soft-bg p-4">
-              <p className="text-sm text-text-muted">Harga publik</p>
-              <p className="mt-1 text-2xl font-bold text-accent-rose">
-                {formatRupiah(product.publicPrice)}
-              </p>
+            <div className="mt-5 rounded-3xl border border-primary-maroon/10 bg-soft-bg p-4">
               {showRetail && product.retailPrice ? (
-                <div className="mt-3 border-t border-border-gray pt-3">
-                  <p className="text-sm text-text-muted">Harga retail aktif</p>
-                  <p className="text-xl font-bold text-soft-teal">
+                <>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-soft-teal/20 px-3 py-1 text-xs font-black text-primary-maroon">
+                    <CheckCircle className="size-4 text-soft-teal" />
+                    Harga Khusus Ritel Aktif
+                  </div>
+                  <p className="mt-3 text-3xl font-black leading-tight text-primary-maroon">
                     {formatRupiah(product.retailPrice)}
                   </p>
-                </div>
-              ) : null}
+                  <p className="mt-1 text-sm font-semibold text-text-muted line-through">
+                    {formatRupiah(product.publicPrice)}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-black text-text-muted">Harga publik</p>
+                  <p className="mt-1 text-3xl font-black leading-tight text-accent-rose">
+                    {formatRupiah(product.publicPrice)}
+                  </p>
+                  {product.retailPrice ? (
+                    <p className="mt-2 text-xs font-semibold text-text-muted">
+                      Aktifkan akun ritel untuk melihat harga khusus.
+                    </p>
+                  ) : null}
+                </>
+              )}
             </div>
 
-            {visibleVouchers.length > 0 ? (
-              <div className="mt-4 rounded-lg border border-accent-rose/20 bg-accent-rose/5 p-4">
-                <p className="text-sm font-bold text-accent-rose">Voucher berlaku</p>
-                <div className="mt-2 grid gap-2">
-                  {visibleVouchers.map((voucher) => (
-                    <p key={voucher.id} className="text-sm text-text-muted">
-                      {voucher.title}: {voucherLabel(voucher)}
-                    </p>
-                  ))}
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-border-gray p-4">
+                <div className="flex items-center gap-2 text-sm font-black text-text-dark">
+                  <PackageCheck className="size-5 text-soft-teal" />
+                  Stok
                 </div>
+                <p className="mt-2 text-sm font-semibold text-text-muted">{stockLabel(product)}</p>
               </div>
-            ) : null}
+              <div className="rounded-2xl border border-border-gray p-4">
+                <div className="flex items-center gap-2 text-sm font-black text-text-dark">
+                  <ShieldCheck className="size-5 text-soft-teal" />
+                  Garansi
+                </div>
+                <p className="mt-2 text-sm font-semibold text-text-muted">
+                  {product.warrantyInfo ?? "Garansi toko sesuai produk."}
+                </p>
+              </div>
+            </div>
 
-            <div className="mt-4 grid gap-2 text-sm">
-              <p>
-                <span className="font-semibold">Stok:</span> {product.stockStatus} (
-                {product.stockQuantity})
-              </p>
-              {product.warrantyInfo ? (
-                <p>
-                  <span className="font-semibold">Garansi:</span> {product.warrantyInfo}
+            <div className="mt-5 rounded-3xl border border-accent-rose/20 bg-accent-rose/5 p-4">
+              <div className="flex items-center gap-2">
+                <BadgePercent className="size-5 text-accent-rose" />
+                <h2 className="text-sm font-black text-accent-rose">Voucher Produk</h2>
+              </div>
+              {visibleVouchers.length > 0 ? (
+                <div className="mt-3 grid gap-3">
+                  {visibleVouchers.map((voucher) => {
+                    const isClaimed = claimedIds.has(voucher.id);
+                    return (
+                      <div
+                        key={voucher.id}
+                        className="grid gap-3 rounded-2xl border border-accent-rose/15 bg-white p-3 sm:grid-cols-[1fr_auto] sm:items-center"
+                      >
+                        <div>
+                          <p className="text-sm font-black text-text-dark">
+                            {isClaimed ? `${voucher.code} - ` : ""}{voucher.title}
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-text-muted">
+                            {voucherLabel(voucher)} berlaku sampai{" "}
+                            {new Intl.DateTimeFormat("id-ID", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            }).format(voucher.endsAt)}
+                          </p>
+                        </div>
+                        <VoucherClaimButton
+                          voucherId={voucher.id}
+                          isAuthenticated={!!user}
+                          isClaimed={isClaimed}
+                          canClaim={voucher.audience === "PUBLIC" || canSeeRetailVouchers}
+                          disabledReason={
+                            voucher.audience === "RETAIL" && !canSeeRetailVouchers
+                              ? "Khusus akun ritel aktif."
+                              : undefined
+                          }
+                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-maroon px-4 py-2 text-xs font-black text-white transition hover:bg-accent-rose disabled:cursor-not-allowed disabled:opacity-60"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm leading-6 text-text-muted">
+                  Voucher belum tersedia untuk produk ini. Cek halaman voucher untuk promo katalog
+                  lain.
+                </p>
+              )}
+              {claimedVisibleVouchers.length > 0 ? (
+                <p className="mt-3 text-xs font-semibold text-primary-maroon">
+                  Voucher terklaim akan otomatis dimasukkan ke pesan WhatsApp.
                 </p>
               ) : null}
             </div>
@@ -208,25 +331,38 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               productSlug={product.slug ?? undefined}
               sourcePage="product-detail"
               label="Tanya Produk via WhatsApp"
-              className="mt-5 block w-full px-4 py-3 text-sm"
+              className="mt-5 w-full rounded-2xl px-4 py-3.5 text-sm font-bold shadow-lg"
             />
           </section>
+        </section>
+
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white p-3 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] lg:hidden">
+          <WhatsAppInquiryButton
+            productId={product.id}
+            productSlug={product.slug ?? undefined}
+            sourcePage="product-detail"
+            label="Tanya via WhatsApp"
+            className="w-full rounded-xl px-4 py-3 text-sm font-bold shadow-md"
+          />
         </div>
 
-        <section className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_1fr]">
-          <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-bold">Deskripsi</h2>
-            <p className="mt-3 whitespace-pre-line text-sm leading-6 text-text-muted">
+        <section className="mt-8 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="rounded-3xl border border-border-gray bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-black">Deskripsi Produk</h2>
+            <p className="mt-3 whitespace-pre-line text-sm leading-7 text-text-muted">
               {product.description}
             </p>
           </div>
-          <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-            <h2 className="text-lg font-bold">Spesifikasi Teknis</h2>
+          <div className="rounded-3xl border border-border-gray bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-black">Spesifikasi Teknis</h2>
             {specs.length > 0 ? (
-              <dl className="mt-3 grid gap-2 text-sm">
+              <dl className="mt-4 grid gap-2 text-sm">
                 {specs.map(([label, value]) => (
-                  <div key={label} className="grid grid-cols-[130px_1fr] gap-3">
-                    <dt className="font-semibold text-text-dark">{label}</dt>
+                  <div
+                    key={label}
+                    className="grid grid-cols-[120px_1fr] gap-3 rounded-2xl bg-soft-bg px-3 py-2"
+                  >
+                    <dt className="font-black text-text-dark">{label}</dt>
                     <dd className="text-text-muted">{value}</dd>
                   </div>
                 ))}
@@ -239,21 +375,33 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
         {relatedCards.length > 0 ? (
           <section className="mt-8">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-xl font-bold">Produk terkait</h2>
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-wide text-accent-rose">
+                  Produk terkait
+                </p>
+                <h2 className="mt-1 text-2xl font-black text-text-dark">
+                  Kategori {product.category.name}
+                </h2>
+              </div>
               <Link
-                href={`/categories/${product.category.slug}`}
-                className="text-sm font-bold text-primary-maroon"
+                href={`/products?category=${product.category.slug}`}
+                className="rounded-xl border border-primary-maroon/20 bg-white px-4 py-2 text-sm font-black text-primary-maroon transition hover:border-primary-maroon"
               >
                 Lihat kategori
               </Link>
             </div>
-            <ProductGrid products={relatedCards} columns={4} />
+            <ProductGrid products={relatedCards} columns={5} />
           </section>
         ) : null}
       </div>
+      <FigmaFooter />
     </main>
   );
+}
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
 }
 
 function uniqueImages(images: Array<string | null | undefined>) {
@@ -271,3 +419,4 @@ function specRows(value: unknown): Array<[string, string]> {
   }
   return [["Detail", JSON.stringify(value)]];
 }
+

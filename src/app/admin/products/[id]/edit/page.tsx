@@ -57,6 +57,21 @@ export default async function AdminEditProductPage({
     );
   }
 
+  const serializedProduct = {
+    ...product,
+    costPrice: product.costPrice?.toString() ?? "",
+    publicMarginValue: product.publicMarginValue?.toString() ?? "",
+    retailMarginValue: product.retailMarginValue?.toString() ?? "",
+    publicPrice: product.publicPrice?.toString() ?? "",
+    retailPrice: product.retailPrice?.toString() ?? "",
+    marginPercent: product.marginPercent?.toString() ?? null,
+    createdAt: product.createdAt?.toISOString() ?? null,
+    updatedAt: product.updatedAt?.toISOString() ?? null,
+    images: product.images.map((image) => ({
+      url: image.url,
+    })),
+  };
+
   return (
     <main className="min-h-screen bg-soft-bg px-4 py-10 text-text-dark">
       <section className="mx-auto max-w-5xl rounded-2xl border border-border-gray bg-white p-6 shadow-sm">
@@ -79,7 +94,7 @@ export default async function AdminEditProductPage({
           mode="edit"
           categories={categories}
           brands={brands}
-          product={product}
+          product={serializedProduct}
         />
       </section>
     </main>

@@ -40,6 +40,8 @@ export type PromoBannerMinAggregateOutputType = {
   subtitle: string | null
   imageUrl: string | null
   linkUrl: string | null
+  ctaLabel: string | null
+  audience: $Enums.PromoBannerAudience | null
   isActive: boolean | null
   startsAt: Date | null
   endsAt: Date | null
@@ -54,6 +56,8 @@ export type PromoBannerMaxAggregateOutputType = {
   subtitle: string | null
   imageUrl: string | null
   linkUrl: string | null
+  ctaLabel: string | null
+  audience: $Enums.PromoBannerAudience | null
   isActive: boolean | null
   startsAt: Date | null
   endsAt: Date | null
@@ -68,6 +72,8 @@ export type PromoBannerCountAggregateOutputType = {
   subtitle: number
   imageUrl: number
   linkUrl: number
+  ctaLabel: number
+  audience: number
   isActive: number
   startsAt: number
   endsAt: number
@@ -92,6 +98,8 @@ export type PromoBannerMinAggregateInputType = {
   subtitle?: true
   imageUrl?: true
   linkUrl?: true
+  ctaLabel?: true
+  audience?: true
   isActive?: true
   startsAt?: true
   endsAt?: true
@@ -106,6 +114,8 @@ export type PromoBannerMaxAggregateInputType = {
   subtitle?: true
   imageUrl?: true
   linkUrl?: true
+  ctaLabel?: true
+  audience?: true
   isActive?: true
   startsAt?: true
   endsAt?: true
@@ -120,6 +130,8 @@ export type PromoBannerCountAggregateInputType = {
   subtitle?: true
   imageUrl?: true
   linkUrl?: true
+  ctaLabel?: true
+  audience?: true
   isActive?: true
   startsAt?: true
   endsAt?: true
@@ -221,6 +233,8 @@ export type PromoBannerGroupByOutputType = {
   subtitle: string | null
   imageUrl: string | null
   linkUrl: string | null
+  ctaLabel: string | null
+  audience: $Enums.PromoBannerAudience
   isActive: boolean
   startsAt: Date | null
   endsAt: Date | null
@@ -258,6 +272,8 @@ export type PromoBannerWhereInput = {
   subtitle?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
   linkUrl?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
+  ctaLabel?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
+  audience?: Prisma.EnumPromoBannerAudienceFilter<"PromoBanner"> | $Enums.PromoBannerAudience
   isActive?: Prisma.BoolFilter<"PromoBanner"> | boolean
   startsAt?: Prisma.DateTimeNullableFilter<"PromoBanner"> | Date | string | null
   endsAt?: Prisma.DateTimeNullableFilter<"PromoBanner"> | Date | string | null
@@ -272,6 +288,8 @@ export type PromoBannerOrderByWithRelationInput = {
   subtitle?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   linkUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  ctaLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  audience?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -290,6 +308,8 @@ export type PromoBannerWhereUniqueInput = Prisma.AtLeast<{
   subtitle?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
   linkUrl?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
+  ctaLabel?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
+  audience?: Prisma.EnumPromoBannerAudienceFilter<"PromoBanner"> | $Enums.PromoBannerAudience
   isActive?: Prisma.BoolFilter<"PromoBanner"> | boolean
   startsAt?: Prisma.DateTimeNullableFilter<"PromoBanner"> | Date | string | null
   endsAt?: Prisma.DateTimeNullableFilter<"PromoBanner"> | Date | string | null
@@ -304,6 +324,8 @@ export type PromoBannerOrderByWithAggregationInput = {
   subtitle?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   linkUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  ctaLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  audience?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -326,6 +348,8 @@ export type PromoBannerScalarWhereWithAggregatesInput = {
   subtitle?: Prisma.StringNullableWithAggregatesFilter<"PromoBanner"> | string | null
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"PromoBanner"> | string | null
   linkUrl?: Prisma.StringNullableWithAggregatesFilter<"PromoBanner"> | string | null
+  ctaLabel?: Prisma.StringNullableWithAggregatesFilter<"PromoBanner"> | string | null
+  audience?: Prisma.EnumPromoBannerAudienceWithAggregatesFilter<"PromoBanner"> | $Enums.PromoBannerAudience
   isActive?: Prisma.BoolWithAggregatesFilter<"PromoBanner"> | boolean
   startsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PromoBanner"> | Date | string | null
   endsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PromoBanner"> | Date | string | null
@@ -340,6 +364,8 @@ export type PromoBannerCreateInput = {
   subtitle?: string | null
   imageUrl?: string | null
   linkUrl?: string | null
+  ctaLabel?: string | null
+  audience?: $Enums.PromoBannerAudience
   isActive?: boolean
   startsAt?: Date | string | null
   endsAt?: Date | string | null
@@ -354,6 +380,8 @@ export type PromoBannerUncheckedCreateInput = {
   subtitle?: string | null
   imageUrl?: string | null
   linkUrl?: string | null
+  ctaLabel?: string | null
+  audience?: $Enums.PromoBannerAudience
   isActive?: boolean
   startsAt?: Date | string | null
   endsAt?: Date | string | null
@@ -368,6 +396,8 @@ export type PromoBannerUpdateInput = {
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audience?: Prisma.EnumPromoBannerAudienceFieldUpdateOperationsInput | $Enums.PromoBannerAudience
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -382,6 +412,8 @@ export type PromoBannerUncheckedUpdateInput = {
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audience?: Prisma.EnumPromoBannerAudienceFieldUpdateOperationsInput | $Enums.PromoBannerAudience
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -396,6 +428,8 @@ export type PromoBannerCreateManyInput = {
   subtitle?: string | null
   imageUrl?: string | null
   linkUrl?: string | null
+  ctaLabel?: string | null
+  audience?: $Enums.PromoBannerAudience
   isActive?: boolean
   startsAt?: Date | string | null
   endsAt?: Date | string | null
@@ -410,6 +444,8 @@ export type PromoBannerUpdateManyMutationInput = {
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audience?: Prisma.EnumPromoBannerAudienceFieldUpdateOperationsInput | $Enums.PromoBannerAudience
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -424,6 +460,8 @@ export type PromoBannerUncheckedUpdateManyInput = {
   subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   linkUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audience?: Prisma.EnumPromoBannerAudienceFieldUpdateOperationsInput | $Enums.PromoBannerAudience
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -444,6 +482,8 @@ export type PromoBannerCountOrderByAggregateInput = {
   subtitle?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   linkUrl?: Prisma.SortOrder
+  ctaLabel?: Prisma.SortOrder
+  audience?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
@@ -462,6 +502,8 @@ export type PromoBannerMaxOrderByAggregateInput = {
   subtitle?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   linkUrl?: Prisma.SortOrder
+  ctaLabel?: Prisma.SortOrder
+  audience?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
@@ -476,6 +518,8 @@ export type PromoBannerMinOrderByAggregateInput = {
   subtitle?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
   linkUrl?: Prisma.SortOrder
+  ctaLabel?: Prisma.SortOrder
+  audience?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
@@ -488,6 +532,10 @@ export type PromoBannerSumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
+export type EnumPromoBannerAudienceFieldUpdateOperationsInput = {
+  set?: $Enums.PromoBannerAudience
+}
+
 
 
 export type PromoBannerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -496,6 +544,8 @@ export type PromoBannerSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   subtitle?: boolean
   imageUrl?: boolean
   linkUrl?: boolean
+  ctaLabel?: boolean
+  audience?: boolean
   isActive?: boolean
   startsAt?: boolean
   endsAt?: boolean
@@ -512,6 +562,8 @@ export type PromoBannerSelectScalar = {
   subtitle?: boolean
   imageUrl?: boolean
   linkUrl?: boolean
+  ctaLabel?: boolean
+  audience?: boolean
   isActive?: boolean
   startsAt?: boolean
   endsAt?: boolean
@@ -520,7 +572,7 @@ export type PromoBannerSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PromoBannerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "subtitle" | "imageUrl" | "linkUrl" | "isActive" | "startsAt" | "endsAt" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["promoBanner"]>
+export type PromoBannerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "subtitle" | "imageUrl" | "linkUrl" | "ctaLabel" | "audience" | "isActive" | "startsAt" | "endsAt" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["promoBanner"]>
 
 export type $PromoBannerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PromoBanner"
@@ -531,6 +583,8 @@ export type $PromoBannerPayload<ExtArgs extends runtime.Types.Extensions.Interna
     subtitle: string | null
     imageUrl: string | null
     linkUrl: string | null
+    ctaLabel: string | null
+    audience: $Enums.PromoBannerAudience
     isActive: boolean
     startsAt: Date | null
     endsAt: Date | null
@@ -911,6 +965,8 @@ export interface PromoBannerFieldRefs {
   readonly subtitle: Prisma.FieldRef<"PromoBanner", 'String'>
   readonly imageUrl: Prisma.FieldRef<"PromoBanner", 'String'>
   readonly linkUrl: Prisma.FieldRef<"PromoBanner", 'String'>
+  readonly ctaLabel: Prisma.FieldRef<"PromoBanner", 'String'>
+  readonly audience: Prisma.FieldRef<"PromoBanner", 'PromoBannerAudience'>
   readonly isActive: Prisma.FieldRef<"PromoBanner", 'Boolean'>
   readonly startsAt: Prisma.FieldRef<"PromoBanner", 'DateTime'>
   readonly endsAt: Prisma.FieldRef<"PromoBanner", 'DateTime'>

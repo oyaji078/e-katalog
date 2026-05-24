@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getCurrentSession } from "@/lib/session";
+import { getCurrentUser } from "@/lib/session";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { resolveStoreWhatsappNumber, buildWhatsappUrl } from "@/lib/whatsapp";
@@ -11,20 +11,18 @@ export async function POST() {
     return NextResponse.json({ error: "Retail WhatsApp request is currently disabled." }, { status: 403 });
   }
 
-  const session = await getCurrentSession();
-  const userId = session?.user?.id;
-  if (!userId) {
+  const user = await getCurrentUser();
+  if (!user) {
     return NextResponse.json({ error: "Please log in first." }, { status: 401 });
   }
 
-  const userRole = session.user.role ?? "USER";
-  if (userRole !== "USER") {
+  if (user.role !== "USER") {
     return NextResponse.json({ error: "Only retail users can request token via WhatsApp." }, { status: 403 });
   }
 
   const db = getDb();
-  const user = await db.user.findUnique({
-    where: { id: userId },
+  const retailUser = await db.user.findUnique({
+    where: { id: user.id },
     select: {
       id: true,
       name: true,
@@ -36,20 +34,20 @@ export async function POST() {
     },
   });
 
-  if (!user) {
+  if (!retailUser) {
     return NextResponse.json({ error: "User not found." }, { status: 404 });
   }
 
-  if (user.retailStatus !== "REGISTERED" && user.retailStatus !== "PENDING_RETAIL") {
+  if (retailUser.retailStatus !== "REGISTERED" && retailUser.retailStatus !== "PENDING_RETAIL") {
     return NextResponse.json(
-      { error: `Your account status is "${user.retailStatus}". Token requests are only allowed for registered retail accounts.` },
+      { error: `Your account status is "${retailUser.retailStatus}". Token requests are only allowed for registered retail accounts.` },
       { status: 400 },
     );
   }
 
-  if (user.retailStatus === "REGISTERED") {
+  if (retailUser.retailStatus === "REGISTERED") {
     await db.user.update({
-      where: { id: userId },
+      where: { id: user.id },
       data: { retailStatus: "PENDING_RETAIL" },
     });
   }
@@ -59,11 +57,11 @@ export async function POST() {
   const message = [
     "Halo Admin, saya ingin meminta token aktivasi retail.",
     "",
-    `Nama: ${user.name ?? "-"}`,
-    `Email: ${user.email ?? "-"}`,
-    `WhatsApp: ${user.whatsappNumber ?? "-"}`,
-    `Toko/Instansi: ${user.storeName ?? "-"}`,
-    `Kode Pengguna: ${user.userCode ?? "-"}`,
+    `Nama: ${retailUser.name ?? "-"}`,
+    `Email: ${retailUser.email ?? "-"}`,
+    `WhatsApp: ${retailUser.whatsappNumber ?? "-"}`,
+    `Toko/Instansi: ${retailUser.storeName ?? "-"}`,
+    `Kode Pengguna: ${retailUser.userCode ?? "-"}`,
     "",
     "Mohon bantu buatkan token aktivasi retail.",
   ].join("\n");

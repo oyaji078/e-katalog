@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 
 import type { RetailStatus, UserRole } from "@/generated/prisma/client";
-import { auth } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/session";
 
 export type AppRole =
   | "guest"
@@ -26,6 +25,7 @@ export type ProtectedModule =
   | "retail_users"
   | "retail_token_generation"
   | "promo_banners"
+  | "hero_banners"
   | "whatsapp_inquiries"
   | "reports"
   | "store_settings"
@@ -54,6 +54,7 @@ const adminModules = new Set<ProtectedModule>([
   "retail_users",
   "retail_token_generation",
   "promo_banners",
+  "hero_banners",
   "whatsapp_inquiries",
   "reports",
   "store_settings",
@@ -116,19 +117,11 @@ export function isSuperAdminRole(role: AppRole) {
   return role === "super_admin";
 }
 
-/**
- * Server-side helper: get current user's AppRole from session.
- */
 export async function getCurrentUserRole(): Promise<AppRole> {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  }).catch(() => null);
-  return getEffectiveRole(session?.user);
+  const user = await getCurrentUser();
+  return getEffectiveRole(user ? { role: user.role, retailStatus: user.retailStatus } : null);
 }
 
-/**
- * Require admin or super admin role. Redirects to /login if unauthorized.
- */
 export async function requireAdmin() {
   const role = await getCurrentUserRole();
   if (!isAdminRole(role)) {
@@ -137,10 +130,6 @@ export async function requireAdmin() {
   return role as "admin" | "super_admin";
 }
 
-/**
- * Require super admin role. Redirects to /admin if unauthorized admin,
- * or /login if not logged in.
- */
 export async function requireSuperAdmin() {
   const role = await getCurrentUserRole();
   if (role === "admin") {

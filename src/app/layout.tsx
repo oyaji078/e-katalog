@@ -1,16 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { headers } from "next/headers";
+
 import "./globals.css";
 
 import { auth } from "@/lib/auth";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { getCurrentUser } from "@/lib/session";
+import FigmaMobileBottomNav from "@/components/ui/FigmaMobileBottomNav";
 
 export const metadata: Metadata = {
   title: "E-Katalog Komputer",
   description:
     "Katalog komputer dan aksesoris elektronik dengan alur inquiry WhatsApp.",
 };
+
+function isAuthPage(pathname: string) {
+  return (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/retail/") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/super-admin") ||
+    pathname.startsWith("/api/auth")
+  );
+}
 
 export default async function RootLayout({
   children,
@@ -19,14 +32,16 @@ export default async function RootLayout({
 }>) {
   // Check maintenance mode for public routes only
   let showMaintenance = false;
+  let pathname = "/";
 
   try {
+    const { headers } = await import("next/headers");
+    const hdrs = await headers();
+    pathname = hdrs.get("x-pathname") ?? "/";
+
     const maintenanceMode = await isFeatureEnabled("enable_maintenance_mode");
 
     if (maintenanceMode) {
-      const hdrs = await headers();
-      const pathname = hdrs.get("x-pathname") ?? "/";
-
       const isAdminRoute = pathname.startsWith("/admin") || pathname.startsWith("/super-admin");
       const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/api/auth");
       const isMaintenanceRoute = pathname.startsWith("/maintenance");
@@ -45,9 +60,12 @@ export default async function RootLayout({
     // Fail open — allow access if maintenance check fails
   }
 
+  const user = await getCurrentUser().catch(() => null);
+  const hideBottomNav = isAuthPage(pathname);
+
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">
+      <body className={`min-h-full flex flex-col ${hideBottomNav ? "" : "pb-16 lg:pb-0"}`}>
         {showMaintenance ? (
           <div className="flex min-h-screen items-center justify-center bg-soft-bg px-4">
             <div className="max-w-md rounded-lg border border-border-gray bg-white p-8 text-center shadow-sm">
@@ -67,7 +85,10 @@ export default async function RootLayout({
             </div>
           </div>
         ) : (
-          children
+          <>
+            {children}
+            {hideBottomNav ? null : <FigmaMobileBottomNav user={user} />}
+          </>
         )}
       </body>
     </html>

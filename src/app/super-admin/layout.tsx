@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
 import Sidebar from "@/components/layout/AdminSidebar";
-import { auth } from "@/lib/auth";
+import { requireSuperAdminSession } from "@/lib/admin-auth";
 
 export const metadata: Metadata = {
   title: "Super Admin - E-Katalog Komputer",
@@ -15,18 +14,14 @@ export default async function SuperAdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  }).catch(() => null);
-
-  if (session?.user?.role !== "SUPER_ADMIN") {
-    redirect("/login");
-  }
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "/super-admin";
+  const session = await requireSuperAdminSession(pathname);
 
   return (
-    <div className="flex min-h-screen bg-soft-bg">
-      <Sidebar role="SUPER_ADMIN" />
-      <div className="flex-1 p-6">
+    <div className="flex min-h-screen overflow-x-hidden bg-soft-bg">
+      <Sidebar role={session.user.role} />
+      <div className="min-w-0 flex-1 p-4 sm:p-6">
         {children}
       </div>
     </div>

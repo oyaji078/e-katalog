@@ -1,4 +1,5 @@
-import ProductCard, { type ProductCardProps } from "@/components/ui/ProductCard";
+import FigmaProductCard from "@/components/ui/FigmaProductCard";
+import type { ProductCardProps } from "@/components/ui/ProductCard";
 
 type ProductGridProps = {
   products: ProductCardProps[];
@@ -17,9 +18,9 @@ export default function ProductGrid({
   };
 
   return (
-    <div className={`grid gap-3 ${gridClasses[columns] || gridClasses[4]}`}>
+    <div className={`grid overflow-hidden rounded-2xl bg-gray-100 gap-px ${gridClasses[columns] || gridClasses[4]}`}>
       {products.map((product) => (
-        <ProductCard key={product.href} {...product} />
+        <FigmaProductCard key={product.href} {...product} />
       ))}
     </div>
   );

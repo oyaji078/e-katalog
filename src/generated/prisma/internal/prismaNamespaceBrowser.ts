@@ -59,10 +59,14 @@ export const ModelName = {
   Brand: 'Brand',
   Product: 'Product',
   ProductImage: 'ProductImage',
+  FlashSale: 'FlashSale',
+  FlashSaleProduct: 'FlashSaleProduct',
   Voucher: 'Voucher',
   ProductVoucher: 'ProductVoucher',
+  VoucherClaim: 'VoucherClaim',
   RetailToken: 'RetailToken',
   PromoBanner: 'PromoBanner',
+  HeroBanner: 'HeroBanner',
   WhatsappInquiryLog: 'WhatsappInquiryLog',
   FeatureFlag: 'FeatureFlag',
   StoreSetting: 'StoreSetting',
@@ -198,13 +202,14 @@ export const ProductScalarFieldEnum = {
   stockStatus: 'stockStatus',
   status: 'status',
   isRecommended: 'isRecommended',
-  isNewArrival: 'isNewArrival',
   isFeatured: 'isFeatured',
-  isPromo: 'isPromo',
   warrantyInfo: 'warrantyInfo',
   primaryImageUrl: 'primaryImageUrl',
   categoryId: 'categoryId',
   brandId: 'brandId',
+  viewCount: 'viewCount',
+  clickCount: 'clickCount',
+  inquiryCount: 'inquiryCount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -222,6 +227,32 @@ export const ProductImageScalarFieldEnum = {
 } as const
 
 export type ProductImageScalarFieldEnum = (typeof ProductImageScalarFieldEnum)[keyof typeof ProductImageScalarFieldEnum]
+
+
+export const FlashSaleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FlashSaleScalarFieldEnum = (typeof FlashSaleScalarFieldEnum)[keyof typeof FlashSaleScalarFieldEnum]
+
+
+export const FlashSaleProductScalarFieldEnum = {
+  id: 'id',
+  flashSaleId: 'flashSaleId',
+  productId: 'productId',
+  flashSalePrice: 'flashSalePrice',
+  flashSaleStock: 'flashSaleStock',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type FlashSaleProductScalarFieldEnum = (typeof FlashSaleProductScalarFieldEnum)[keyof typeof FlashSaleProductScalarFieldEnum]
 
 
 export const VoucherScalarFieldEnum = {
@@ -255,6 +286,20 @@ export const ProductVoucherScalarFieldEnum = {
 export type ProductVoucherScalarFieldEnum = (typeof ProductVoucherScalarFieldEnum)[keyof typeof ProductVoucherScalarFieldEnum]
 
 
+export const VoucherClaimScalarFieldEnum = {
+  id: 'id',
+  voucherId: 'voucherId',
+  userId: 'userId',
+  status: 'status',
+  claimedAt: 'claimedAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VoucherClaimScalarFieldEnum = (typeof VoucherClaimScalarFieldEnum)[keyof typeof VoucherClaimScalarFieldEnum]
+
+
 export const RetailTokenScalarFieldEnum = {
   id: 'id',
   tokenHash: 'tokenHash',
@@ -279,6 +324,8 @@ export const PromoBannerScalarFieldEnum = {
   subtitle: 'subtitle',
   imageUrl: 'imageUrl',
   linkUrl: 'linkUrl',
+  ctaLabel: 'ctaLabel',
+  audience: 'audience',
   isActive: 'isActive',
   startsAt: 'startsAt',
   endsAt: 'endsAt',
@@ -288,6 +335,24 @@ export const PromoBannerScalarFieldEnum = {
 } as const
 
 export type PromoBannerScalarFieldEnum = (typeof PromoBannerScalarFieldEnum)[keyof typeof PromoBannerScalarFieldEnum]
+
+
+export const HeroBannerScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  subtitle: 'subtitle',
+  imageUrl: 'imageUrl',
+  linkUrl: 'linkUrl',
+  ctaLabel: 'ctaLabel',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HeroBannerScalarFieldEnum = (typeof HeroBannerScalarFieldEnum)[keyof typeof HeroBannerScalarFieldEnum]
 
 
 export const WhatsappInquiryLogScalarFieldEnum = {
@@ -491,6 +556,23 @@ export const ProductImageOrderByRelevanceFieldEnum = {
 export type ProductImageOrderByRelevanceFieldEnum = (typeof ProductImageOrderByRelevanceFieldEnum)[keyof typeof ProductImageOrderByRelevanceFieldEnum]
 
 
+export const FlashSaleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type FlashSaleOrderByRelevanceFieldEnum = (typeof FlashSaleOrderByRelevanceFieldEnum)[keyof typeof FlashSaleOrderByRelevanceFieldEnum]
+
+
+export const FlashSaleProductOrderByRelevanceFieldEnum = {
+  id: 'id',
+  flashSaleId: 'flashSaleId',
+  productId: 'productId'
+} as const
+
+export type FlashSaleProductOrderByRelevanceFieldEnum = (typeof FlashSaleProductOrderByRelevanceFieldEnum)[keyof typeof FlashSaleProductOrderByRelevanceFieldEnum]
+
+
 export const VoucherOrderByRelevanceFieldEnum = {
   id: 'id',
   code: 'code',
@@ -510,6 +592,15 @@ export const ProductVoucherOrderByRelevanceFieldEnum = {
 export type ProductVoucherOrderByRelevanceFieldEnum = (typeof ProductVoucherOrderByRelevanceFieldEnum)[keyof typeof ProductVoucherOrderByRelevanceFieldEnum]
 
 
+export const VoucherClaimOrderByRelevanceFieldEnum = {
+  id: 'id',
+  voucherId: 'voucherId',
+  userId: 'userId'
+} as const
+
+export type VoucherClaimOrderByRelevanceFieldEnum = (typeof VoucherClaimOrderByRelevanceFieldEnum)[keyof typeof VoucherClaimOrderByRelevanceFieldEnum]
+
+
 export const RetailTokenOrderByRelevanceFieldEnum = {
   id: 'id',
   tokenHash: 'tokenHash',
@@ -527,10 +618,23 @@ export const PromoBannerOrderByRelevanceFieldEnum = {
   title: 'title',
   subtitle: 'subtitle',
   imageUrl: 'imageUrl',
-  linkUrl: 'linkUrl'
+  linkUrl: 'linkUrl',
+  ctaLabel: 'ctaLabel'
 } as const
 
 export type PromoBannerOrderByRelevanceFieldEnum = (typeof PromoBannerOrderByRelevanceFieldEnum)[keyof typeof PromoBannerOrderByRelevanceFieldEnum]
+
+
+export const HeroBannerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  title: 'title',
+  subtitle: 'subtitle',
+  imageUrl: 'imageUrl',
+  linkUrl: 'linkUrl',
+  ctaLabel: 'ctaLabel'
+} as const
+
+export type HeroBannerOrderByRelevanceFieldEnum = (typeof HeroBannerOrderByRelevanceFieldEnum)[keyof typeof HeroBannerOrderByRelevanceFieldEnum]
 
 
 export const WhatsappInquiryLogOrderByRelevanceFieldEnum = {

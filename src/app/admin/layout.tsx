@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
 import Sidebar from "@/components/layout/AdminSidebar";
-import { auth } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/admin-auth";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard - E-Katalog Komputer",
@@ -15,20 +14,14 @@ export default async function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  }).catch(() => null);
-
-  const role = session?.user?.role;
-
-  if (role !== "ADMIN" && role !== "SUPER_ADMIN") {
-    redirect("/login");
-  }
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "/admin";
+  const session = await requireAdminSession(pathname);
 
   return (
-    <div className="flex min-h-screen bg-soft-bg">
-      <Sidebar role={role} />
-      <div className="flex-1 p-6">
+    <div className="flex min-h-screen overflow-x-hidden bg-soft-bg">
+      <Sidebar role={session.user.role} />
+      <div className="min-w-0 flex-1 p-4 sm:p-6">
         {children}
       </div>
     </div>

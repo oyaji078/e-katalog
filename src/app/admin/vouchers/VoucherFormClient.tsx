@@ -8,6 +8,7 @@ import type {
   VoucherStatus,
 } from "@/generated/prisma/client";
 
+import ToggleSwitch from "@/components/ui/ToggleSwitch";
 import {
   createVoucherAction,
   type VoucherFormState,
@@ -206,10 +207,12 @@ export default function VoucherFormClient({
         </fieldset>
       </section>
 
-      <label className="flex items-center gap-2 rounded-lg border border-border-gray bg-white px-3 py-2 text-sm font-semibold">
-        <input name="isActive" type="checkbox" defaultChecked={voucher?.isActive ?? true} />
-        Active voucher
-      </label>
+      <ToggleSwitch
+        name="isActive"
+        label="Voucher Aktif"
+        description="Nonaktifkan untuk menjeda voucher tanpa menghapusnya"
+        defaultChecked={voucher?.isActive ?? true}
+      />
 
       <button
         type="submit"

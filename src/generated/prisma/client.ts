@@ -82,6 +82,16 @@ export type Product = Prisma.ProductModel
  */
 export type ProductImage = Prisma.ProductImageModel
 /**
+ * Model FlashSale
+ * 
+ */
+export type FlashSale = Prisma.FlashSaleModel
+/**
+ * Model FlashSaleProduct
+ * 
+ */
+export type FlashSaleProduct = Prisma.FlashSaleProductModel
+/**
  * Model Voucher
  * 
  */
@@ -92,6 +102,11 @@ export type Voucher = Prisma.VoucherModel
  */
 export type ProductVoucher = Prisma.ProductVoucherModel
 /**
+ * Model VoucherClaim
+ * 
+ */
+export type VoucherClaim = Prisma.VoucherClaimModel
+/**
  * Model RetailToken
  * 
  */
@@ -101,6 +116,11 @@ export type RetailToken = Prisma.RetailTokenModel
  * 
  */
 export type PromoBanner = Prisma.PromoBannerModel
+/**
+ * Model HeroBanner
+ * 
+ */
+export type HeroBanner = Prisma.HeroBannerModel
 /**
  * Model WhatsappInquiryLog
  * 

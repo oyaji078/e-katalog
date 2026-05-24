@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
-import { canSeeRetailPrice, getApplicableVouchers, voucherLabel } from "@/lib/catalog";
+import {
+  canSeeRetailPrice,
+  canUseRetailVoucher,
+  getApplicableVouchers,
+  getVisibleVouchers,
+  voucherLabel,
+} from "@/lib/catalog";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { getCurrentUser } from "@/lib/session";
 import {
   buildInquiryMessage,
   buildProductUrl,
@@ -20,7 +27,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
     }
 
-    const { productId, productSlug, sourcePage = "catalog" } = body;
+    const { productId, productSlug } = body;
+    const sourcePage = "catalog";
 
     if (!productId && !productSlug) {
       return NextResponse.json(
@@ -31,10 +39,9 @@ export async function POST(request: NextRequest) {
 
     const db = getDb();
 
-    // Fetch product by slug or ID
     const product = productSlug
-      ? await db.product.findUnique({
-          where: { slug: productSlug },
+      ? await db.product.findFirst({
+          where: { slug: productSlug, status: "ACTIVE" },
           select: {
             id: true,
             name: true,
@@ -47,8 +54,8 @@ export async function POST(request: NextRequest) {
             categoryId: true,
           },
         })
-      : await db.product.findUnique({
-          where: { id: productId },
+      : await db.product.findFirst({
+          where: { id: productId, status: "ACTIVE" },
           select: {
             id: true,
             name: true,
@@ -63,7 +70,6 @@ export async function POST(request: NextRequest) {
         });
 
     if (!product) {
-      // Log failed inquiry if tracking enabled
       const trackingEnabled = await isFeatureEnabled("enable_inquiry_tracking").catch(() => false);
       if (trackingEnabled) {
         const session = await auth.api
@@ -84,9 +90,7 @@ export async function POST(request: NextRequest) {
             sourcePage,
             status: "NEW",
           },
-        }).catch(() => {
-          // Silently fail logging
-        });
+        }).catch(() => {});
       }
 
       return NextResponse.json(
@@ -95,28 +99,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user session
-    const session = await auth.api
-      .getSession({
-        headers: request.headers,
-      })
-      .catch(() => null);
-
-    const user = session?.user ? {
-      role: session.user.role,
-      retailStatus: session.user.retailStatus,
+    const currentUser = await getCurrentUser();
+    const user = currentUser ? {
+      role: currentUser.role,
+      retailStatus: currentUser.retailStatus,
     } : undefined;
 
-    // Check feature flags
-    const [retailPriceEnabled, trackingEnabled] = await Promise.all([
+    const [
+      retailPriceEnabled,
+      publicVoucherEnabled,
+      retailVoucherEnabled,
+      trackingEnabled,
+    ] = await Promise.all([
       isFeatureEnabled("enable_retail_price").catch(() => false),
+      isFeatureEnabled("enable_public_voucher").catch(() => false),
+      isFeatureEnabled("enable_retail_voucher").catch(() => false),
       isFeatureEnabled("enable_inquiry_tracking").catch(() => false),
     ]);
 
-    // Determine if user can see retail price
     const showRetailPrice = canSeeRetailPrice(user, retailPriceEnabled);
+    const canSeeRetailVouchers = canUseRetailVoucher(user);
 
-    // Fetch applicable vouchers
     const vouchers = await db.voucher.findMany({
       where: {
         isActive: true,
@@ -130,23 +133,41 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const applicableVouchers = getApplicableVouchers(product, vouchers);
+    const applicableVouchers = getVisibleVouchers(getApplicableVouchers(product, vouchers), {
+      publicVoucherEnabled,
+      retailVoucherEnabled,
+      canSeeRetail: canSeeRetailVouchers,
+    });
+    const applicableIds = applicableVouchers.map((v) => v.id);
 
-    // Build voucher info
     let voucherInfo: string | undefined;
-    if (applicableVouchers.length > 0) {
-      const voucherLines = applicableVouchers.map((v) => {
-        const label = voucherLabel(v);
-        return `Voucher: ${v.title} (${label})`;
+
+    if (currentUser) {
+      const claimedVouchers = await db.voucherClaim.findMany({
+        where: {
+          userId: currentUser.id,
+          voucherId: { in: applicableIds },
+          status: "CLAIMED",
+        },
+        include: { voucher: true },
       });
-      voucherInfo = voucherLines.join("\n");
+
+      if (claimedVouchers.length > 0) {
+        const lines = claimedVouchers.map((cv) => {
+          const label = voucherLabel(cv.voucher);
+          return `Voucher: ${cv.voucher.code} - ${cv.voucher.title} (${label})`;
+        });
+        voucherInfo = lines.join("\n");
+      } else if (applicableVouchers.length > 0) {
+        voucherInfo = "Voucher tersedia. Klaim voucher sebelum menghubungi admin.";
+      }
+    } else if (applicableVouchers.length > 0) {
+      voucherInfo = "Voucher tersedia. Klaim voucher sebelum menghubungi admin.";
     }
 
-    // Build product URL (use configured base URL if available)
     const baseUrl = request.nextUrl.origin;
     const productLink = buildProductUrl(product, baseUrl);
 
-    // Build inquiry message
     const message = buildInquiryMessage({
       product,
       user,
@@ -155,19 +176,16 @@ export async function POST(request: NextRequest) {
       voucherInfo,
     });
 
-    // Resolve WhatsApp number from StoreSetting, fallback to env
     const whatsappNumber = await resolveStoreWhatsappNumber(db);
 
-    // Build WhatsApp URL
     const waUrl = buildWhatsappUrl({
       message,
       whatsappNumber,
     });
 
-    // Log inquiry if tracking enabled
     if (trackingEnabled) {
-      const resolvedUserId = session?.user?.id ?? null;
-      const resolvedName = session?.user?.name ?? null;
+      const resolvedUserId = currentUser?.id ?? null;
+      const resolvedName = currentUser?.name ?? null;
 
       await db.whatsappInquiryLog.create({
         data: {
@@ -180,14 +198,11 @@ export async function POST(request: NextRequest) {
           sourcePage,
           status: "NEW",
         },
-      }).catch(() => {
-        // Silently fail logging to not break the flow
-      });
+      }).catch(() => {});
     }
 
     return NextResponse.json({ waUrl });
   } catch {
-    // Fallback on error
     const fallbackNumber = await resolveStoreWhatsappNumber(getDb()).catch(() => undefined);
     const fallbackMessage = "Halo Admin, saya tertarik dengan produk dari katalog.";
     const fallbackUrl = buildWhatsappUrl({

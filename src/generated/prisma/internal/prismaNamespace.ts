@@ -392,10 +392,14 @@ export const ModelName = {
   Brand: 'Brand',
   Product: 'Product',
   ProductImage: 'ProductImage',
+  FlashSale: 'FlashSale',
+  FlashSaleProduct: 'FlashSaleProduct',
   Voucher: 'Voucher',
   ProductVoucher: 'ProductVoucher',
+  VoucherClaim: 'VoucherClaim',
   RetailToken: 'RetailToken',
   PromoBanner: 'PromoBanner',
+  HeroBanner: 'HeroBanner',
   WhatsappInquiryLog: 'WhatsappInquiryLog',
   FeatureFlag: 'FeatureFlag',
   StoreSetting: 'StoreSetting',
@@ -415,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "category" | "brand" | "product" | "productImage" | "voucher" | "productVoucher" | "retailToken" | "promoBanner" | "whatsappInquiryLog" | "featureFlag" | "storeSetting" | "adminActivityLog"
+    modelProps: "user" | "session" | "account" | "verification" | "category" | "brand" | "product" | "productImage" | "flashSale" | "flashSaleProduct" | "voucher" | "productVoucher" | "voucherClaim" | "retailToken" | "promoBanner" | "heroBanner" | "whatsappInquiryLog" | "featureFlag" | "storeSetting" | "adminActivityLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -947,6 +951,138 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    FlashSale: {
+      payload: Prisma.$FlashSalePayload<ExtArgs>
+      fields: Prisma.FlashSaleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FlashSaleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSalePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FlashSaleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSalePayload>
+        }
+        findFirst: {
+          args: Prisma.FlashSaleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSalePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FlashSaleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSalePayload>
+        }
+        findMany: {
+          args: Prisma.FlashSaleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSalePayload>[]
+        }
+        create: {
+          args: Prisma.FlashSaleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSalePayload>
+        }
+        createMany: {
+          args: Prisma.FlashSaleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.FlashSaleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSalePayload>
+        }
+        update: {
+          args: Prisma.FlashSaleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSalePayload>
+        }
+        deleteMany: {
+          args: Prisma.FlashSaleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FlashSaleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.FlashSaleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSalePayload>
+        }
+        aggregate: {
+          args: Prisma.FlashSaleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFlashSale>
+        }
+        groupBy: {
+          args: Prisma.FlashSaleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FlashSaleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FlashSaleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FlashSaleCountAggregateOutputType> | number
+        }
+      }
+    }
+    FlashSaleProduct: {
+      payload: Prisma.$FlashSaleProductPayload<ExtArgs>
+      fields: Prisma.FlashSaleProductFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FlashSaleProductFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSaleProductPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FlashSaleProductFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSaleProductPayload>
+        }
+        findFirst: {
+          args: Prisma.FlashSaleProductFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSaleProductPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FlashSaleProductFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSaleProductPayload>
+        }
+        findMany: {
+          args: Prisma.FlashSaleProductFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSaleProductPayload>[]
+        }
+        create: {
+          args: Prisma.FlashSaleProductCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSaleProductPayload>
+        }
+        createMany: {
+          args: Prisma.FlashSaleProductCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.FlashSaleProductDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSaleProductPayload>
+        }
+        update: {
+          args: Prisma.FlashSaleProductUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSaleProductPayload>
+        }
+        deleteMany: {
+          args: Prisma.FlashSaleProductDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FlashSaleProductUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.FlashSaleProductUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FlashSaleProductPayload>
+        }
+        aggregate: {
+          args: Prisma.FlashSaleProductAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFlashSaleProduct>
+        }
+        groupBy: {
+          args: Prisma.FlashSaleProductGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FlashSaleProductGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FlashSaleProductCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FlashSaleProductCountAggregateOutputType> | number
+        }
+      }
+    }
     Voucher: {
       payload: Prisma.$VoucherPayload<ExtArgs>
       fields: Prisma.VoucherFieldRefs
@@ -1079,6 +1215,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    VoucherClaim: {
+      payload: Prisma.$VoucherClaimPayload<ExtArgs>
+      fields: Prisma.VoucherClaimFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VoucherClaimFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VoucherClaimPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VoucherClaimFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VoucherClaimPayload>
+        }
+        findFirst: {
+          args: Prisma.VoucherClaimFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VoucherClaimPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VoucherClaimFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VoucherClaimPayload>
+        }
+        findMany: {
+          args: Prisma.VoucherClaimFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VoucherClaimPayload>[]
+        }
+        create: {
+          args: Prisma.VoucherClaimCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VoucherClaimPayload>
+        }
+        createMany: {
+          args: Prisma.VoucherClaimCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.VoucherClaimDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VoucherClaimPayload>
+        }
+        update: {
+          args: Prisma.VoucherClaimUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VoucherClaimPayload>
+        }
+        deleteMany: {
+          args: Prisma.VoucherClaimDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VoucherClaimUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.VoucherClaimUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VoucherClaimPayload>
+        }
+        aggregate: {
+          args: Prisma.VoucherClaimAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVoucherClaim>
+        }
+        groupBy: {
+          args: Prisma.VoucherClaimGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VoucherClaimGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VoucherClaimCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VoucherClaimCountAggregateOutputType> | number
+        }
+      }
+    }
     RetailToken: {
       payload: Prisma.$RetailTokenPayload<ExtArgs>
       fields: Prisma.RetailTokenFieldRefs
@@ -1208,6 +1410,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.PromoBannerCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.PromoBannerCountAggregateOutputType> | number
+        }
+      }
+    }
+    HeroBanner: {
+      payload: Prisma.$HeroBannerPayload<ExtArgs>
+      fields: Prisma.HeroBannerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.HeroBannerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HeroBannerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.HeroBannerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HeroBannerPayload>
+        }
+        findFirst: {
+          args: Prisma.HeroBannerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HeroBannerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.HeroBannerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HeroBannerPayload>
+        }
+        findMany: {
+          args: Prisma.HeroBannerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HeroBannerPayload>[]
+        }
+        create: {
+          args: Prisma.HeroBannerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HeroBannerPayload>
+        }
+        createMany: {
+          args: Prisma.HeroBannerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.HeroBannerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HeroBannerPayload>
+        }
+        update: {
+          args: Prisma.HeroBannerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HeroBannerPayload>
+        }
+        deleteMany: {
+          args: Prisma.HeroBannerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.HeroBannerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.HeroBannerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$HeroBannerPayload>
+        }
+        aggregate: {
+          args: Prisma.HeroBannerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateHeroBanner>
+        }
+        groupBy: {
+          args: Prisma.HeroBannerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HeroBannerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.HeroBannerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.HeroBannerCountAggregateOutputType> | number
         }
       }
     }
@@ -1627,13 +1895,14 @@ export const ProductScalarFieldEnum = {
   stockStatus: 'stockStatus',
   status: 'status',
   isRecommended: 'isRecommended',
-  isNewArrival: 'isNewArrival',
   isFeatured: 'isFeatured',
-  isPromo: 'isPromo',
   warrantyInfo: 'warrantyInfo',
   primaryImageUrl: 'primaryImageUrl',
   categoryId: 'categoryId',
   brandId: 'brandId',
+  viewCount: 'viewCount',
+  clickCount: 'clickCount',
+  inquiryCount: 'inquiryCount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1651,6 +1920,32 @@ export const ProductImageScalarFieldEnum = {
 } as const
 
 export type ProductImageScalarFieldEnum = (typeof ProductImageScalarFieldEnum)[keyof typeof ProductImageScalarFieldEnum]
+
+
+export const FlashSaleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FlashSaleScalarFieldEnum = (typeof FlashSaleScalarFieldEnum)[keyof typeof FlashSaleScalarFieldEnum]
+
+
+export const FlashSaleProductScalarFieldEnum = {
+  id: 'id',
+  flashSaleId: 'flashSaleId',
+  productId: 'productId',
+  flashSalePrice: 'flashSalePrice',
+  flashSaleStock: 'flashSaleStock',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type FlashSaleProductScalarFieldEnum = (typeof FlashSaleProductScalarFieldEnum)[keyof typeof FlashSaleProductScalarFieldEnum]
 
 
 export const VoucherScalarFieldEnum = {
@@ -1684,6 +1979,20 @@ export const ProductVoucherScalarFieldEnum = {
 export type ProductVoucherScalarFieldEnum = (typeof ProductVoucherScalarFieldEnum)[keyof typeof ProductVoucherScalarFieldEnum]
 
 
+export const VoucherClaimScalarFieldEnum = {
+  id: 'id',
+  voucherId: 'voucherId',
+  userId: 'userId',
+  status: 'status',
+  claimedAt: 'claimedAt',
+  usedAt: 'usedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VoucherClaimScalarFieldEnum = (typeof VoucherClaimScalarFieldEnum)[keyof typeof VoucherClaimScalarFieldEnum]
+
+
 export const RetailTokenScalarFieldEnum = {
   id: 'id',
   tokenHash: 'tokenHash',
@@ -1708,6 +2017,8 @@ export const PromoBannerScalarFieldEnum = {
   subtitle: 'subtitle',
   imageUrl: 'imageUrl',
   linkUrl: 'linkUrl',
+  ctaLabel: 'ctaLabel',
+  audience: 'audience',
   isActive: 'isActive',
   startsAt: 'startsAt',
   endsAt: 'endsAt',
@@ -1717,6 +2028,24 @@ export const PromoBannerScalarFieldEnum = {
 } as const
 
 export type PromoBannerScalarFieldEnum = (typeof PromoBannerScalarFieldEnum)[keyof typeof PromoBannerScalarFieldEnum]
+
+
+export const HeroBannerScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  subtitle: 'subtitle',
+  imageUrl: 'imageUrl',
+  linkUrl: 'linkUrl',
+  ctaLabel: 'ctaLabel',
+  isActive: 'isActive',
+  sortOrder: 'sortOrder',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HeroBannerScalarFieldEnum = (typeof HeroBannerScalarFieldEnum)[keyof typeof HeroBannerScalarFieldEnum]
 
 
 export const WhatsappInquiryLogScalarFieldEnum = {
@@ -1920,6 +2249,23 @@ export const ProductImageOrderByRelevanceFieldEnum = {
 export type ProductImageOrderByRelevanceFieldEnum = (typeof ProductImageOrderByRelevanceFieldEnum)[keyof typeof ProductImageOrderByRelevanceFieldEnum]
 
 
+export const FlashSaleOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type FlashSaleOrderByRelevanceFieldEnum = (typeof FlashSaleOrderByRelevanceFieldEnum)[keyof typeof FlashSaleOrderByRelevanceFieldEnum]
+
+
+export const FlashSaleProductOrderByRelevanceFieldEnum = {
+  id: 'id',
+  flashSaleId: 'flashSaleId',
+  productId: 'productId'
+} as const
+
+export type FlashSaleProductOrderByRelevanceFieldEnum = (typeof FlashSaleProductOrderByRelevanceFieldEnum)[keyof typeof FlashSaleProductOrderByRelevanceFieldEnum]
+
+
 export const VoucherOrderByRelevanceFieldEnum = {
   id: 'id',
   code: 'code',
@@ -1939,6 +2285,15 @@ export const ProductVoucherOrderByRelevanceFieldEnum = {
 export type ProductVoucherOrderByRelevanceFieldEnum = (typeof ProductVoucherOrderByRelevanceFieldEnum)[keyof typeof ProductVoucherOrderByRelevanceFieldEnum]
 
 
+export const VoucherClaimOrderByRelevanceFieldEnum = {
+  id: 'id',
+  voucherId: 'voucherId',
+  userId: 'userId'
+} as const
+
+export type VoucherClaimOrderByRelevanceFieldEnum = (typeof VoucherClaimOrderByRelevanceFieldEnum)[keyof typeof VoucherClaimOrderByRelevanceFieldEnum]
+
+
 export const RetailTokenOrderByRelevanceFieldEnum = {
   id: 'id',
   tokenHash: 'tokenHash',
@@ -1956,10 +2311,23 @@ export const PromoBannerOrderByRelevanceFieldEnum = {
   title: 'title',
   subtitle: 'subtitle',
   imageUrl: 'imageUrl',
-  linkUrl: 'linkUrl'
+  linkUrl: 'linkUrl',
+  ctaLabel: 'ctaLabel'
 } as const
 
 export type PromoBannerOrderByRelevanceFieldEnum = (typeof PromoBannerOrderByRelevanceFieldEnum)[keyof typeof PromoBannerOrderByRelevanceFieldEnum]
+
+
+export const HeroBannerOrderByRelevanceFieldEnum = {
+  id: 'id',
+  title: 'title',
+  subtitle: 'subtitle',
+  imageUrl: 'imageUrl',
+  linkUrl: 'linkUrl',
+  ctaLabel: 'ctaLabel'
+} as const
+
+export type HeroBannerOrderByRelevanceFieldEnum = (typeof HeroBannerOrderByRelevanceFieldEnum)[keyof typeof HeroBannerOrderByRelevanceFieldEnum]
 
 
 export const WhatsappInquiryLogOrderByRelevanceFieldEnum = {
@@ -2130,9 +2498,23 @@ export type EnumVoucherScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
+ * Reference to a field of type 'VoucherClaimStatus'
+ */
+export type EnumVoucherClaimStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VoucherClaimStatus'>
+    
+
+
+/**
  * Reference to a field of type 'RetailTokenStatus'
  */
 export type EnumRetailTokenStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RetailTokenStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PromoBannerAudience'
+ */
+export type EnumPromoBannerAudienceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PromoBannerAudience'>
     
 
 
@@ -2281,10 +2663,14 @@ export type GlobalOmitConfig = {
   brand?: Prisma.BrandOmit
   product?: Prisma.ProductOmit
   productImage?: Prisma.ProductImageOmit
+  flashSale?: Prisma.FlashSaleOmit
+  flashSaleProduct?: Prisma.FlashSaleProductOmit
   voucher?: Prisma.VoucherOmit
   productVoucher?: Prisma.ProductVoucherOmit
+  voucherClaim?: Prisma.VoucherClaimOmit
   retailToken?: Prisma.RetailTokenOmit
   promoBanner?: Prisma.PromoBannerOmit
+  heroBanner?: Prisma.HeroBannerOmit
   whatsappInquiryLog?: Prisma.WhatsappInquiryLogOmit
   featureFlag?: Prisma.FeatureFlagOmit
   storeSetting?: Prisma.StoreSettingOmit

@@ -46,6 +46,13 @@ enum VoucherStatus {
   DISABLED
 }
 
+enum VoucherClaimStatus {
+  CLAIMED
+  USED
+  EXPIRED
+  CANCELLED
+}
+
 enum RetailTokenStatus {
   ACTIVE
   USED
@@ -97,6 +104,7 @@ model User {
   activityLogs          AdminActivityLog[]   @relation("ActivityActor")
   featureFlagUpdates    FeatureFlag[]        @relation("FeatureFlagUpdater")
   targetedFeatureFlags  FeatureFlag[]        @relation("FeatureFlagUserTarget")
+  voucherClaims         VoucherClaim[]
 
   @@map("user")
 }
@@ -203,13 +211,14 @@ model Product {
   stockStatus        StockStatus   @default(READY)
   status             ProductStatus @default(DRAFT)
   isRecommended      Boolean       @default(false)
-  isNewArrival       Boolean       @default(false)
   isFeatured         Boolean       @default(false)
-  isPromo            Boolean       @default(false)
   warrantyInfo       String?
   primaryImageUrl    String?       @db.Text
   categoryId         String
   brandId            String
+  viewCount          Int           @default(0)
+  clickCount         Int           @default(0)
+  inquiryCount       Int           @default(0)
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
@@ -218,6 +227,7 @@ model Product {
   images            ProductImage[]
   vouchers          ProductVoucher[]
   whatsappInquiries WhatsappInquiryLog[]
+  flashSaleProducts FlashSaleProduct[]
 
   @@index([categoryId])
   @@index([brandId])
@@ -235,6 +245,37 @@ model ProductImage {
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([productId, sortOrder])
+}
+
+model FlashSale {
+  id        String   @id @default(cuid())
+  name      String
+  startsAt  DateTime
+  endsAt    DateTime
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products FlashSaleProduct[]
+
+  @@index([isActive, startsAt, endsAt])
+}
+
+model FlashSaleProduct {
+  id              String   @id @default(cuid())
+  flashSaleId     String
+  productId       String
+  flashSalePrice  Decimal  @db.Decimal(14, 2)
+  flashSaleStock  Int      @default(0)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  flashSale FlashSale @relation(fields: [flashSaleId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([flashSaleId, productId])
+  @@index([flashSaleId])
+  @@index([productId])
 }
 
 enum VoucherDiscountType {
@@ -268,6 +309,7 @@ model Voucher {
   categoryId      String? // For category-specific vouchers (deprecated, use categories relation instead)
   categories      Category[]      @relation("VoucherCategories")
   products        ProductVoucher[]
+  voucherClaims   VoucherClaim[]
 }
 
 model ProductVoucher {
@@ -278,6 +320,24 @@ model ProductVoucher {
   voucher Voucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
 
   @@id([productId, voucherId])
+}
+
+model VoucherClaim {
+  id        String             @id @default(cuid())
+  voucherId String
+  userId    String
+  status    VoucherClaimStatus @default(CLAIMED)
+  claimedAt DateTime           @default(now())
+  usedAt    DateTime?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  voucher Voucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([voucherId, userId])
+  @@index([userId])
+  @@index([voucherId])
 }
 
 model RetailToken {
@@ -303,19 +363,44 @@ model RetailToken {
 }
 
 model PromoBanner {
-  id        String    @id @default(cuid())
-  title     String
-  subtitle  String?
-  imageUrl  String?   @db.Text
-  linkUrl   String?   @db.Text
-  isActive  Boolean   @default(false)
-  startsAt  DateTime?
-  endsAt    DateTime?
-  sortOrder Int       @default(0)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id             String               @id @default(cuid())
+  title          String
+  subtitle       String?
+  imageUrl       String?              @db.Text
+  linkUrl        String?              @db.Text
+  ctaLabel       String?
+  audience       PromoBannerAudience  @default(PUBLIC)
+  isActive       Boolean              @default(false)
+  startsAt       DateTime?
+  endsAt         DateTime?
+  sortOrder      Int                  @default(0)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
 
   @@index([isActive, sortOrder])
+}
+
+model HeroBanner {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String?
+  imageUrl  String?  @db.Text
+  linkUrl   String?  @db.Text
+  ctaLabel  String?
+  isActive  Boolean  @default(false)
+  sortOrder Int      @default(0)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+enum PromoBannerAudience {
+  PUBLIC
+  AUTHENTICATED
+  RETAIL
 }
 
 model WhatsappInquiryLog {

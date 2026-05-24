@@ -1,0 +1,706 @@
+[
+  {
+    "page": "/",
+    "viewport": "390x844",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/home-390x844.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/",
+    "viewport": "768x1024",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/home-768x1024.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/",
+    "viewport": "1366x768",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/home-1366x768.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/",
+    "viewport": "1920x1080",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/home-1920x1080.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products",
+    "viewport": "390x844",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/products-390x844.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products",
+    "viewport": "768x1024",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/products-768x1024.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products",
+    "viewport": "1366x768",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/products-1366x768.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products",
+    "viewport": "1920x1080",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/products-1920x1080.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products?page=1&pageSize=24",
+    "viewport": "390x844",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/products-paged-390x844.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products?page=1&pageSize=24",
+    "viewport": "768x1024",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/products-paged-768x1024.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products?page=1&pageSize=24",
+    "viewport": "1366x768",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/products-paged-1366x768.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products?page=1&pageSize=24",
+    "viewport": "1920x1080",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/products-paged-1920x1080.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products/p141-test-laptop-30",
+    "viewport": "390x844",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/product-detail-390x844.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products/p141-test-laptop-30",
+    "viewport": "768x1024",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/product-detail-768x1024.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products/p141-test-laptop-30",
+    "viewport": "1366x768",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/product-detail-1366x768.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/products/p141-test-laptop-30",
+    "viewport": "1920x1080",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/product-detail-1920x1080.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/vouchers",
+    "viewport": "390x844",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/vouchers-390x844.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/vouchers",
+    "viewport": "768x1024",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/vouchers-768x1024.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/vouchers",
+    "viewport": "1366x768",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/vouchers-1366x768.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/vouchers",
+    "viewport": "1920x1080",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/vouchers-1920x1080.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/login",
+    "viewport": "390x844",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/login-390x844.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/login",
+    "viewport": "768x1024",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/login-768x1024.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/login",
+    "viewport": "1366x768",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/login-1366x768.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/login",
+    "viewport": "1920x1080",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/login-1920x1080.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/register",
+    "viewport": "390x844",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/register-390x844.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/register",
+    "viewport": "768x1024",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/register-768x1024.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/register",
+    "viewport": "1366x768",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/register-1366x768.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/register",
+    "viewport": "1920x1080",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/register-1920x1080.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/retail/request-token",
+    "viewport": "390x844",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/retail-request-token-390x844.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/retail/request-token",
+    "viewport": "768x1024",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/retail-request-token-768x1024.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/retail/request-token",
+    "viewport": "1366x768",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/retail-request-token-1366x768.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/retail/request-token",
+    "viewport": "1920x1080",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/retail-request-token-1920x1080.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/retail/activate",
+    "viewport": "390x844",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/retail-activate-390x844.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/retail/activate",
+    "viewport": "768x1024",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/retail-activate-768x1024.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/retail/activate",
+    "viewport": "1366x768",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/retail-activate-1366x768.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/retail/activate",
+    "viewport": "1920x1080",
+    "role": "public",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/retail-activate-1920x1080.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/admin/products",
+    "viewport": "390x844",
+    "role": "admin",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/admin-products-390x844.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/admin/products",
+    "viewport": "768x1024",
+    "role": "admin",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/admin-products-768x1024.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/admin/products",
+    "viewport": "1366x768",
+    "role": "admin",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/admin-products-1366x768.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/admin/products",
+    "viewport": "1920x1080",
+    "role": "admin",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/admin-products-1920x1080.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/super-admin",
+    "viewport": "390x844",
+    "role": "super-admin",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/super-admin-390x844.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/super-admin",
+    "viewport": "768x1024",
+    "role": "super-admin",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/super-admin-768x1024.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/super-admin",
+    "viewport": "1366x768",
+    "role": "super-admin",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/super-admin-1366x768.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  },
+  {
+    "page": "/super-admin",
+    "viewport": "1920x1080",
+    "role": "super-admin",
+    "statusCode": 200,
+    "screenshotPath": "screenshots-phase15-2/super-admin-1920x1080.png",
+    "horizontalOverflow": false,
+    "missingAltCount": 0,
+    "badHttpResponses": 0,
+    "p141SvgRequestCount": 0,
+    "forbiddenTermScan": {
+      "found": false,
+      "matches": []
+    },
+    "error": null
+  }
+]

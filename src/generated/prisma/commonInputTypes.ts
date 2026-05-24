@@ -433,6 +433,23 @@ export type EnumVoucherScopeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumVoucherScopeFilter<$PrismaModel>
 }
 
+export type EnumVoucherClaimStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.VoucherClaimStatus | Prisma.EnumVoucherClaimStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.VoucherClaimStatus[]
+  notIn?: $Enums.VoucherClaimStatus[]
+  not?: Prisma.NestedEnumVoucherClaimStatusFilter<$PrismaModel> | $Enums.VoucherClaimStatus
+}
+
+export type EnumVoucherClaimStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.VoucherClaimStatus | Prisma.EnumVoucherClaimStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.VoucherClaimStatus[]
+  notIn?: $Enums.VoucherClaimStatus[]
+  not?: Prisma.NestedEnumVoucherClaimStatusWithAggregatesFilter<$PrismaModel> | $Enums.VoucherClaimStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumVoucherClaimStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumVoucherClaimStatusFilter<$PrismaModel>
+}
+
 export type EnumRetailTokenStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.RetailTokenStatus | Prisma.EnumRetailTokenStatusFieldRefInput<$PrismaModel>
   in?: $Enums.RetailTokenStatus[]
@@ -448,6 +465,23 @@ export type EnumRetailTokenStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumRetailTokenStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumRetailTokenStatusFilter<$PrismaModel>
+}
+
+export type EnumPromoBannerAudienceFilter<$PrismaModel = never> = {
+  equals?: $Enums.PromoBannerAudience | Prisma.EnumPromoBannerAudienceFieldRefInput<$PrismaModel>
+  in?: $Enums.PromoBannerAudience[]
+  notIn?: $Enums.PromoBannerAudience[]
+  not?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel> | $Enums.PromoBannerAudience
+}
+
+export type EnumPromoBannerAudienceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PromoBannerAudience | Prisma.EnumPromoBannerAudienceFieldRefInput<$PrismaModel>
+  in?: $Enums.PromoBannerAudience[]
+  notIn?: $Enums.PromoBannerAudience[]
+  not?: Prisma.NestedEnumPromoBannerAudienceWithAggregatesFilter<$PrismaModel> | $Enums.PromoBannerAudience
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel>
 }
 
 export type EnumInquiryStatusFilter<$PrismaModel = never> = {
@@ -927,6 +961,23 @@ export type NestedEnumVoucherScopeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumVoucherScopeFilter<$PrismaModel>
 }
 
+export type NestedEnumVoucherClaimStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.VoucherClaimStatus | Prisma.EnumVoucherClaimStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.VoucherClaimStatus[]
+  notIn?: $Enums.VoucherClaimStatus[]
+  not?: Prisma.NestedEnumVoucherClaimStatusFilter<$PrismaModel> | $Enums.VoucherClaimStatus
+}
+
+export type NestedEnumVoucherClaimStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.VoucherClaimStatus | Prisma.EnumVoucherClaimStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.VoucherClaimStatus[]
+  notIn?: $Enums.VoucherClaimStatus[]
+  not?: Prisma.NestedEnumVoucherClaimStatusWithAggregatesFilter<$PrismaModel> | $Enums.VoucherClaimStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumVoucherClaimStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumVoucherClaimStatusFilter<$PrismaModel>
+}
+
 export type NestedEnumRetailTokenStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.RetailTokenStatus | Prisma.EnumRetailTokenStatusFieldRefInput<$PrismaModel>
   in?: $Enums.RetailTokenStatus[]
@@ -942,6 +993,23 @@ export type NestedEnumRetailTokenStatusWithAggregatesFilter<$PrismaModel = never
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumRetailTokenStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumRetailTokenStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumPromoBannerAudienceFilter<$PrismaModel = never> = {
+  equals?: $Enums.PromoBannerAudience | Prisma.EnumPromoBannerAudienceFieldRefInput<$PrismaModel>
+  in?: $Enums.PromoBannerAudience[]
+  notIn?: $Enums.PromoBannerAudience[]
+  not?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel> | $Enums.PromoBannerAudience
+}
+
+export type NestedEnumPromoBannerAudienceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PromoBannerAudience | Prisma.EnumPromoBannerAudienceFieldRefInput<$PrismaModel>
+  in?: $Enums.PromoBannerAudience[]
+  notIn?: $Enums.PromoBannerAudience[]
+  not?: Prisma.NestedEnumPromoBannerAudienceWithAggregatesFilter<$PrismaModel> | $Enums.PromoBannerAudience
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel>
 }
 
 export type NestedEnumInquiryStatusFilter<$PrismaModel = never> = {

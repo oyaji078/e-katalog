@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import ToggleSwitch from "@/components/ui/ToggleSwitch";
 
 type Props = {
   enabled: boolean;
@@ -12,7 +13,7 @@ export function MaintenanceToggle({ enabled, flagId }: Props) {
   const [current, setCurrent] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
-  const handleToggle = useCallback(async () => {
+  const handleToggle = useCallback(async (checked: boolean) => {
     setLoading(true);
     setError(null);
 
@@ -22,38 +23,33 @@ export function MaintenanceToggle({ enabled, flagId }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           flagKey: "enable_maintenance_mode",
-          enabled: !current,
+          enabled: checked,
           flagId,
         }),
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to toggle maintenance mode");
-      }
-
-      setCurrent((prev) => !prev);
+      if (!res.ok) throw new Error("Failed to toggle maintenance mode");
+      setCurrent(checked);
     } catch {
       setError("Toggle failed");
+      setCurrent((prev) => !prev);
     } finally {
       setLoading(false);
     }
-  }, [current, flagId]);
+  }, [flagId]);
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={handleToggle}
-        disabled={loading}
-        className={`rounded-md px-4 py-2 text-sm font-bold text-white transition ${
-          current
-            ? "bg-success hover:bg-success/80"
-            : "bg-danger hover:bg-danger/80"
-        } disabled:opacity-50`}
-      >
-        {loading ? "Processing..." : current ? "Disable Maintenance" : "Enable Maintenance"}
-      </button>
-      {error ? <p className="mt-2 text-xs text-danger">{error}</p> : null}
+      <div className={loading ? "pointer-events-none opacity-50" : ""}>
+        <ToggleSwitch
+          name="maintenance_mode"
+          label={current ? "Mode Maintenance Aktif" : "Mode Maintenance Nonaktif"}
+          description={current ? "Situs akan menampilkan halaman maintenance" : "Situs berjalan normal"}
+          defaultChecked={current}
+          onChange={handleToggle}
+        />
+      </div>
+      {error ? <p className="mt-1 text-xs text-danger">{error}</p> : null}
     </div>
   );
 }

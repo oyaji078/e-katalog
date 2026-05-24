@@ -23,9 +23,10 @@ export default function RegisterPage() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    const form = event.currentTarget;
     setIsSubmitting(true);
 
-    const formData = new FormData(event.currentTarget);
+    const formData = new FormData(form);
     const name = String(formData.get("name") ?? "");
     const email = String(formData.get("email") ?? "");
     const whatsappNumber = String(formData.get("whatsappNumber") ?? "");
@@ -41,11 +42,29 @@ export default function RegisterPage() {
     }
 
     setResult({ email, name, whatsappNumber, storeName, userCode: state.userCode });
-    event.currentTarget.reset();
+    form.reset();
   }
 
   return (
-    <main className="min-h-screen bg-soft-bg px-4 py-10 text-text-dark">
+    <main className="min-h-screen bg-soft-bg text-text-dark">
+      <header
+        className="sticky top-0 z-50 shadow-sm"
+        style={{ background: "linear-gradient(135deg, #6E1A37 0%, #AE2448 100%)" }}
+      >
+        <div className="mx-auto flex max-w-7xl items-center px-4 py-3 md:px-6">
+          <Link href="/" className="flex-shrink-0 select-none">
+            <span className="text-xl font-black tracking-tight text-white md:text-2xl">
+              E-<span style={{ color: "#D5E7B5" }}>Katalog</span>
+            </span>
+          </Link>
+          <div className="ml-auto flex items-center gap-3 text-xs text-white/70">
+            <Link href="/vouchers" className="transition-colors hover:text-white">Voucher</Link>
+            <span className="opacity-40">|</span>
+            <Link href="/products" className="transition-colors hover:text-white">Katalog</Link>
+          </div>
+        </div>
+      </header>
+      <div className="px-4 py-10">
       <section className="mx-auto max-w-2xl rounded-2xl border border-border-gray bg-white p-6 shadow-sm">
         <Link href="/" className="text-sm font-semibold text-primary-maroon">
           E-Katalog Komputer
@@ -71,12 +90,20 @@ export default function RegisterPage() {
             <p className="mt-2 text-sm text-text-muted">
               Untuk mengaktifkan akses retail, minta token aktivasi ke admin melalui WhatsApp.
             </p>
-            <Link
-              href="/retail/request-token"
-              className="mt-4 inline-flex rounded-xl bg-whatsapp-green px-4 py-3 text-sm font-bold text-white"
-            >
-              Minta Token Retail via WhatsApp
-            </Link>
+            <div className="mt-4 space-y-3">
+              <Link
+                href="/retail/request-token"
+                className="flex items-center justify-center rounded-xl bg-whatsapp-green px-4 py-3 text-sm font-bold text-white"
+              >
+                Minta Token Retail via WhatsApp
+              </Link>
+              <Link
+                href="/retail/activate"
+                className="flex items-center justify-center rounded-xl border border-primary-maroon px-4 py-3 text-sm font-semibold text-primary-maroon"
+              >
+                Jika sudah punya token, aktifkan akun ritel
+              </Link>
+            </div>
           </div>
         ) : null}
 
@@ -175,6 +202,7 @@ export default function RegisterPage() {
         </form>
         ) : null}
       </section>
+      </div>
     </main>
   );
 }

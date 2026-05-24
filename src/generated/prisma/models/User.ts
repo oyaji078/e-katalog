@@ -254,6 +254,7 @@ export type UserWhereInput = {
   activityLogs?: Prisma.AdminActivityLogListRelationFilter
   featureFlagUpdates?: Prisma.FeatureFlagListRelationFilter
   targetedFeatureFlags?: Prisma.FeatureFlagListRelationFilter
+  voucherClaims?: Prisma.VoucherClaimListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -278,6 +279,7 @@ export type UserOrderByWithRelationInput = {
   activityLogs?: Prisma.AdminActivityLogOrderByRelationAggregateInput
   featureFlagUpdates?: Prisma.FeatureFlagOrderByRelationAggregateInput
   targetedFeatureFlags?: Prisma.FeatureFlagOrderByRelationAggregateInput
+  voucherClaims?: Prisma.VoucherClaimOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
 
@@ -306,6 +308,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   activityLogs?: Prisma.AdminActivityLogListRelationFilter
   featureFlagUpdates?: Prisma.FeatureFlagListRelationFilter
   targetedFeatureFlags?: Prisma.FeatureFlagListRelationFilter
+  voucherClaims?: Prisma.VoucherClaimListRelationFilter
 }, "id" | "email" | "userCode">
 
 export type UserOrderByWithAggregationInput = {
@@ -368,6 +371,7 @@ export type UserCreateInput = {
   activityLogs?: Prisma.AdminActivityLogCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -392,6 +396,7 @@ export type UserUncheckedCreateInput = {
   activityLogs?: Prisma.AdminActivityLogUncheckedCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -416,6 +421,7 @@ export type UserUpdateInput = {
   activityLogs?: Prisma.AdminActivityLogUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -440,6 +446,7 @@ export type UserUncheckedUpdateInput = {
   activityLogs?: Prisma.AdminActivityLogUncheckedUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -606,6 +613,20 @@ export type UserUpdateOneRequiredWithoutAccountsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAccountsInput, Prisma.UserUpdateWithoutAccountsInput>, Prisma.UserUncheckedUpdateWithoutAccountsInput>
 }
 
+export type UserCreateNestedOneWithoutVoucherClaimsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVoucherClaimsInput, Prisma.UserUncheckedCreateWithoutVoucherClaimsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVoucherClaimsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutVoucherClaimsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVoucherClaimsInput, Prisma.UserUncheckedCreateWithoutVoucherClaimsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVoucherClaimsInput
+  upsert?: Prisma.UserUpsertWithoutVoucherClaimsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutVoucherClaimsInput, Prisma.UserUpdateWithoutVoucherClaimsInput>, Prisma.UserUncheckedUpdateWithoutVoucherClaimsInput>
+}
+
 export type UserCreateNestedOneWithoutAssignedRetailTokensInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAssignedRetailTokensInput, Prisma.UserUncheckedCreateWithoutAssignedRetailTokensInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAssignedRetailTokensInput
@@ -721,6 +742,7 @@ export type UserCreateWithoutSessionsInput = {
   activityLogs?: Prisma.AdminActivityLogCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -744,6 +766,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   activityLogs?: Prisma.AdminActivityLogUncheckedCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -783,6 +806,7 @@ export type UserUpdateWithoutSessionsInput = {
   activityLogs?: Prisma.AdminActivityLogUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -806,6 +830,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   activityLogs?: Prisma.AdminActivityLogUncheckedUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -829,6 +854,7 @@ export type UserCreateWithoutAccountsInput = {
   activityLogs?: Prisma.AdminActivityLogCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -852,6 +878,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   activityLogs?: Prisma.AdminActivityLogUncheckedCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -891,6 +918,7 @@ export type UserUpdateWithoutAccountsInput = {
   activityLogs?: Prisma.AdminActivityLogUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -908,6 +936,119 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  assignedRetailTokens?: Prisma.RetailTokenUncheckedUpdateManyWithoutAssignedToNestedInput
+  generatedRetailTokens?: Prisma.RetailTokenUncheckedUpdateManyWithoutGeneratedByNestedInput
+  whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.AdminActivityLogUncheckedUpdateManyWithoutActorNestedInput
+  featureFlagUpdates?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUpdatedByNestedInput
+  targetedFeatureFlags?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutVoucherClaimsInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  retailStatus?: $Enums.RetailStatus
+  whatsappNumber?: string | null
+  storeName?: string | null
+  address?: string | null
+  userCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  assignedRetailTokens?: Prisma.RetailTokenCreateNestedManyWithoutAssignedToInput
+  generatedRetailTokens?: Prisma.RetailTokenCreateNestedManyWithoutGeneratedByInput
+  whatsappInquiries?: Prisma.WhatsappInquiryLogCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.AdminActivityLogCreateNestedManyWithoutActorInput
+  featureFlagUpdates?: Prisma.FeatureFlagCreateNestedManyWithoutUpdatedByInput
+  targetedFeatureFlags?: Prisma.FeatureFlagCreateNestedManyWithoutUserTargetInput
+}
+
+export type UserUncheckedCreateWithoutVoucherClaimsInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  role?: $Enums.UserRole
+  retailStatus?: $Enums.RetailStatus
+  whatsappNumber?: string | null
+  storeName?: string | null
+  address?: string | null
+  userCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  assignedRetailTokens?: Prisma.RetailTokenUncheckedCreateNestedManyWithoutAssignedToInput
+  generatedRetailTokens?: Prisma.RetailTokenUncheckedCreateNestedManyWithoutGeneratedByInput
+  whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedCreateNestedManyWithoutUserInput
+  activityLogs?: Prisma.AdminActivityLogUncheckedCreateNestedManyWithoutActorInput
+  featureFlagUpdates?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUpdatedByInput
+  targetedFeatureFlags?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUserTargetInput
+}
+
+export type UserCreateOrConnectWithoutVoucherClaimsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutVoucherClaimsInput, Prisma.UserUncheckedCreateWithoutVoucherClaimsInput>
+}
+
+export type UserUpsertWithoutVoucherClaimsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutVoucherClaimsInput, Prisma.UserUncheckedUpdateWithoutVoucherClaimsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutVoucherClaimsInput, Prisma.UserUncheckedCreateWithoutVoucherClaimsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutVoucherClaimsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutVoucherClaimsInput, Prisma.UserUncheckedUpdateWithoutVoucherClaimsInput>
+}
+
+export type UserUpdateWithoutVoucherClaimsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  retailStatus?: Prisma.EnumRetailStatusFieldUpdateOperationsInput | $Enums.RetailStatus
+  whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  assignedRetailTokens?: Prisma.RetailTokenUpdateManyWithoutAssignedToNestedInput
+  generatedRetailTokens?: Prisma.RetailTokenUpdateManyWithoutGeneratedByNestedInput
+  whatsappInquiries?: Prisma.WhatsappInquiryLogUpdateManyWithoutUserNestedInput
+  activityLogs?: Prisma.AdminActivityLogUpdateManyWithoutActorNestedInput
+  featureFlagUpdates?: Prisma.FeatureFlagUpdateManyWithoutUpdatedByNestedInput
+  targetedFeatureFlags?: Prisma.FeatureFlagUpdateManyWithoutUserTargetNestedInput
+}
+
+export type UserUncheckedUpdateWithoutVoucherClaimsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.EnumUserRoleFieldUpdateOperationsInput | $Enums.UserRole
+  retailStatus?: Prisma.EnumRetailStatusFieldUpdateOperationsInput | $Enums.RetailStatus
+  whatsappNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   assignedRetailTokens?: Prisma.RetailTokenUncheckedUpdateManyWithoutAssignedToNestedInput
   generatedRetailTokens?: Prisma.RetailTokenUncheckedUpdateManyWithoutGeneratedByNestedInput
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedUpdateManyWithoutUserNestedInput
@@ -937,6 +1078,7 @@ export type UserCreateWithoutAssignedRetailTokensInput = {
   activityLogs?: Prisma.AdminActivityLogCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAssignedRetailTokensInput = {
@@ -960,6 +1102,7 @@ export type UserUncheckedCreateWithoutAssignedRetailTokensInput = {
   activityLogs?: Prisma.AdminActivityLogUncheckedCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAssignedRetailTokensInput = {
@@ -988,6 +1131,7 @@ export type UserCreateWithoutGeneratedRetailTokensInput = {
   activityLogs?: Prisma.AdminActivityLogCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGeneratedRetailTokensInput = {
@@ -1011,6 +1155,7 @@ export type UserUncheckedCreateWithoutGeneratedRetailTokensInput = {
   activityLogs?: Prisma.AdminActivityLogUncheckedCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGeneratedRetailTokensInput = {
@@ -1050,6 +1195,7 @@ export type UserUpdateWithoutAssignedRetailTokensInput = {
   activityLogs?: Prisma.AdminActivityLogUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAssignedRetailTokensInput = {
@@ -1073,6 +1219,7 @@ export type UserUncheckedUpdateWithoutAssignedRetailTokensInput = {
   activityLogs?: Prisma.AdminActivityLogUncheckedUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutGeneratedRetailTokensInput = {
@@ -1107,6 +1254,7 @@ export type UserUpdateWithoutGeneratedRetailTokensInput = {
   activityLogs?: Prisma.AdminActivityLogUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGeneratedRetailTokensInput = {
@@ -1130,6 +1278,7 @@ export type UserUncheckedUpdateWithoutGeneratedRetailTokensInput = {
   activityLogs?: Prisma.AdminActivityLogUncheckedUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutWhatsappInquiriesInput = {
@@ -1153,6 +1302,7 @@ export type UserCreateWithoutWhatsappInquiriesInput = {
   activityLogs?: Prisma.AdminActivityLogCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutWhatsappInquiriesInput = {
@@ -1176,6 +1326,7 @@ export type UserUncheckedCreateWithoutWhatsappInquiriesInput = {
   activityLogs?: Prisma.AdminActivityLogUncheckedCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutWhatsappInquiriesInput = {
@@ -1215,6 +1366,7 @@ export type UserUpdateWithoutWhatsappInquiriesInput = {
   activityLogs?: Prisma.AdminActivityLogUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWhatsappInquiriesInput = {
@@ -1238,6 +1390,7 @@ export type UserUncheckedUpdateWithoutWhatsappInquiriesInput = {
   activityLogs?: Prisma.AdminActivityLogUncheckedUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTargetedFeatureFlagsInput = {
@@ -1261,6 +1414,7 @@ export type UserCreateWithoutTargetedFeatureFlagsInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.AdminActivityLogCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagCreateNestedManyWithoutUpdatedByInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTargetedFeatureFlagsInput = {
@@ -1284,6 +1438,7 @@ export type UserUncheckedCreateWithoutTargetedFeatureFlagsInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.AdminActivityLogUncheckedCreateNestedManyWithoutActorInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUpdatedByInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTargetedFeatureFlagsInput = {
@@ -1312,6 +1467,7 @@ export type UserCreateWithoutFeatureFlagUpdatesInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.AdminActivityLogCreateNestedManyWithoutActorInput
   targetedFeatureFlags?: Prisma.FeatureFlagCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFeatureFlagUpdatesInput = {
@@ -1335,6 +1491,7 @@ export type UserUncheckedCreateWithoutFeatureFlagUpdatesInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedCreateNestedManyWithoutUserInput
   activityLogs?: Prisma.AdminActivityLogUncheckedCreateNestedManyWithoutActorInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFeatureFlagUpdatesInput = {
@@ -1374,6 +1531,7 @@ export type UserUpdateWithoutTargetedFeatureFlagsInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.AdminActivityLogUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUpdateManyWithoutUpdatedByNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTargetedFeatureFlagsInput = {
@@ -1397,6 +1555,7 @@ export type UserUncheckedUpdateWithoutTargetedFeatureFlagsInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.AdminActivityLogUncheckedUpdateManyWithoutActorNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUpdatedByNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutFeatureFlagUpdatesInput = {
@@ -1431,6 +1590,7 @@ export type UserUpdateWithoutFeatureFlagUpdatesInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.AdminActivityLogUpdateManyWithoutActorNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFeatureFlagUpdatesInput = {
@@ -1454,6 +1614,7 @@ export type UserUncheckedUpdateWithoutFeatureFlagUpdatesInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedUpdateManyWithoutUserNestedInput
   activityLogs?: Prisma.AdminActivityLogUncheckedUpdateManyWithoutActorNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutActivityLogsInput = {
@@ -1477,6 +1638,7 @@ export type UserCreateWithoutActivityLogsInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogCreateNestedManyWithoutUserInput
   featureFlagUpdates?: Prisma.FeatureFlagCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutActivityLogsInput = {
@@ -1500,6 +1662,7 @@ export type UserUncheckedCreateWithoutActivityLogsInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedCreateNestedManyWithoutUserInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUpdatedByInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedCreateNestedManyWithoutUserTargetInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutActivityLogsInput = {
@@ -1539,6 +1702,7 @@ export type UserUpdateWithoutActivityLogsInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogUpdateManyWithoutUserNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActivityLogsInput = {
@@ -1562,6 +1726,7 @@ export type UserUncheckedUpdateWithoutActivityLogsInput = {
   whatsappInquiries?: Prisma.WhatsappInquiryLogUncheckedUpdateManyWithoutUserNestedInput
   featureFlagUpdates?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUpdatedByNestedInput
   targetedFeatureFlags?: Prisma.FeatureFlagUncheckedUpdateManyWithoutUserTargetNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1578,6 +1743,7 @@ export type UserCountOutputType = {
   activityLogs: number
   featureFlagUpdates: number
   targetedFeatureFlags: number
+  voucherClaims: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1589,6 +1755,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   activityLogs?: boolean | UserCountOutputTypeCountActivityLogsArgs
   featureFlagUpdates?: boolean | UserCountOutputTypeCountFeatureFlagUpdatesArgs
   targetedFeatureFlags?: boolean | UserCountOutputTypeCountTargetedFeatureFlagsArgs
+  voucherClaims?: boolean | UserCountOutputTypeCountVoucherClaimsArgs
 }
 
 /**
@@ -1657,6 +1824,13 @@ export type UserCountOutputTypeCountTargetedFeatureFlagsArgs<ExtArgs extends run
   where?: Prisma.FeatureFlagWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountVoucherClaimsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VoucherClaimWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1680,6 +1854,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
   featureFlagUpdates?: boolean | Prisma.User$featureFlagUpdatesArgs<ExtArgs>
   targetedFeatureFlags?: boolean | Prisma.User$targetedFeatureFlagsArgs<ExtArgs>
+  voucherClaims?: boolean | Prisma.User$voucherClaimsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1711,6 +1886,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   activityLogs?: boolean | Prisma.User$activityLogsArgs<ExtArgs>
   featureFlagUpdates?: boolean | Prisma.User$featureFlagUpdatesArgs<ExtArgs>
   targetedFeatureFlags?: boolean | Prisma.User$targetedFeatureFlagsArgs<ExtArgs>
+  voucherClaims?: boolean | Prisma.User$voucherClaimsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1725,6 +1901,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     activityLogs: Prisma.$AdminActivityLogPayload<ExtArgs>[]
     featureFlagUpdates: Prisma.$FeatureFlagPayload<ExtArgs>[]
     targetedFeatureFlags: Prisma.$FeatureFlagPayload<ExtArgs>[]
+    voucherClaims: Prisma.$VoucherClaimPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2088,6 +2265,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   activityLogs<T extends Prisma.User$activityLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$activityLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdminActivityLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   featureFlagUpdates<T extends Prisma.User$featureFlagUpdatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$featureFlagUpdatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeatureFlagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   targetedFeatureFlags<T extends Prisma.User$targetedFeatureFlagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$targetedFeatureFlagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FeatureFlagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  voucherClaims<T extends Prisma.User$voucherClaimsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$voucherClaimsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VoucherClaimPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2667,6 +2845,30 @@ export type User$targetedFeatureFlagsArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.FeatureFlagScalarFieldEnum | Prisma.FeatureFlagScalarFieldEnum[]
+}
+
+/**
+ * User.voucherClaims
+ */
+export type User$voucherClaimsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the VoucherClaim
+   */
+  select?: Prisma.VoucherClaimSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the VoucherClaim
+   */
+  omit?: Prisma.VoucherClaimOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VoucherClaimInclude<ExtArgs> | null
+  where?: Prisma.VoucherClaimWhereInput
+  orderBy?: Prisma.VoucherClaimOrderByWithRelationInput | Prisma.VoucherClaimOrderByWithRelationInput[]
+  cursor?: Prisma.VoucherClaimWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VoucherClaimScalarFieldEnum | Prisma.VoucherClaimScalarFieldEnum[]
 }
 
 /**

@@ -30,12 +30,20 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# local design exports
+_figma_export/
+
 # env files
 .env*
 !.env.example
 
 # vercel
 .vercel
+
+# uploaded files
+public/uploads/products/*
+!public/uploads/products/.gitkeep
+!public/uploads/.gitkeep
 
 # typescript
 *.tsbuildinfo

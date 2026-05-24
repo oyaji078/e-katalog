@@ -322,6 +322,7 @@ export type VoucherWhereInput = {
   categoryId?: Prisma.StringNullableFilter<"Voucher"> | string | null
   categories?: Prisma.CategoryListRelationFilter
   products?: Prisma.ProductVoucherListRelationFilter
+  voucherClaims?: Prisma.VoucherClaimListRelationFilter
 }
 
 export type VoucherOrderByWithRelationInput = {
@@ -344,6 +345,7 @@ export type VoucherOrderByWithRelationInput = {
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   categories?: Prisma.CategoryOrderByRelationAggregateInput
   products?: Prisma.ProductVoucherOrderByRelationAggregateInput
+  voucherClaims?: Prisma.VoucherClaimOrderByRelationAggregateInput
   _relevance?: Prisma.VoucherOrderByRelevanceInput
 }
 
@@ -370,6 +372,7 @@ export type VoucherWhereUniqueInput = Prisma.AtLeast<{
   categoryId?: Prisma.StringNullableFilter<"Voucher"> | string | null
   categories?: Prisma.CategoryListRelationFilter
   products?: Prisma.ProductVoucherListRelationFilter
+  voucherClaims?: Prisma.VoucherClaimListRelationFilter
 }, "id" | "code">
 
 export type VoucherOrderByWithAggregationInput = {
@@ -440,6 +443,7 @@ export type VoucherCreateInput = {
   categoryId?: string | null
   categories?: Prisma.CategoryCreateNestedManyWithoutVouchersInput
   products?: Prisma.ProductVoucherCreateNestedManyWithoutVoucherInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutVoucherInput
 }
 
 export type VoucherUncheckedCreateInput = {
@@ -462,6 +466,7 @@ export type VoucherUncheckedCreateInput = {
   categoryId?: string | null
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutVouchersInput
   products?: Prisma.ProductVoucherUncheckedCreateNestedManyWithoutVoucherInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutVoucherInput
 }
 
 export type VoucherUpdateInput = {
@@ -484,6 +489,7 @@ export type VoucherUpdateInput = {
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.CategoryUpdateManyWithoutVouchersNestedInput
   products?: Prisma.ProductVoucherUpdateManyWithoutVoucherNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutVoucherNestedInput
 }
 
 export type VoucherUncheckedUpdateInput = {
@@ -506,6 +512,7 @@ export type VoucherUncheckedUpdateInput = {
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutVouchersNestedInput
   products?: Prisma.ProductVoucherUncheckedUpdateManyWithoutVoucherNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutVoucherNestedInput
 }
 
 export type VoucherCreateManyInput = {
@@ -729,6 +736,20 @@ export type VoucherUpdateOneRequiredWithoutProductsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.VoucherUpdateToOneWithWhereWithoutProductsInput, Prisma.VoucherUpdateWithoutProductsInput>, Prisma.VoucherUncheckedUpdateWithoutProductsInput>
 }
 
+export type VoucherCreateNestedOneWithoutVoucherClaimsInput = {
+  create?: Prisma.XOR<Prisma.VoucherCreateWithoutVoucherClaimsInput, Prisma.VoucherUncheckedCreateWithoutVoucherClaimsInput>
+  connectOrCreate?: Prisma.VoucherCreateOrConnectWithoutVoucherClaimsInput
+  connect?: Prisma.VoucherWhereUniqueInput
+}
+
+export type VoucherUpdateOneRequiredWithoutVoucherClaimsNestedInput = {
+  create?: Prisma.XOR<Prisma.VoucherCreateWithoutVoucherClaimsInput, Prisma.VoucherUncheckedCreateWithoutVoucherClaimsInput>
+  connectOrCreate?: Prisma.VoucherCreateOrConnectWithoutVoucherClaimsInput
+  upsert?: Prisma.VoucherUpsertWithoutVoucherClaimsInput
+  connect?: Prisma.VoucherWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.VoucherUpdateToOneWithWhereWithoutVoucherClaimsInput, Prisma.VoucherUpdateWithoutVoucherClaimsInput>, Prisma.VoucherUncheckedUpdateWithoutVoucherClaimsInput>
+}
+
 export type VoucherCreateWithoutCategoriesInput = {
   id?: string
   code: string
@@ -748,6 +769,7 @@ export type VoucherCreateWithoutCategoriesInput = {
   updatedAt?: Date | string
   categoryId?: string | null
   products?: Prisma.ProductVoucherCreateNestedManyWithoutVoucherInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutVoucherInput
 }
 
 export type VoucherUncheckedCreateWithoutCategoriesInput = {
@@ -769,6 +791,7 @@ export type VoucherUncheckedCreateWithoutCategoriesInput = {
   updatedAt?: Date | string
   categoryId?: string | null
   products?: Prisma.ProductVoucherUncheckedCreateNestedManyWithoutVoucherInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutVoucherInput
 }
 
 export type VoucherCreateOrConnectWithoutCategoriesInput = {
@@ -834,6 +857,7 @@ export type VoucherCreateWithoutProductsInput = {
   updatedAt?: Date | string
   categoryId?: string | null
   categories?: Prisma.CategoryCreateNestedManyWithoutVouchersInput
+  voucherClaims?: Prisma.VoucherClaimCreateNestedManyWithoutVoucherInput
 }
 
 export type VoucherUncheckedCreateWithoutProductsInput = {
@@ -855,6 +879,7 @@ export type VoucherUncheckedCreateWithoutProductsInput = {
   updatedAt?: Date | string
   categoryId?: string | null
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutVouchersInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedCreateNestedManyWithoutVoucherInput
 }
 
 export type VoucherCreateOrConnectWithoutProductsInput = {
@@ -892,6 +917,7 @@ export type VoucherUpdateWithoutProductsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.CategoryUpdateManyWithoutVouchersNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutVoucherNestedInput
 }
 
 export type VoucherUncheckedUpdateWithoutProductsInput = {
@@ -913,6 +939,111 @@ export type VoucherUncheckedUpdateWithoutProductsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutVouchersNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutVoucherNestedInput
+}
+
+export type VoucherCreateWithoutVoucherClaimsInput = {
+  id?: string
+  code: string
+  title: string
+  description?: string | null
+  audience?: $Enums.VoucherAudience
+  status?: $Enums.VoucherStatus
+  discountType: $Enums.VoucherDiscountType
+  discountValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  minimumPurchase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startsAt: Date | string
+  endsAt: Date | string
+  isActive?: boolean
+  usageQuota: number
+  scope?: $Enums.VoucherScope
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  categoryId?: string | null
+  categories?: Prisma.CategoryCreateNestedManyWithoutVouchersInput
+  products?: Prisma.ProductVoucherCreateNestedManyWithoutVoucherInput
+}
+
+export type VoucherUncheckedCreateWithoutVoucherClaimsInput = {
+  id?: string
+  code: string
+  title: string
+  description?: string | null
+  audience?: $Enums.VoucherAudience
+  status?: $Enums.VoucherStatus
+  discountType: $Enums.VoucherDiscountType
+  discountValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  minimumPurchase?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startsAt: Date | string
+  endsAt: Date | string
+  isActive?: boolean
+  usageQuota: number
+  scope?: $Enums.VoucherScope
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  categoryId?: string | null
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutVouchersInput
+  products?: Prisma.ProductVoucherUncheckedCreateNestedManyWithoutVoucherInput
+}
+
+export type VoucherCreateOrConnectWithoutVoucherClaimsInput = {
+  where: Prisma.VoucherWhereUniqueInput
+  create: Prisma.XOR<Prisma.VoucherCreateWithoutVoucherClaimsInput, Prisma.VoucherUncheckedCreateWithoutVoucherClaimsInput>
+}
+
+export type VoucherUpsertWithoutVoucherClaimsInput = {
+  update: Prisma.XOR<Prisma.VoucherUpdateWithoutVoucherClaimsInput, Prisma.VoucherUncheckedUpdateWithoutVoucherClaimsInput>
+  create: Prisma.XOR<Prisma.VoucherCreateWithoutVoucherClaimsInput, Prisma.VoucherUncheckedCreateWithoutVoucherClaimsInput>
+  where?: Prisma.VoucherWhereInput
+}
+
+export type VoucherUpdateToOneWithWhereWithoutVoucherClaimsInput = {
+  where?: Prisma.VoucherWhereInput
+  data: Prisma.XOR<Prisma.VoucherUpdateWithoutVoucherClaimsInput, Prisma.VoucherUncheckedUpdateWithoutVoucherClaimsInput>
+}
+
+export type VoucherUpdateWithoutVoucherClaimsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
+  discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
+  discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  minimumPurchase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  usageQuota?: Prisma.IntFieldUpdateOperationsInput | number
+  scope?: Prisma.EnumVoucherScopeFieldUpdateOperationsInput | $Enums.VoucherScope
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categories?: Prisma.CategoryUpdateManyWithoutVouchersNestedInput
+  products?: Prisma.ProductVoucherUpdateManyWithoutVoucherNestedInput
+}
+
+export type VoucherUncheckedUpdateWithoutVoucherClaimsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
+  discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
+  discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  minimumPurchase?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  usageQuota?: Prisma.IntFieldUpdateOperationsInput | number
+  scope?: Prisma.EnumVoucherScopeFieldUpdateOperationsInput | $Enums.VoucherScope
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutVouchersNestedInput
+  products?: Prisma.ProductVoucherUncheckedUpdateManyWithoutVoucherNestedInput
 }
 
 export type VoucherUpdateWithoutCategoriesInput = {
@@ -934,6 +1065,7 @@ export type VoucherUpdateWithoutCategoriesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   products?: Prisma.ProductVoucherUpdateManyWithoutVoucherNestedInput
+  voucherClaims?: Prisma.VoucherClaimUpdateManyWithoutVoucherNestedInput
 }
 
 export type VoucherUncheckedUpdateWithoutCategoriesInput = {
@@ -955,6 +1087,7 @@ export type VoucherUncheckedUpdateWithoutCategoriesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   products?: Prisma.ProductVoucherUncheckedUpdateManyWithoutVoucherNestedInput
+  voucherClaims?: Prisma.VoucherClaimUncheckedUpdateManyWithoutVoucherNestedInput
 }
 
 export type VoucherUncheckedUpdateManyWithoutCategoriesInput = {
@@ -985,11 +1118,13 @@ export type VoucherUncheckedUpdateManyWithoutCategoriesInput = {
 export type VoucherCountOutputType = {
   categories: number
   products: number
+  voucherClaims: number
 }
 
 export type VoucherCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   categories?: boolean | VoucherCountOutputTypeCountCategoriesArgs
   products?: boolean | VoucherCountOutputTypeCountProductsArgs
+  voucherClaims?: boolean | VoucherCountOutputTypeCountVoucherClaimsArgs
 }
 
 /**
@@ -1016,6 +1151,13 @@ export type VoucherCountOutputTypeCountProductsArgs<ExtArgs extends runtime.Type
   where?: Prisma.ProductVoucherWhereInput
 }
 
+/**
+ * VoucherCountOutputType without action
+ */
+export type VoucherCountOutputTypeCountVoucherClaimsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VoucherClaimWhereInput
+}
+
 
 export type VoucherSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1037,6 +1179,7 @@ export type VoucherSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   categoryId?: boolean
   categories?: boolean | Prisma.Voucher$categoriesArgs<ExtArgs>
   products?: boolean | Prisma.Voucher$productsArgs<ExtArgs>
+  voucherClaims?: boolean | Prisma.Voucher$voucherClaimsArgs<ExtArgs>
   _count?: boolean | Prisma.VoucherCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["voucher"]>
 
@@ -1066,6 +1209,7 @@ export type VoucherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type VoucherInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   categories?: boolean | Prisma.Voucher$categoriesArgs<ExtArgs>
   products?: boolean | Prisma.Voucher$productsArgs<ExtArgs>
+  voucherClaims?: boolean | Prisma.Voucher$voucherClaimsArgs<ExtArgs>
   _count?: boolean | Prisma.VoucherCountOutputTypeDefaultArgs<ExtArgs>
 }
 
@@ -1074,6 +1218,7 @@ export type $VoucherPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     categories: Prisma.$CategoryPayload<ExtArgs>[]
     products: Prisma.$ProductVoucherPayload<ExtArgs>[]
+    voucherClaims: Prisma.$VoucherClaimPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1435,6 +1580,7 @@ export interface Prisma__VoucherClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   categories<T extends Prisma.Voucher$categoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Voucher$categoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   products<T extends Prisma.Voucher$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Voucher$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductVoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  voucherClaims<T extends Prisma.Voucher$voucherClaimsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Voucher$voucherClaimsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VoucherClaimPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1874,6 +2020,30 @@ export type Voucher$productsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.ProductVoucherScalarFieldEnum | Prisma.ProductVoucherScalarFieldEnum[]
+}
+
+/**
+ * Voucher.voucherClaims
+ */
+export type Voucher$voucherClaimsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the VoucherClaim
+   */
+  select?: Prisma.VoucherClaimSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the VoucherClaim
+   */
+  omit?: Prisma.VoucherClaimOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VoucherClaimInclude<ExtArgs> | null
+  where?: Prisma.VoucherClaimWhereInput
+  orderBy?: Prisma.VoucherClaimOrderByWithRelationInput | Prisma.VoucherClaimOrderByWithRelationInput[]
+  cursor?: Prisma.VoucherClaimWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VoucherClaimScalarFieldEnum | Prisma.VoucherClaimScalarFieldEnum[]
 }
 
 /**

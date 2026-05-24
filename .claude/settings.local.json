@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(Select-String -NotMatch \"generated/prisma\")",
+      "Bash(npx tsx *)",
+      "Bash(netstat -ano)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(curl -s http://localhost:3000/)",
+      "PowerShell(Get-Process *)",
+      "Bash(curl -s \"http://localhost:3000/products?page=1&pageSize=24\")",
+      "Bash(grep -oiE \"\\(hostname[^<\\\\\"]*not configured|Invalid src prop|is not configured under images|images\\\\.remotePatterns|unhandledRejection|Error: [^<\\\\\"]{0,120}\\)\")",
+      "Bash(BETTER_AUTH_URL=http://localhost:3001 NEXT_PUBLIC_APP_URL=http://localhost:3001 npx next *)"
+    ]
+  }
+}

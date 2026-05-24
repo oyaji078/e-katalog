@@ -7,16 +7,22 @@ export default function RetailActivationSuccessPage() {
         <Link href="/" className="text-sm font-semibold text-primary-maroon">
           E-Katalog Komputer
         </Link>
-        <h1 className="mt-6 text-2xl font-bold">Retail Activation Successful</h1>
+        <h1 className="mt-6 text-2xl font-bold">Aktivasi Berhasil</h1>
         <p className="mt-2 text-sm leading-6 text-text-muted">
-          Your retail account has been activated. You can now view retail prices and retail vouchers.
+          Akun ritel Anda sudah aktif. Anda kini dapat melihat harga ritel dan voucher ritel.
         </p>
-        <div className="mt-6">
+        <div className="mt-6 space-y-3">
+          <Link
+            href="/products"
+            className="flex items-center justify-center rounded-xl bg-primary-maroon px-4 py-3 text-sm font-bold text-white"
+          >
+            Lihat Produk
+          </Link>
           <Link
             href="/"
-            className="w-full rounded-xl bg-primary-maroon px-4 py-3 text-sm font-bold text-white"
+            className="flex items-center justify-center rounded-xl border border-border-gray px-4 py-3 text-sm font-semibold text-text-muted"
           >
-            Go to Homepage
+            Ke Beranda
           </Link>
         </div>
       </section>

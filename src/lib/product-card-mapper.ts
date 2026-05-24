@@ -1,14 +1,18 @@
 import type { ProductCardProps } from "@/components/ui/ProductCard";
 import {
   canSeeRetailPrice,
+  canUseRetailVoucher,
   formatRupiah,
   getApplicableVouchers,
   getVisibleVouchers,
   productBadge,
   productImage,
+  safeImageSrc,
+  stockLabel,
   type CatalogUser,
-  type ProductWithCatalogRelations,
+  type ProductCardData,
   type VoucherWithScopeRelations,
+  voucherLabel,
 } from "@/lib/catalog";
 
 type ProductCardOptions = {
@@ -17,33 +21,42 @@ type ProductCardOptions = {
   publicVoucherEnabled: boolean;
   retailVoucherEnabled: boolean;
   vouchers: VoucherWithScopeRelations[];
+  flashSalePrice?: number;
+  flashSaleStock?: number;
 };
 
 export function toProductCardProps(
-  product: ProductWithCatalogRelations,
+  product: ProductCardData,
   options: ProductCardOptions,
 ): ProductCardProps {
   const showRetail = canSeeRetailPrice(options.user, options.retailPriceEnabled);
+  const canSeeRetailVoucher = canUseRetailVoucher(options.user);
   const visibleVouchers = getVisibleVouchers(getApplicableVouchers(product, options.vouchers), {
     publicVoucherEnabled: options.publicVoucherEnabled,
     retailVoucherEnabled: options.retailVoucherEnabled,
-    canSeeRetail: showRetail,
+    canSeeRetail: canSeeRetailVoucher,
   });
 
-  // Use slug if available, otherwise fall back to ID
   const productIdentifier = product.slug || product.id;
 
   return {
     href: `/products/${productIdentifier}`,
-    image: productImage(product),
+    image: safeImageSrc(productImage(product)),
     name: product.name,
     specification: product.shortSpecification,
     publicPrice: formatRupiah(product.publicPrice),
     retailPrice: showRetail && product.retailPrice ? formatRupiah(product.retailPrice) : undefined,
+    showRetailAsPrimary: showRetail && !!product.retailPrice,
     badge: productBadge(product),
     voucherAvailable: visibleVouchers.length > 0,
+    voucherLabel: visibleVouchers[0] ? voucherLabel(visibleVouchers[0]) : undefined,
     stockStatus: product.stockStatus,
+    stockText: stockLabel(product),
+    brandName: product.brand?.name ?? null,
+    categoryName: product.category?.name ?? null,
     productId: product.id,
     productSlug: product.slug,
+    flashSalePrice: options.flashSalePrice ? formatRupiah(options.flashSalePrice) : undefined,
+    flashSaleStock: options.flashSaleStock,
   };
 }
