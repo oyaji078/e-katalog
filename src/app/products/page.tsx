@@ -6,8 +6,9 @@ import FigmaFooter from "@/components/layout/FigmaFooter";
 import FlashSaleCountdown from "@/components/ui/FlashSaleCountdown";
 import FigmaPromoBannerRow from "@/components/ui/FigmaPromoBannerRow";
 import ProductGrid from "@/components/ui/ProductGrid";
+import TrackedProductLink from "@/components/ui/TrackedProductLink";
 import FigmaSiteHeader from "@/components/layout/FigmaSiteHeader";
-import type { PromoBannerAudience } from "@/generated/prisma/client";
+
 import type { Prisma, StockStatus } from "@/generated/prisma/client";
 import { productCardSelect, canUseRetailVoucher, getVisibleVouchers } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
@@ -128,9 +129,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     AND: filters,
   };
 
-  const promoAudiences: PromoBannerAudience[] = ["PUBLIC"];
-  if (user) promoAudiences.push("AUTHENTICATED");
-  if (user?.retailStatus === "RETAIL_ACTIVE") promoAudiences.push("RETAIL");
+  const isRetailActive = user?.retailStatus === "RETAIL_ACTIVE";
 
   const [categories, brands, totalProducts, products, vouchers,
     flashSaleData, promoBanners, promoEnabled, whatsappNumber] = await Promise.all([
@@ -174,7 +173,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     db.promoBanner.findMany({
       where: {
         isActive: true,
-        audience: { in: promoAudiences },
+        [isRetailActive ? "showForRetail" : "showForPublic"]: true,
         AND: [
           { OR: [{ startsAt: null }, { startsAt: { lte: new Date() } }] },
           { OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }] },
@@ -286,9 +285,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </div>
             <div className="flex gap-3 overflow-x-auto px-4 pb-4 [scrollbar-width:none]">
               {flashSaleProducts.map((product) => (
-                <Link
+                <TrackedProductLink
                   key={product.href}
                   href={product.href}
+                  productId={product.productId}
+                  source="flash-sale-strip"
                   className="group w-44 shrink-0 overflow-hidden rounded-xl border border-border-gray bg-soft-bg transition hover:border-primary-maroon hover:bg-white hover:shadow-sm"
                 >
                   <div className="relative h-36 w-full overflow-hidden bg-gray-50">
@@ -344,7 +345,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                       {product.stockText ?? "Cek stok"}
                     </p>
                   </div>
-                </Link>
+                </TrackedProductLink>
               ))}
             </div>
           </section>
@@ -804,8 +805,20 @@ function productOrderBy(sort: string): Prisma.ProductOrderByWithRelationInput[] 
   if (sort === "price_asc") return [{ publicPrice: "asc" }, { createdAt: "desc" }];
   if (sort === "price_desc") return [{ publicPrice: "desc" }, { createdAt: "desc" }];
   if (sort === "latest") return [{ createdAt: "desc" }];
-  if (sort === "inquiryCount") return [{ inquiryCount: "desc" }, { createdAt: "desc" }];
-  return [{ isRecommended: "desc" }, { isFeatured: "desc" }, { createdAt: "desc" }];
+  if (sort === "inquiryCount") {
+    return [
+      { inquiryCount: "desc" },
+      { clickCount: "desc" },
+      { viewCount: "desc" },
+      { createdAt: "desc" },
+    ];
+  }
+  return [
+    { inquiryCount: "desc" },
+    { clickCount: "desc" },
+    { viewCount: "desc" },
+    { createdAt: "desc" },
+  ];
 }
 
 function firstParam(value: string | string[] | undefined) {

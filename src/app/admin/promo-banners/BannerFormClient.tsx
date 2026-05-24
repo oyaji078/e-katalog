@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useActionState, useMemo, useRef, useState } from "react";
 
 import ToggleSwitch from "@/components/ui/ToggleSwitch";
-import type { PromoBannerAudience } from "@/generated/prisma/client";
 import {
   createPromoBannerAction,
   type BannerFormFields,
@@ -19,11 +18,13 @@ export type SerializedPromoBanner = {
   imageUrl: string | null;
   linkUrl: string | null;
   ctaLabel: string | null;
-  audience: PromoBannerAudience;
+  showForPublic: boolean;
+  showForRetail: boolean;
   isActive: boolean;
   startsAt: string | null;
   endsAt: string | null;
   sortOrder: number;
+  voucherCode: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -43,7 +44,9 @@ const emptyFields: BannerFormFields = {
   startsAt: "",
   endsAt: "",
   sortOrder: "0",
-  audience: "PUBLIC",
+  showForPublic: "1",
+  showForRetail: "0",
+  voucherCode: "",
 };
 
 const initialState: BannerFormState = {
@@ -76,7 +79,9 @@ function getInitialFields(banner?: SerializedPromoBanner): BannerFormFields {
     startsAt: toInputDateValue(banner.startsAt),
     endsAt: toInputDateValue(banner.endsAt),
     sortOrder: String(banner.sortOrder),
-    audience: banner.audience,
+    showForPublic: banner.showForPublic ? "1" : "0",
+    showForRetail: banner.showForRetail ? "1" : "0",
+    voucherCode: banner.voucherCode ?? "",
   };
 }
 
@@ -110,6 +115,8 @@ export default function BannerFormClient({ mode, banner }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(values.imageUrl || null);
   const [removeImage, setRemoveImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [audiencePublic, setAudiencePublic] = useState(values.showForPublic === "1");
+  const [audienceRetail, setAudienceRetail] = useState(values.showForRetail === "1");
 
   return (
     <form action={formAction} className="space-y-5">
@@ -189,22 +196,33 @@ export default function BannerFormClient({ mode, banner }: Props) {
           <FieldError message={state.fieldErrors.status} />
         </div>
 
-        <div>
-          <label htmlFor="audience" className="block text-sm font-semibold text-text-dark">
-            Target Audiens <span className="text-danger">*</span>
-          </label>
-          <select
-            id="audience"
-            name="audience"
-            defaultValue={values.audience}
-            required
-            className="mt-1 w-full rounded-lg border border-border-gray bg-white px-4 py-3 text-sm outline-none focus:border-primary-maroon"
-          >
-            <option value="PUBLIC">Semua Pengunjung</option>
-            <option value="AUTHENTICATED">User Login</option>
-            <option value="RETAIL">Ritel Aktif</option>
-          </select>
-          <FieldError message={state.fieldErrors.audience} />
+        <div className="rounded-lg border border-border-gray bg-soft-bg p-4">
+          <p className="mb-2 text-sm font-semibold text-text-dark">Target Tampilan</p>
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={audiencePublic}
+                onChange={(e) => {
+                  if (e.target.checked || audienceRetail) setAudiencePublic(e.target.checked);
+                }}
+              />
+              Public
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={audienceRetail}
+                onChange={(e) => {
+                  if (e.target.checked || audiencePublic) setAudienceRetail(e.target.checked);
+                }}
+              />
+              Retail
+            </label>
+          </div>
+          <input type="hidden" name="showForPublic" value={audiencePublic ? "1" : "0"} />
+          <input type="hidden" name="showForRetail" value={audienceRetail ? "1" : "0"} />
+          <FieldError message={state.fieldErrors.showForPublic} />
         </div>
 
         <div>
@@ -250,6 +268,28 @@ export default function BannerFormClient({ mode, banner }: Props) {
           <FieldError message={state.fieldErrors.sortOrder} />
         </div>
       </div>
+
+      {/* Voucher Linking */}
+      <details className="rounded-lg border border-border-gray p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-text-dark">
+          Hubungkan dengan Voucher
+        </summary>
+        <div className="mt-3">
+          <label htmlFor="voucherCode" className="block text-sm font-semibold text-text-dark">
+            Kode Voucher
+          </label>
+          <input
+            id="voucherCode"
+            name="voucherCode"
+            defaultValue={values.voucherCode}
+            placeholder="Masukkan kode voucher (opsional)"
+            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+          />
+          <p className="mt-1 text-xs text-text-muted">
+            Jika diisi, banner akan menggunakan diskon/harga dari voucher yang terhubung.
+          </p>
+        </div>
+      </details>
 
       <div className="rounded-lg border border-border-gray bg-soft-bg p-4">
         <h3 className="text-sm font-bold text-text-dark">Gambar Banner</h3>

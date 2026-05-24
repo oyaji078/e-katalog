@@ -295,6 +295,8 @@ model Voucher {
   title           String
   description     String?         @db.Text
   audience        VoucherAudience @default(PUBLIC)
+  showForPublic   Boolean         @default(true)
+  showForRetail   Boolean         @default(false)
   status          VoucherStatus   @default(DRAFT)
   discountType    VoucherDiscountType
   discountValue   Decimal         @db.Decimal(10, 2)
@@ -370,10 +372,13 @@ model PromoBanner {
   linkUrl        String?              @db.Text
   ctaLabel       String?
   audience       PromoBannerAudience  @default(PUBLIC)
+  showForPublic  Boolean              @default(true)
+  showForRetail  Boolean              @default(false)
   isActive       Boolean              @default(false)
   startsAt       DateTime?
   endsAt         DateTime?
   sortOrder      Int                  @default(0)
+  voucherCode    String?              @db.VarChar(20)
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
 

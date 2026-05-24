@@ -1,13 +1,19 @@
 "use client";
 
-import Image from "next/image";
+import { ImagePlus, Star, Trash2, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useCallback, useEffect, useRef, useState } from "react";
+import { startTransition, useActionState, useCallback, useEffect, useRef, useState } from "react";
 
-import ToggleSwitch from "@/components/ui/ToggleSwitch";
 import { formatIndonesianNumber, parseIndonesianNumber } from "@/lib/currency";
 import { createProductAction, type ProductFormState, updateProductAction } from "./actions";
+
+type ProductImageRecord = {
+  id?: string;
+  url: string;
+  altText?: string | null;
+  sortOrder?: number;
+};
 
 type ProductFormClientProps = {
   mode: "create" | "edit";
@@ -28,13 +34,17 @@ type ProductFormClientProps = {
     stockQuantity: number;
     stockStatus: string;
     status: string;
-    isRecommended: boolean;
-    isFeatured: boolean;
     categoryId: string;
     brandId: string;
     specifications: unknown;
+    images?: ProductImageRecord[];
   };
 };
+
+type ImageItem =
+  | { key: string; source: "existing"; id: string; url: string; file?: never }
+  | { key: string; source: "legacy"; url: string; file?: never }
+  | { key: string; source: "new"; url: string; file: File };
 
 const initialState: ProductFormState = { success: false, message: "", error: "", productId: "" };
 
@@ -51,16 +61,66 @@ const statusOptions = [
   { value: "ARCHIVED", label: "Diarsipkan" },
 ];
 
+function createImageKey() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function initialImageItems(product: ProductFormClientProps["product"]): ImageItem[] {
+  if (!product) return [];
+
+  const items: ImageItem[] = [];
+  const knownUrls = new Set<string>();
+  const sortedImages = [...(product.images ?? [])].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+
+  if (product.primaryImageUrl && !sortedImages.some((image) => image.url === product.primaryImageUrl)) {
+    items.push({
+      key: `legacy:${product.primaryImageUrl}`,
+      source: "legacy",
+      url: product.primaryImageUrl,
+    });
+    knownUrls.add(product.primaryImageUrl);
+  }
+
+  for (const image of sortedImages) {
+    if (!image.url || knownUrls.has(image.url)) continue;
+    items.push(
+      image.id
+        ? { key: `existing:${image.id}`, source: "existing", id: image.id, url: image.url }
+        : { key: `legacy:${image.url}`, source: "legacy", url: image.url },
+    );
+    knownUrls.add(image.url);
+  }
+
+  return items;
+}
+
+function initialPrimaryKey(product: ProductFormClientProps["product"], items: ImageItem[]) {
+  if (!product?.primaryImageUrl) return items[0]?.key ?? "";
+  return items.find((item) => item.url === product.primaryImageUrl)?.key ?? items[0]?.key ?? "";
+}
+
+function formatSpecifications(value: unknown) {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return JSON.stringify(value, null, 2);
+}
+
 export default function ProductFormClient({ mode, categories, brands, product }: ProductFormClientProps) {
   const router = useRouter();
   const action = mode === "create" ? createProductAction : updateProductAction;
   const [state, formAction, isPending] = useActionState(action, initialState);
 
-  const [previewUrl, setPreviewUrl] = useState<string | null>(product?.primaryImageUrl ?? null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [removeImage, setRemoveImage] = useState(false);
-  const [useLink, setUseLink] = useState(false);
-  const [linkUrl, setLinkUrl] = useState(product?.primaryImageUrl ?? "");
+  const [imageItems, setImageItems] = useState<ImageItem[]>(() => initialImageItems(product));
+  const [primaryKey, setPrimaryKey] = useState(() => {
+    const items = initialImageItems(product);
+    return initialPrimaryKey(product, items);
+  });
+  const objectUrls = useRef<string[]>([]);
+
+  const [validationError, setValidationError] = useState("");
 
   const [hargaBarang, setHargaBarang] = useState(product?.costPrice ?? "");
   const [marginPublic, setMarginPublic] = useState(product?.publicMarginValue ?? "");
@@ -73,6 +133,12 @@ export default function ProductFormClient({ mode, categories, brands, product }:
   const previewRitel = hb + mr;
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    return () => {
+      for (const url of objectUrls.current) URL.revokeObjectURL(url);
+    };
+  }, []);
 
   useEffect(() => {
     if (state.success && state.message) {
@@ -91,27 +157,80 @@ export default function ProductFormClient({ mode, categories, brands, product }:
   }, []);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setRemoveImage(false);
-      setUseLink(false);
-      const reader = new FileReader();
-      reader.onload = () => setPreviewUrl(reader.result as string);
-      reader.readAsDataURL(file);
+    setValidationError("");
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    const MAX_SINGLE = 3 * 1024 * 1024;
+    const MAX_TOTAL = 20 * 1024 * 1024;
+    const MAX_COUNT = 8;
+
+    const currentCount = imageItems.filter((item) => item.source === "new").length;
+    if (currentCount + files.length > MAX_COUNT) {
+      setValidationError(`Maksimal ${MAX_COUNT} gambar per produk.`);
+      e.target.value = "";
+      return;
     }
-  }, []);
 
-  const handleRemoveImage = useCallback(() => {
-    setImageFile(null);
-    setPreviewUrl(null);
-    setRemoveImage(true);
-    setUseLink(false);
-    setLinkUrl("");
-  }, []);
+    for (const file of files) {
+      if (!allowedTypes.includes(file.type)) {
+        setValidationError("Format gambar harus JPG, PNG, atau WEBP.");
+        e.target.value = "";
+        return;
+      }
+      if (file.size > MAX_SINGLE) {
+        setValidationError("Ukuran satu gambar maksimal 3MB.");
+        e.target.value = "";
+        return;
+      }
+    }
 
-  const formatPrice = useCallback((val: string) => {
-    if (!val) return "";
+    const totalExistingSize = imageItems
+      .filter((item) => item.source === "new" && item.file)
+      .reduce((sum, item) => sum + (item.file?.size ?? 0), 0);
+    const totalNewSize = files.reduce((sum, f) => sum + f.size, 0);
+    if (totalExistingSize + totalNewSize > MAX_TOTAL) {
+      setValidationError("Ukuran total gambar terlalu besar. Maksimal 20MB.");
+      e.target.value = "";
+      return;
+    }
+
+    const newItems = files.map((file): ImageItem => {
+      const url = URL.createObjectURL(file);
+      objectUrls.current.push(url);
+      return {
+        key: `new:${createImageKey()}`,
+        source: "new",
+        file,
+        url,
+      };
+    });
+
+    setImageItems((current) => {
+      const next = [...current, ...newItems];
+      if (!primaryKey && next[0]) setPrimaryKey(next[0].key);
+      return next;
+    });
+    e.target.value = "";
+  }, [primaryKey, imageItems]);
+
+  const removeImage = useCallback((key: string) => {
+    setImageItems((current) => {
+      const removed = current.find((item) => item.key === key);
+      if (removed?.source === "new") {
+        URL.revokeObjectURL(removed.url);
+        objectUrls.current = objectUrls.current.filter((url) => url !== removed.url);
+      }
+
+      const next = current.filter((item) => item.key !== key);
+      if (primaryKey === key) setPrimaryKey(next[0]?.key ?? "");
+      return next;
+    });
+  }, [primaryKey]);
+
+  const formatPrice = useCallback((val: string | number) => {
+    if (val === "") return "";
     return formatIndonesianNumber(val);
   }, []);
 
@@ -120,22 +239,55 @@ export default function ProductFormClient({ mode, categories, brands, product }:
     if (!formRef.current) return;
 
     const formData = new FormData(formRef.current);
-    if (imageFile) formData.set("imageFile", imageFile);
-    if (useLink && linkUrl) formData.set("primaryImageUrl", linkUrl);
-    if (removeImage) formData.set("removeImage", "1");
+    formData.delete("newImages");
+    formData.delete("imageOrder");
+    formData.delete("primaryImageRef");
+
+    const newIndexByKey = new Map<string, number>();
+    let newIndex = 0;
+    let primaryImageRef = "";
+
+    for (const item of imageItems) {
+      let ref = "";
+      if (item.source === "new") {
+        ref = `new:${newIndex}`;
+        newIndexByKey.set(item.key, newIndex);
+        formData.append("newImages", item.file);
+        newIndex += 1;
+      } else if (item.source === "existing") {
+        ref = `existing:${item.id}`;
+      } else {
+        ref = `legacy:${item.url}`;
+      }
+
+      formData.append("imageOrder", ref);
+      if (item.key === primaryKey) primaryImageRef = ref;
+    }
+
+    if (!primaryImageRef && imageItems[0]) {
+      const first = imageItems[0];
+      if (first.source === "new") {
+        const index = newIndexByKey.get(first.key);
+        primaryImageRef = typeof index === "number" ? `new:${index}` : "";
+      } else if (first.source === "existing") {
+        primaryImageRef = `existing:${first.id}`;
+      } else {
+        primaryImageRef = `legacy:${first.url}`;
+      }
+    }
+
+    formData.set("primaryImageRef", primaryImageRef);
     formData.set("hargaBarang", String(hb));
     formData.set("marginPublic", String(mp));
     formData.set("marginRitel", String(mr));
 
-    formAction(formData);
+    startTransition(() => {
+      formAction(formData);
+    });
   }
 
   return (
-    <form
-      ref={formRef}
-      onSubmit={handleSubmit}
-      className="space-y-5"
-    >
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
       {product ? <input type="hidden" name="productId" value={product.id} /> : null}
 
       {state.error ? (
@@ -150,11 +302,14 @@ export default function ProductFormClient({ mode, categories, brands, product }:
         </div>
       ) : null}
 
-      {/* 2-column layout */}
+      {validationError ? (
+        <div className="rounded-xl border border-danger/20 bg-danger/5 p-4 text-sm font-semibold text-danger">
+          {validationError}
+        </div>
+      ) : null}
+
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
-        {/* Left column */}
         <div className="space-y-5">
-          {/* Informasi Produk */}
           <section className="rounded-2xl border border-border-gray bg-white p-5">
             <h2 className="mb-4 text-base font-bold text-text-dark">Informasi Produk</h2>
             <div className="space-y-4">
@@ -203,15 +358,108 @@ export default function ProductFormClient({ mode, categories, brands, product }:
                   </select>
                 </div>
               </div>
+              {product ? (
+                <div>
+                  <label className="block text-sm font-semibold text-text-dark">SKU</label>
+                  <p className="mt-1 font-mono text-sm text-text-muted">{product.sku}</p>
+                </div>
+              ) : null}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-border-gray bg-white p-5">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-text-dark">Gambar Produk</h2>
+                <p className="mt-1 text-xs text-text-muted">
+                  Unggah beberapa foto produk. Pilih satu sebagai foto utama untuk kartu produk.
+                </p>
+              </div>
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary-maroon px-4 py-2 text-xs font-bold text-white hover:bg-primary-maroon/80">
+                <Upload className="size-4" />
+                Upload Foto
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+
+            {imageItems.length > 0 ? (
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {imageItems.map((item, index) => {
+                  const isPrimary = item.key === primaryKey;
+                  return (
+                    <div
+                      key={item.key}
+                      className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${
+                        isPrimary ? "border-primary-maroon ring-2 ring-primary-maroon/15" : "border-border-gray"
+                      }`}
+                    >
+                      <div
+                        className="relative aspect-square bg-cover bg-center"
+                        style={{ backgroundImage: `url("${item.url}")` }}
+                      >
+                        <div className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-1 text-[10px] font-black text-primary-maroon shadow-sm">
+                          Foto {index + 1}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-[1fr_auto] gap-2 p-2">
+                        <button
+                          type="button"
+                          onClick={() => setPrimaryKey(item.key)}
+                          className={`inline-flex items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-black ${
+                            isPrimary
+                              ? "bg-primary-maroon text-white"
+                              : "bg-soft-bg text-primary-maroon hover:bg-primary-maroon hover:text-white"
+                          }`}
+                        >
+                          <Star className="size-3.5" />
+                          {isPrimary ? "Foto Utama" : "Jadikan Utama"}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeImage(item.key)}
+                          className="inline-flex items-center justify-center rounded-xl bg-danger/10 px-3 py-2 text-danger hover:bg-danger hover:text-white"
+                          aria-label="Hapus foto produk"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex min-h-40 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border-gray bg-soft-bg p-6 text-center">
+                <ImagePlus className="size-10 text-primary-maroon/50" />
+                <p className="mt-2 text-sm font-bold text-text-dark">Belum ada foto produk</p>
+                <p className="mt-1 text-xs text-text-muted">
+                  Produk tanpa foto akan memakai placeholder lokal di halaman publik.
+                </p>
+              </div>
+            )}
+
+            <p className="mt-3 text-xs text-text-muted">
+              Format: JPG, PNG, atau WebP. Ukuran maksimal 5 MB per foto.
+            </p>
+          </section>
+
+          <section className="rounded-2xl border border-border-gray bg-white p-5">
+            <h2 className="mb-4 text-base font-bold text-text-dark">Deskripsi Produk</h2>
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-text-dark">
-                  Deskripsi Produk <span className="text-danger">*</span>
+                  Deskripsi <span className="text-danger">*</span>
                 </label>
                 <textarea
                   name="description"
                   defaultValue={product?.description}
                   required
-                  rows={3}
+                  rows={5}
                   className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
                 />
               </div>
@@ -224,71 +472,29 @@ export default function ProductFormClient({ mode, categories, brands, product }:
                   placeholder="Contoh: Garansi toko 1 tahun"
                 />
               </div>
-              {product ? (
-                <div>
-                  <label className="block text-sm font-semibold text-text-dark">SKU</label>
-                  <p className="mt-1 font-mono text-sm text-text-muted">{product.sku}</p>
-                </div>
-              ) : null}
-            </div>
-          </section>
-
-          {/* Deskripsi */}
-          <section className="rounded-2xl border border-border-gray bg-white p-5">
-            <h2 className="mb-4 text-base font-bold text-text-dark">Gambar Produk</h2>
-            <div className="flex flex-wrap items-start gap-4">
-              <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border-gray bg-soft-bg">
-                {previewUrl && !removeImage ? (
-                  <Image src={previewUrl} alt="Preview" fill className="object-cover" sizes="8rem" />
-                ) : (
-                  <span className="text-center text-[10px] text-text-muted">
-                    <svg className="mx-auto mb-1 size-8 text-border-gray" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                      <line x1="8" y1="21" x2="16" y2="21"/>
-                      <line x1="12" y1="17" x2="12" y2="21"/>
-                    </svg>
-                    Preview
-                  </span>
-                )}
-              </div>
-              <div className="space-y-2">
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary-maroon px-4 py-2 text-xs font-bold text-white hover:bg-primary-maroon/80">
-                  Pilih Gambar
-                  <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleFileChange} />
-                </label>
-                {previewUrl && !removeImage ? (
-                  <button type="button" onClick={handleRemoveImage} className="block text-xs font-semibold text-danger hover:underline">
-                    Hapus Gambar
-                  </button>
-                ) : null}
-                <label className="flex items-center gap-2 text-xs font-semibold text-text-muted">
-                  <input type="checkbox" checked={useLink} onChange={(e) => setUseLink(e.target.checked)} />
-                  Gunakan Link Gambar
-                </label>
-                {useLink ? (
-                  <input
-                    value={linkUrl}
-                    onChange={(e) => setLinkUrl(e.target.value)}
-                    placeholder="/uploads/products/contoh.webp"
-                    className="w-full rounded-xl border border-border-gray bg-soft-bg px-3 py-2 text-sm outline-none focus:border-primary-maroon"
-                  />
-                ) : null}
-                {useLink ? <input type="hidden" name="primaryImageUrl" value={linkUrl} /> : null}
+              <div>
+                <label className="block text-sm font-semibold text-text-dark">Spesifikasi Produk</label>
+                <textarea
+                  name="specifications"
+                  defaultValue={formatSpecifications(product?.specifications)}
+                  rows={4}
+                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 font-mono text-xs outline-none focus:border-primary-maroon"
+                  placeholder={'Contoh:\\nProcessor: Intel Core i5\\nRAM: 16 GB\\nStorage: 512 GB SSD'}
+                />
               </div>
             </div>
           </section>
         </div>
 
-        {/* Right column */}
         <div className="space-y-5">
-          {/* Harga & Margin */}
           <section className="rounded-2xl border border-border-gray bg-white p-5">
             <h2 className="mb-4 text-base font-bold text-text-dark">Harga &amp; Margin</h2>
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-text-dark">Harga Barang *</label>
                 <input
-                  type="text" inputMode="numeric"
+                  type="text"
+                  inputMode="numeric"
                   value={formatPrice(String(hargaBarang))}
                   onChange={handlePriceInput(setHargaBarang)}
                   onFocus={(e) => { const raw = e.target.value.replace(/\./g, ""); setHargaBarang(raw); }}
@@ -299,7 +505,8 @@ export default function ProductFormClient({ mode, categories, brands, product }:
               <div>
                 <label className="block text-xs font-semibold text-text-dark">Margin Publik *</label>
                 <input
-                  type="text" inputMode="numeric"
+                  type="text"
+                  inputMode="numeric"
                   value={formatPrice(String(marginPublic))}
                   onChange={handlePriceInput(setMarginPublic)}
                   onFocus={(e) => { const raw = e.target.value.replace(/\./g, ""); setMarginPublic(raw); }}
@@ -310,7 +517,8 @@ export default function ProductFormClient({ mode, categories, brands, product }:
               <div>
                 <label className="block text-xs font-semibold text-text-dark">Margin Ritel *</label>
                 <input
-                  type="text" inputMode="numeric"
+                  type="text"
+                  inputMode="numeric"
                   value={formatPrice(String(marginRitel))}
                   onChange={handlePriceInput(setMarginRitel)}
                   onFocus={(e) => { const raw = e.target.value.replace(/\./g, ""); setMarginRitel(raw); }}
@@ -329,14 +537,15 @@ export default function ProductFormClient({ mode, categories, brands, product }:
             </div>
           </section>
 
-          {/* Stok & Status */}
           <section className="rounded-2xl border border-border-gray bg-white p-5">
             <h2 className="mb-4 text-base font-bold text-text-dark">Stok &amp; Status</h2>
             <div className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-text-dark">Stok</label>
                 <input
-                  name="stockQuantity" type="number" min="0"
+                  name="stockQuantity"
+                  type="number"
+                  min="0"
                   defaultValue={product?.stockQuantity ?? 0}
                   className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
                 />
@@ -367,29 +576,9 @@ export default function ProductFormClient({ mode, categories, brands, product }:
               </div>
             </div>
           </section>
-
-          {/* Penempatan Produk */}
-          <section className="rounded-2xl border border-border-gray bg-white p-5">
-            <h2 className="mb-4 text-base font-bold text-text-dark">Penempatan Produk</h2>
-            <div className="space-y-2">
-              <ToggleSwitch
-                name="isRecommended"
-                label="Prioritaskan di Rekomendasi"
-                description="Produk akan diutamakan tampil di bagian Rekomendasi Produk pada halaman utama."
-                defaultChecked={product?.isRecommended}
-              />
-              <ToggleSwitch
-                name="isFeatured"
-                label="Jadikan Produk Unggulan"
-                description="Produk Unggulan akan tampil di bagian Produk Unggulan dengan badge 'Unggulan'."
-                defaultChecked={product?.isFeatured}
-              />
-            </div>
-          </section>
         </div>
       </div>
 
-      {/* Submit */}
       <div className="sticky bottom-0 flex items-center justify-end gap-3 rounded-2xl border border-border-gray bg-white p-4 shadow-lg">
         <Link
           href="/admin/products"
@@ -406,7 +595,6 @@ export default function ProductFormClient({ mode, categories, brands, product }:
         </button>
       </div>
 
-      {/* Success toast */}
       {state.success && state.message ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-xl">
@@ -423,4 +611,3 @@ export default function ProductFormClient({ mode, categories, brands, product }:
     </form>
   );
 }
-

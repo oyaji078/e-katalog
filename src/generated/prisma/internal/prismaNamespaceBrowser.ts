@@ -261,6 +261,8 @@ export const VoucherScalarFieldEnum = {
   title: 'title',
   description: 'description',
   audience: 'audience',
+  showForPublic: 'showForPublic',
+  showForRetail: 'showForRetail',
   status: 'status',
   discountType: 'discountType',
   discountValue: 'discountValue',
@@ -326,10 +328,13 @@ export const PromoBannerScalarFieldEnum = {
   linkUrl: 'linkUrl',
   ctaLabel: 'ctaLabel',
   audience: 'audience',
+  showForPublic: 'showForPublic',
+  showForRetail: 'showForRetail',
   isActive: 'isActive',
   startsAt: 'startsAt',
   endsAt: 'endsAt',
   sortOrder: 'sortOrder',
+  voucherCode: 'voucherCode',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -619,7 +624,8 @@ export const PromoBannerOrderByRelevanceFieldEnum = {
   subtitle: 'subtitle',
   imageUrl: 'imageUrl',
   linkUrl: 'linkUrl',
-  ctaLabel: 'ctaLabel'
+  ctaLabel: 'ctaLabel',
+  voucherCode: 'voucherCode'
 } as const
 
 export type PromoBannerOrderByRelevanceFieldEnum = (typeof PromoBannerOrderByRelevanceFieldEnum)[keyof typeof PromoBannerOrderByRelevanceFieldEnum]

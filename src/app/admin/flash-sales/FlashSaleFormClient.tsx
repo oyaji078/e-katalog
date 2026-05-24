@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useCallback, useEffect, useMemo, useState } from "react";
 
 import { createFlashSaleAction, updateFlashSaleAction, type FlashSaleFormState } from "./actions";
 
@@ -25,8 +25,13 @@ type FlashSaleData = {
 
 const initialState: FlashSaleFormState = { success: false, message: "" };
 
-function formatPrice(value: number) {
-  return value.toLocaleString("id-ID");
+function parsePrice(val: string) {
+  return val.replace(/\./g, "");
+}
+
+function formatNumber(val: number) {
+  if (Number.isNaN(val)) return "";
+  return val.toLocaleString("id-ID");
 }
 
 export default function FlashSaleFormClient({
@@ -56,6 +61,7 @@ export default function FlashSaleFormClient({
   );
   const [showProductModal, setShowProductModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [potonganDisplay, setPotonganDisplay] = useState("");
 
   const availableProducts = useMemo(
     () => products.filter((p) => !selectedProductIds.includes(p.id)),
@@ -92,7 +98,9 @@ export default function FlashSaleFormClient({
     setSelectedProductIds((prev) => [...prev, id]);
     const product = products.find((p) => p.id === id);
     if (product && !(id in productPrices)) {
-      setProductPrices((prev) => ({ ...prev, [id]: product.publicPrice }));
+      const potongan = Number(parsePrice(potonganDisplay)) || 0;
+      const price = Math.max(0, product.publicPrice - potongan);
+      setProductPrices((prev) => ({ ...prev, [id]: price }));
     }
     if (!(id in productStocks)) {
       setProductStocks((prev) => ({ ...prev, [id]: 0 }));
@@ -102,6 +110,24 @@ export default function FlashSaleFormClient({
   function removeProduct(id: string) {
     setSelectedProductIds((prev) => prev.filter((pid) => pid !== id));
   }
+
+  const handlePotonganChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9]/g, "");
+    setPotonganDisplay(raw);
+    const potongan = Number(raw) || 0;
+    setProductPrices((prev) => {
+      const next = { ...prev };
+      for (const pid of Object.keys(next)) {
+        const product = products.find((p) => p.id === pid);
+        if (product) {
+          next[pid] = Math.max(0, product.publicPrice - potongan);
+        }
+      }
+      return next;
+    });
+  }, [products]);
+
+  const potonganRaw = useMemo(() => Number(parsePrice(potonganDisplay)) || 0, [potonganDisplay]);
 
   return (
     <main>
@@ -128,6 +154,7 @@ export default function FlashSaleFormClient({
 
       <form action={formAction} className="space-y-5">
         {flashSale ? <input type="hidden" name="id" value={flashSale.id} /> : null}
+        <input type="hidden" name="potonganRata" value={potonganRaw} />
 
         <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
           {/* Left: form fields */}
@@ -185,6 +212,31 @@ export default function FlashSaleFormClient({
               </div>
             </section>
 
+            {/* Potongan Pukul Rata */}
+            <section className="rounded-2xl border border-border-gray bg-white p-5">
+              <h2 className="mb-4 text-base font-bold text-text-dark">Potongan Pukul Rata</h2>
+              <div>
+                <label className="block text-sm font-semibold text-text-dark">
+                  Potongan Harga (Rp)
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={formatNumber(Number(parsePrice(potonganDisplay) || 0))}
+                  onChange={handlePotonganChange}
+                  onFocus={(e) => {
+                    const raw = e.target.value.replace(/\./g, "");
+                    setPotonganDisplay(raw);
+                  }}
+                  placeholder="0"
+                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                />
+                <p className="mt-1 text-xs text-text-muted">
+                  Diskon akan diterapkan ke semua produk yang dipilih. Harga flash sale tiap produk tetap bisa diubah manual.
+                </p>
+              </div>
+            </section>
+
             {/* Produk Flash Sale */}
             <section className="rounded-2xl border border-border-gray bg-white p-5">
               <div className="mb-4 flex items-center justify-between">
@@ -204,58 +256,79 @@ export default function FlashSaleFormClient({
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {selectedProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="flex flex-wrap items-center gap-3 rounded-xl border border-border-gray bg-soft-bg p-3"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-text-dark">{product.name}</p>
-                        <p className="text-xs text-text-muted">
-                          Harga Normal: Rp {formatPrice(product.publicPrice)}
-                        </p>
-                      </div>
-                      <input type="hidden" name="productIds" value={product.id} />
-                      <div className="flex items-center gap-2">
-                        <div>
-                          <label className="block text-[10px] font-semibold text-text-muted">Harga Flash Sale</label>
-                          <input
-                            name="flashSalePrices"
-                            type="number"
-                            min="0"
-                            value={productPrices[product.id] ?? product.publicPrice}
-                            onChange={(e) =>
-                              setProductPrices((prev) => ({ ...prev, [product.id]: Number(e.target.value) || 0 }))
-                            }
-                            className="w-28 rounded-lg border border-border-gray bg-white px-2 py-1.5 text-xs outline-none focus:border-primary-maroon"
-                          />
+                  {selectedProducts.map((product) => {
+                    const hasZeroStock = (productStocks[product.id] ?? 0) === 0;
+                    return (
+                      <div
+                        key={product.id}
+                        className={`flex flex-wrap items-center gap-3 rounded-xl border p-3 ${
+                          hasZeroStock ? "border-danger/30 bg-danger/5" : "border-border-gray bg-soft-bg"
+                        }`}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold text-text-dark">{product.name}</p>
+                          <p className="text-xs text-text-muted">
+                            Harga Normal: Rp {formatNumber(product.publicPrice)}
+                          </p>
+                          {productPrices[product.id] !== undefined && productPrices[product.id] >= product.publicPrice ? (
+                            <p className="text-xs text-danger">
+                              Harga flash sale harus lebih rendah dari harga normal!
+                            </p>
+                          ) : null}
+                          {hasZeroStock ? (
+                            <p className="mt-1 rounded bg-danger/10 px-2 py-0.5 text-[10px] font-semibold text-danger inline-block">
+                              Peringatan: Stok 0
+                            </p>
+                          ) : null}
                         </div>
-                        <div>
-                          <label className="block text-[10px] font-semibold text-text-muted">Stok</label>
-                          <input
-                            name="flashSaleStocks"
-                            type="number"
-                            min="0"
-                            value={productStocks[product.id] ?? 0}
-                            onChange={(e) =>
-                              setProductStocks((prev) => ({ ...prev, [product.id]: Number(e.target.value) || 0 }))
-                            }
-                            className="w-20 rounded-lg border border-border-gray bg-white px-2 py-1.5 text-xs outline-none focus:border-primary-maroon"
-                          />
+                        <input type="hidden" name="productIds" value={product.id} />
+                        <div className="flex items-center gap-2">
+                          <div>
+                            <label className="block text-[10px] font-semibold text-text-muted">Harga Flash Sale</label>
+                            <input
+                              name="flashSalePrices"
+                              type="text"
+                              inputMode="numeric"
+                              value={formatNumber(productPrices[product.id] ?? product.publicPrice)}
+                              onChange={(e) => {
+                                const raw = e.target.value.replace(/[^0-9]/g, "");
+                                const val = Number(raw) || 0;
+                                setProductPrices((prev) => ({ ...prev, [product.id]: val }));
+                              }}
+                              onFocus={(e) => {
+                                const raw = e.target.value.replace(/\./g, "");
+                                setProductPrices((prev) => ({ ...prev, [product.id]: Number(raw) || 0 }));
+                              }}
+                              className="w-28 rounded-lg border border-border-gray bg-white px-2 py-1.5 text-xs outline-none focus:border-primary-maroon"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-semibold text-text-muted">Stok</label>
+                            <input
+                              name="flashSaleStocks"
+                              type="number"
+                              min="0"
+                              value={productStocks[product.id] ?? 0}
+                              onChange={(e) =>
+                                setProductStocks((prev) => ({ ...prev, [product.id]: Number(e.target.value) || 0 }))
+                              }
+                              className="w-20 rounded-lg border border-border-gray bg-white px-2 py-1.5 text-xs outline-none focus:border-primary-maroon"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeProduct(product.id)}
+                            className="self-end rounded-lg p-1.5 text-danger hover:bg-danger/10"
+                          >
+                            <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <line x1="18" y1="6" x2="6" y2="18" />
+                              <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => removeProduct(product.id)}
-                          className="self-end rounded-lg p-1.5 text-danger hover:bg-danger/10"
-                        >
-                          <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                          </svg>
-                        </button>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </section>
@@ -342,7 +415,7 @@ export default function FlashSaleFormClient({
                     >
                       <span className="text-sm font-semibold text-text-dark">{product.name}</span>
                       <span className="text-xs text-text-muted">
-                        Rp {formatPrice(product.publicPrice)}
+                        Rp {formatNumber(product.publicPrice)}
                       </span>
                     </button>
                   ))}

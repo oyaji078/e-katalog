@@ -68,7 +68,10 @@ export default async function AdminEditProductPage({
     createdAt: product.createdAt?.toISOString() ?? null,
     updatedAt: product.updatedAt?.toISOString() ?? null,
     images: product.images.map((image) => ({
+      id: image.id,
       url: image.url,
+      altText: image.altText,
+      sortOrder: image.sortOrder,
     })),
   };
 

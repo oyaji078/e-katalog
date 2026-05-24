@@ -9,7 +9,6 @@ import FigmaHeroCarousel from "@/components/ui/FigmaHeroCarousel";
 import FigmaPromoBannerRow from "@/components/ui/FigmaPromoBannerRow";
 import FigmaServiceStrip from "@/components/ui/FigmaServiceStrip";
 import ProductGrid from "@/components/ui/ProductGrid";
-import type { PromoBannerAudience } from "@/generated/prisma/client";
 import { canUseRetailVoucher, getVisibleVouchers, productCardSelect } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
@@ -32,14 +31,19 @@ export default async function Home() {
       isFeatureEnabled("enable_retail_voucher"),
     ]);
 
-  const promoAudiences: PromoBannerAudience[] = ["PUBLIC"];
-  if (user) promoAudiences.push("AUTHENTICATED");
-  if (user?.retailStatus === "RETAIL_ACTIVE") promoAudiences.push("RETAIL");
+  const isRetailActive = user?.retailStatus === "RETAIL_ACTIVE";
 
   const newArrivalCutoff = new Date();
   newArrivalCutoff.setDate(newArrivalCutoff.getDate() - NEW_ARRIVAL_DAYS);
 
-  const [categories, recommendedProducts, newArrivalProducts, featuredProducts,
+  const trafficOrderBy = [
+    { inquiryCount: "desc" as const },
+    { clickCount: "desc" as const },
+    { viewCount: "desc" as const },
+    { createdAt: "desc" as const },
+  ];
+
+  const [categories, recommendedProducts, newArrivalProducts, popularProducts,
     vouchers, whatsappNumber, flashSaleData, promoBanners, promoEnabled, heroBanners] =
     await Promise.all([
       db.category.findMany({
@@ -47,11 +51,11 @@ export default async function Home() {
         orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
         select: { id: true, name: true, slug: true },
       }),
-      // Rekomendasi Produk: prioritized products then latest
+      // Rekomendasi Produk: traffic first, latest as fallback when traffic is empty.
       db.product.findMany({
         where: { status: "ACTIVE" },
         select: productCardSelect,
-        orderBy: [{ isRecommended: "desc" }, { createdAt: "desc" }],
+        orderBy: trafficOrderBy,
         take: 10,
       }),
       // Produk Baru: created within 30 days
@@ -61,11 +65,11 @@ export default async function Home() {
         orderBy: { createdAt: "desc" },
         take: 10,
       }),
-      // Produk Unggulan: manually curated
+      // Produk Populer: traffic first, latest as fallback when traffic is empty.
       db.product.findMany({
-        where: { status: "ACTIVE", isFeatured: true },
+        where: { status: "ACTIVE" },
         select: productCardSelect,
-        orderBy: { createdAt: "desc" },
+        orderBy: trafficOrderBy,
         take: 10,
       }),
       db.voucher.findMany({
@@ -89,15 +93,7 @@ export default async function Home() {
           products: {
             include: {
               product: {
-                select: {
-                  id: true, name: true, slug: true, shortSpecification: true,
-                  publicPrice: true, retailPrice: true, primaryImageUrl: true,
-                  stockStatus: true, stockQuantity: true, isFeatured: true,
-                  isRecommended: true, createdAt: true, categoryId: true,
-                  category: { select: { name: true, slug: true } },
-                  brand: { select: { name: true } },
-                  images: { select: { url: true }, orderBy: { sortOrder: "asc" } },
-                },
+                select: productCardSelect,
               },
             },
             orderBy: { sortOrder: "asc" },
@@ -110,7 +106,7 @@ export default async function Home() {
       db.promoBanner.findMany({
         where: {
           isActive: true,
-          audience: { in: promoAudiences },
+          [isRetailActive ? "showForRetail" : "showForPublic"]: true,
           AND: [
             { OR: [{ startsAt: null }, { startsAt: { lte: new Date() } }] },
             { OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }] },
@@ -140,7 +136,7 @@ export default async function Home() {
 
   const recommendedCards = mapCards(recommendedProducts);
   const newArrivalCards = mapCards(newArrivalProducts);
-  const featuredCards = mapCards(featuredProducts);
+  const popularCards = mapCards(popularProducts);
 
   const flashSaleProducts = flashSaleData.flatMap((fs) =>
     fs.products.map((fp) =>
@@ -225,15 +221,15 @@ export default async function Home() {
           </Section>
         ) : null}
 
-        {/* 5. Produk Unggulan */}
-        {featuredCards.length > 0 ? (
-          <Section title="Produk Unggulan" href="/products?filter=unggulan">
-            <ProductGrid products={featuredCards} columns={5} />
+        {/* 5. Produk Populer */}
+        {popularCards.length > 0 ? (
+          <Section title="Produk Populer" href="/products?sort=recommended">
+            <ProductGrid products={popularCards} columns={5} />
           </Section>
         ) : null}
 
         {/* 6. Catalog Teaser */}
-        {recommendedCards.length === 0 && newArrivalCards.length === 0 && featuredCards.length === 0 ? (
+        {recommendedCards.length === 0 && newArrivalCards.length === 0 && popularCards.length === 0 ? (
           <div className="bg-white p-8 text-center text-sm text-text-muted md:rounded-2xl">
             Produk aktif belum tersedia.
           </div>

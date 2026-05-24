@@ -53,8 +53,6 @@ export const productCardSelect = {
   primaryImageUrl: true,
   stockStatus: true,
   stockQuantity: true,
-  isFeatured: true,
-  isRecommended: true,
   createdAt: true,
   categoryId: true,
   category: { select: { name: true, slug: true } },
@@ -82,7 +80,6 @@ export const productDetailSelect = {
   primaryImageUrl: true,
   stockStatus: true,
   stockQuantity: true,
-  isFeatured: true,
   createdAt: true,
   categoryId: true,
   category: { select: { name: true, slug: true } },
@@ -126,10 +123,9 @@ export function getVisibleVouchers(
       voucher.endsAt >= now;
 
     if (!isLive) return false;
-    if (voucher.audience === "PUBLIC") return options.publicVoucherEnabled;
-    if (voucher.audience === "RETAIL") {
-      return options.retailVoucherEnabled && options.canSeeRetail;
-    }
+
+    if (options.canSeeRetail && voucher.showForRetail && options.retailVoucherEnabled) return true;
+    if (!options.canSeeRetail && voucher.showForPublic && options.publicVoucherEnabled) return true;
 
     return false;
   });
@@ -218,12 +214,9 @@ export function safeImageSrc(value: string | null | undefined): string | null {
   return null;
 }
 
-export function productBadge(product: Pick<Product, "isFeatured" | "stockStatus"> & { createdAt?: Date | string }) {
-  if (product.isFeatured) return "UNGGULAN";
+export function productBadge(product: Pick<Product, "stockStatus"> & { createdAt?: Date | string }) {
   if (product.createdAt && isNewArrival(product.createdAt)) return "BARU";
-  if (product.stockStatus === "READY" || product.stockStatus === "LOW_STOCK") return "READY";
-  if (product.stockStatus === "PREORDER") return "PREORDER";
-  return "HABIS";
+  return undefined;
 }
 
 export function stockLabel(

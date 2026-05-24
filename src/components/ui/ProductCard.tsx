@@ -1,7 +1,7 @@
 import { BadgePercent, Laptop, PackageCheck, Tag } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
+import TrackedProductLink from "@/components/ui/TrackedProductLink";
 import WhatsAppInquiryButton from "@/components/ui/WhatsAppInquiryButton";
 
 export type ProductCardProps = {
@@ -25,11 +25,10 @@ export type ProductCardProps = {
   flashSaleStock?: number;
 };
 
-const stockTone: Record<string, string> = {
-  READY: "bg-success/15 text-success",
-  LOW_STOCK: "bg-warning/15 text-warning",
-  OUT_OF_STOCK: "bg-danger/15 text-danger",
-  PREORDER: "bg-soft-teal/15 text-primary-maroon",
+const badgeTone: Record<string, string> = {
+  BARU: "bg-soft-teal text-primary-maroon",
+  PROMO: "bg-accent-rose text-white",
+  "FLASH SALE": "bg-accent-rose text-white",
 };
 
 export default function ProductCard({
@@ -43,18 +42,17 @@ export default function ProductCard({
   badge,
   voucherAvailable,
   voucherLabel,
-  stockStatus = "READY",
   stockText,
   brandName,
   categoryName,
   productId,
   productSlug,
 }: ProductCardProps) {
-  const statusClass = stockTone[stockStatus] ?? stockTone.READY;
+  const badgeClass = badge ? badgeTone[badge] ?? "bg-primary-maroon text-white" : "";
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border-gray bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-primary-maroon/25 hover:shadow-lg">
-      <Link href={href} className="relative block bg-soft-bg">
+      <TrackedProductLink href={href} productId={productId} source="product-card-image" className="relative block bg-soft-bg">
         <div className="relative aspect-[4/3] overflow-hidden">
           {image ? (
             <Image
@@ -70,15 +68,17 @@ export default function ProductCard({
             </div>
           )}
         </div>
-        <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
-          <span className={`rounded-full px-2 py-1 text-[10px] font-black ${statusClass}`}>
-            {badge ?? stockStatus}
-          </span>
-        </div>
+        {badge ? (
+          <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
+            <span className={`rounded-full px-2 py-1 text-[10px] font-black ${badgeClass}`}>
+              {badge}
+            </span>
+          </div>
+        ) : null}
         {voucherAvailable ? (
           <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-accent-rose px-2 py-1 text-[10px] font-black text-white shadow-sm">
             <BadgePercent className="size-3" />
-            Voucher
+            Promo
           </span>
         ) : null}
         {showRetailAsPrimary ? (
@@ -86,7 +86,7 @@ export default function ProductCard({
             Harga Ritel
           </span>
         ) : null}
-      </Link>
+      </TrackedProductLink>
 
       <div className="flex flex-1 flex-col p-3">
         <div className="flex min-h-6 flex-wrap items-center gap-1.5">
@@ -102,11 +102,11 @@ export default function ProductCard({
           ) : null}
         </div>
 
-        <Link href={href} className="mt-2 block">
+        <TrackedProductLink href={href} productId={productId} source="product-card-title" className="mt-2 block">
           <h3 className="line-clamp-2 min-h-11 text-sm font-black leading-snug text-text-dark group-hover:text-primary-maroon">
             {name}
           </h3>
-        </Link>
+        </TrackedProductLink>
 
         <p className="mt-2 line-clamp-2 min-h-10 text-xs leading-5 text-text-muted">
           {specification || "Spesifikasi lengkap tersedia di detail produk."}
@@ -137,7 +137,7 @@ export default function ProductCard({
         <div className="mt-3 flex items-center justify-between gap-2 text-xs">
           <span className="inline-flex min-w-0 items-center gap-1 font-semibold text-text-muted">
             <PackageCheck className="size-4 shrink-0 text-soft-teal" />
-            <span className="truncate">{stockText ?? stockStatus}</span>
+            <span className="truncate">{stockText ?? "Cek stok"}</span>
           </span>
           {voucherAvailable ? (
             <span className="shrink-0 rounded-full bg-accent-rose/10 px-2 py-1 font-black text-accent-rose">
@@ -154,12 +154,14 @@ export default function ProductCard({
             label="Tanya"
             className="w-full rounded-xl px-3 py-2.5 text-xs"
           />
-          <Link
+          <TrackedProductLink
             href={href}
+            productId={productId}
+            source="product-card-detail"
             className="inline-flex items-center justify-center rounded-xl border border-primary-maroon/25 px-3 py-2.5 text-xs font-black text-primary-maroon transition hover:border-primary-maroon hover:bg-primary-maroon hover:text-white"
           >
             Detail
-          </Link>
+          </TrackedProductLink>
         </div>
       </div>
     </article>

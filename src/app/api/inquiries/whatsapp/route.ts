@@ -183,6 +183,11 @@ export async function POST(request: NextRequest) {
       whatsappNumber,
     });
 
+    await db.product.update({
+      where: { id: product.id },
+      data: { inquiryCount: { increment: 1 } },
+    }).catch(() => {});
+
     if (trackingEnabled) {
       const resolvedUserId = currentUser?.id ?? null;
       const resolvedName = currentUser?.name ?? null;

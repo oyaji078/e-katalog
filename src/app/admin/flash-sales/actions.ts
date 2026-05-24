@@ -42,7 +42,8 @@ function parseRequiredNumber(value: FormDataEntryValue | undefined, label: strin
   const raw = String(value ?? "").trim();
   if (!raw) return { error: `${label} harus diisi.` };
 
-  const numberValue = Number(raw);
+  const cleaned = raw.replace(/\./g, "");
+  const numberValue = Number(cleaned);
   if (!Number.isFinite(numberValue)) return { error: `${label} harus berupa angka valid.` };
 
   return { value: numberValue };

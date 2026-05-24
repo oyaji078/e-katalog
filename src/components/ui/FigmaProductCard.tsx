@@ -1,13 +1,12 @@
 import Image from "next/image";
-import Link from "next/link";
 
 import type { ProductCardProps } from "@/components/ui/ProductCard";
+import TrackedProductLink from "@/components/ui/TrackedProductLink";
 import WhatsAppInquiryButton from "@/components/ui/WhatsAppInquiryButton";
 
 function badgeColor(badge: string) {
   if (badge === "FLASH SALE" || badge === "PROMO") return "#AE2448";
-  if (badge === "READY") return "#72BAA9";
-  if (badge === "Harga Ritel") return "#6E1A37";
+  if (badge === "BARU") return "#72BAA9";
   return "#AE2448";
 }
 
@@ -27,7 +26,7 @@ export default function FigmaProductCard({
   productId,
   productSlug,
 }: ProductCardProps) {
-  const resolvedBadge = showRetailAsPrimary ? "Harga Ritel" : voucherAvailable ? "Voucher" : badge;
+  const resolvedBadge = badge ?? (voucherAvailable ? "PROMO" : undefined);
 
   return (
     <article className="group relative bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
@@ -40,7 +39,7 @@ export default function FigmaProductCard({
         </span>
       ) : null}
 
-      <Link href={href} className="block">
+      <TrackedProductLink href={href} productId={productId} source="product-card-image" className="block">
           <div className="relative aspect-square overflow-hidden bg-gray-50">
             {image ? (
               <Image
@@ -65,14 +64,14 @@ export default function FigmaProductCard({
               </div>
             )}
           </div>
-      </Link>
+      </TrackedProductLink>
 
       <div className="p-2.5 md:p-3">
-        <Link href={href}>
+        <TrackedProductLink href={href} productId={productId} source="product-card-title">
           <p className="mb-1.5 line-clamp-2 text-xs font-semibold leading-tight text-gray-700 md:text-sm">
             {name}
           </p>
-        </Link>
+        </TrackedProductLink>
         {specification ? (
           <p className="mb-1.5 line-clamp-1 text-[10px] font-semibold text-gray-400">
             {specification}
@@ -106,12 +105,14 @@ export default function FigmaProductCard({
             label="Tanya"
             className="w-full rounded-full px-2 py-1.5 text-[10px]"
           />
-          <Link
+          <TrackedProductLink
             href={href}
+            productId={productId}
+            source="product-card-detail"
             className="rounded-full bg-gray-100 px-3 py-1.5 text-center text-[10px] font-black text-primary-maroon"
           >
             Detail
-          </Link>
+          </TrackedProductLink>
         </div>
       </div>
     </article>

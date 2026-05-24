@@ -18,9 +18,19 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
   }
 
   const serialized = {
-    ...banner,
+    id: banner.id,
+    title: banner.title,
+    subtitle: banner.subtitle,
+    imageUrl: banner.imageUrl,
+    linkUrl: banner.linkUrl,
+    ctaLabel: banner.ctaLabel,
+    showForPublic: banner.showForPublic,
+    showForRetail: banner.showForRetail,
+    isActive: banner.isActive,
     startsAt: banner.startsAt?.toISOString() ?? null,
     endsAt: banner.endsAt?.toISOString() ?? null,
+    sortOrder: banner.sortOrder,
+    voucherCode: banner.voucherCode,
     createdAt: banner.createdAt.toISOString(),
     updatedAt: banner.updatedAt.toISOString(),
   };

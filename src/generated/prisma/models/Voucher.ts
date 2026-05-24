@@ -44,6 +44,8 @@ export type VoucherMinAggregateOutputType = {
   title: string | null
   description: string | null
   audience: $Enums.VoucherAudience | null
+  showForPublic: boolean | null
+  showForRetail: boolean | null
   status: $Enums.VoucherStatus | null
   discountType: $Enums.VoucherDiscountType | null
   discountValue: runtime.Decimal | null
@@ -64,6 +66,8 @@ export type VoucherMaxAggregateOutputType = {
   title: string | null
   description: string | null
   audience: $Enums.VoucherAudience | null
+  showForPublic: boolean | null
+  showForRetail: boolean | null
   status: $Enums.VoucherStatus | null
   discountType: $Enums.VoucherDiscountType | null
   discountValue: runtime.Decimal | null
@@ -84,6 +88,8 @@ export type VoucherCountAggregateOutputType = {
   title: number
   description: number
   audience: number
+  showForPublic: number
+  showForRetail: number
   status: number
   discountType: number
   discountValue: number
@@ -118,6 +124,8 @@ export type VoucherMinAggregateInputType = {
   title?: true
   description?: true
   audience?: true
+  showForPublic?: true
+  showForRetail?: true
   status?: true
   discountType?: true
   discountValue?: true
@@ -138,6 +146,8 @@ export type VoucherMaxAggregateInputType = {
   title?: true
   description?: true
   audience?: true
+  showForPublic?: true
+  showForRetail?: true
   status?: true
   discountType?: true
   discountValue?: true
@@ -158,6 +168,8 @@ export type VoucherCountAggregateInputType = {
   title?: true
   description?: true
   audience?: true
+  showForPublic?: true
+  showForRetail?: true
   status?: true
   discountType?: true
   discountValue?: true
@@ -265,6 +277,8 @@ export type VoucherGroupByOutputType = {
   title: string
   description: string | null
   audience: $Enums.VoucherAudience
+  showForPublic: boolean
+  showForRetail: boolean
   status: $Enums.VoucherStatus
   discountType: $Enums.VoucherDiscountType
   discountValue: runtime.Decimal
@@ -308,6 +322,8 @@ export type VoucherWhereInput = {
   title?: Prisma.StringFilter<"Voucher"> | string
   description?: Prisma.StringNullableFilter<"Voucher"> | string | null
   audience?: Prisma.EnumVoucherAudienceFilter<"Voucher"> | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFilter<"Voucher"> | boolean
+  showForRetail?: Prisma.BoolFilter<"Voucher"> | boolean
   status?: Prisma.EnumVoucherStatusFilter<"Voucher"> | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFilter<"Voucher"> | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFilter<"Voucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -331,6 +347,8 @@ export type VoucherOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   audience?: Prisma.SortOrder
+  showForPublic?: Prisma.SortOrder
+  showForRetail?: Prisma.SortOrder
   status?: Prisma.SortOrder
   discountType?: Prisma.SortOrder
   discountValue?: Prisma.SortOrder
@@ -358,6 +376,8 @@ export type VoucherWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Voucher"> | string
   description?: Prisma.StringNullableFilter<"Voucher"> | string | null
   audience?: Prisma.EnumVoucherAudienceFilter<"Voucher"> | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFilter<"Voucher"> | boolean
+  showForRetail?: Prisma.BoolFilter<"Voucher"> | boolean
   status?: Prisma.EnumVoucherStatusFilter<"Voucher"> | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFilter<"Voucher"> | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFilter<"Voucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -381,6 +401,8 @@ export type VoucherOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   audience?: Prisma.SortOrder
+  showForPublic?: Prisma.SortOrder
+  showForRetail?: Prisma.SortOrder
   status?: Prisma.SortOrder
   discountType?: Prisma.SortOrder
   discountValue?: Prisma.SortOrder
@@ -409,6 +431,8 @@ export type VoucherScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Voucher"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Voucher"> | string | null
   audience?: Prisma.EnumVoucherAudienceWithAggregatesFilter<"Voucher"> | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolWithAggregatesFilter<"Voucher"> | boolean
+  showForRetail?: Prisma.BoolWithAggregatesFilter<"Voucher"> | boolean
   status?: Prisma.EnumVoucherStatusWithAggregatesFilter<"Voucher"> | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeWithAggregatesFilter<"Voucher"> | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalWithAggregatesFilter<"Voucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -429,6 +453,8 @@ export type VoucherCreateInput = {
   title: string
   description?: string | null
   audience?: $Enums.VoucherAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
   status?: $Enums.VoucherStatus
   discountType: $Enums.VoucherDiscountType
   discountValue: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -452,6 +478,8 @@ export type VoucherUncheckedCreateInput = {
   title: string
   description?: string | null
   audience?: $Enums.VoucherAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
   status?: $Enums.VoucherStatus
   discountType: $Enums.VoucherDiscountType
   discountValue: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -475,6 +503,8 @@ export type VoucherUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -498,6 +528,8 @@ export type VoucherUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -521,6 +553,8 @@ export type VoucherCreateManyInput = {
   title: string
   description?: string | null
   audience?: $Enums.VoucherAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
   status?: $Enums.VoucherStatus
   discountType: $Enums.VoucherDiscountType
   discountValue: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -541,6 +575,8 @@ export type VoucherUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -561,6 +597,8 @@ export type VoucherUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -597,6 +635,8 @@ export type VoucherCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   audience?: Prisma.SortOrder
+  showForPublic?: Prisma.SortOrder
+  showForRetail?: Prisma.SortOrder
   status?: Prisma.SortOrder
   discountType?: Prisma.SortOrder
   discountValue?: Prisma.SortOrder
@@ -623,6 +663,8 @@ export type VoucherMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   audience?: Prisma.SortOrder
+  showForPublic?: Prisma.SortOrder
+  showForRetail?: Prisma.SortOrder
   status?: Prisma.SortOrder
   discountType?: Prisma.SortOrder
   discountValue?: Prisma.SortOrder
@@ -643,6 +685,8 @@ export type VoucherMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   audience?: Prisma.SortOrder
+  showForPublic?: Prisma.SortOrder
+  showForRetail?: Prisma.SortOrder
   status?: Prisma.SortOrder
   discountType?: Prisma.SortOrder
   discountValue?: Prisma.SortOrder
@@ -756,6 +800,8 @@ export type VoucherCreateWithoutCategoriesInput = {
   title: string
   description?: string | null
   audience?: $Enums.VoucherAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
   status?: $Enums.VoucherStatus
   discountType: $Enums.VoucherDiscountType
   discountValue: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -778,6 +824,8 @@ export type VoucherUncheckedCreateWithoutCategoriesInput = {
   title: string
   description?: string | null
   audience?: $Enums.VoucherAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
   status?: $Enums.VoucherStatus
   discountType: $Enums.VoucherDiscountType
   discountValue: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -824,6 +872,8 @@ export type VoucherScalarWhereInput = {
   title?: Prisma.StringFilter<"Voucher"> | string
   description?: Prisma.StringNullableFilter<"Voucher"> | string | null
   audience?: Prisma.EnumVoucherAudienceFilter<"Voucher"> | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFilter<"Voucher"> | boolean
+  showForRetail?: Prisma.BoolFilter<"Voucher"> | boolean
   status?: Prisma.EnumVoucherStatusFilter<"Voucher"> | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFilter<"Voucher"> | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFilter<"Voucher"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -844,6 +894,8 @@ export type VoucherCreateWithoutProductsInput = {
   title: string
   description?: string | null
   audience?: $Enums.VoucherAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
   status?: $Enums.VoucherStatus
   discountType: $Enums.VoucherDiscountType
   discountValue: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -866,6 +918,8 @@ export type VoucherUncheckedCreateWithoutProductsInput = {
   title: string
   description?: string | null
   audience?: $Enums.VoucherAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
   status?: $Enums.VoucherStatus
   discountType: $Enums.VoucherDiscountType
   discountValue: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -904,6 +958,8 @@ export type VoucherUpdateWithoutProductsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -926,6 +982,8 @@ export type VoucherUncheckedUpdateWithoutProductsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -948,6 +1006,8 @@ export type VoucherCreateWithoutVoucherClaimsInput = {
   title: string
   description?: string | null
   audience?: $Enums.VoucherAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
   status?: $Enums.VoucherStatus
   discountType: $Enums.VoucherDiscountType
   discountValue: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -970,6 +1030,8 @@ export type VoucherUncheckedCreateWithoutVoucherClaimsInput = {
   title: string
   description?: string | null
   audience?: $Enums.VoucherAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
   status?: $Enums.VoucherStatus
   discountType: $Enums.VoucherDiscountType
   discountValue: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1008,6 +1070,8 @@ export type VoucherUpdateWithoutVoucherClaimsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1030,6 +1094,8 @@ export type VoucherUncheckedUpdateWithoutVoucherClaimsInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1052,6 +1118,8 @@ export type VoucherUpdateWithoutCategoriesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1074,6 +1142,8 @@ export type VoucherUncheckedUpdateWithoutCategoriesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1096,6 +1166,8 @@ export type VoucherUncheckedUpdateManyWithoutCategoriesInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   audience?: Prisma.EnumVoucherAudienceFieldUpdateOperationsInput | $Enums.VoucherAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumVoucherStatusFieldUpdateOperationsInput | $Enums.VoucherStatus
   discountType?: Prisma.EnumVoucherDiscountTypeFieldUpdateOperationsInput | $Enums.VoucherDiscountType
   discountValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1165,6 +1237,8 @@ export type VoucherSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   title?: boolean
   description?: boolean
   audience?: boolean
+  showForPublic?: boolean
+  showForRetail?: boolean
   status?: boolean
   discountType?: boolean
   discountValue?: boolean
@@ -1191,6 +1265,8 @@ export type VoucherSelectScalar = {
   title?: boolean
   description?: boolean
   audience?: boolean
+  showForPublic?: boolean
+  showForRetail?: boolean
   status?: boolean
   discountType?: boolean
   discountValue?: boolean
@@ -1205,7 +1281,7 @@ export type VoucherSelectScalar = {
   categoryId?: boolean
 }
 
-export type VoucherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "title" | "description" | "audience" | "status" | "discountType" | "discountValue" | "minimumPurchase" | "startsAt" | "endsAt" | "isActive" | "usageQuota" | "scope" | "createdAt" | "updatedAt" | "categoryId", ExtArgs["result"]["voucher"]>
+export type VoucherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "title" | "description" | "audience" | "showForPublic" | "showForRetail" | "status" | "discountType" | "discountValue" | "minimumPurchase" | "startsAt" | "endsAt" | "isActive" | "usageQuota" | "scope" | "createdAt" | "updatedAt" | "categoryId", ExtArgs["result"]["voucher"]>
 export type VoucherInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   categories?: boolean | Prisma.Voucher$categoriesArgs<ExtArgs>
   products?: boolean | Prisma.Voucher$productsArgs<ExtArgs>
@@ -1226,6 +1302,8 @@ export type $VoucherPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     title: string
     description: string | null
     audience: $Enums.VoucherAudience
+    showForPublic: boolean
+    showForRetail: boolean
     status: $Enums.VoucherStatus
     discountType: $Enums.VoucherDiscountType
     discountValue: runtime.Decimal
@@ -1615,6 +1693,8 @@ export interface VoucherFieldRefs {
   readonly title: Prisma.FieldRef<"Voucher", 'String'>
   readonly description: Prisma.FieldRef<"Voucher", 'String'>
   readonly audience: Prisma.FieldRef<"Voucher", 'VoucherAudience'>
+  readonly showForPublic: Prisma.FieldRef<"Voucher", 'Boolean'>
+  readonly showForRetail: Prisma.FieldRef<"Voucher", 'Boolean'>
   readonly status: Prisma.FieldRef<"Voucher", 'VoucherStatus'>
   readonly discountType: Prisma.FieldRef<"Voucher", 'VoucherDiscountType'>
   readonly discountValue: Prisma.FieldRef<"Voucher", 'Decimal'>

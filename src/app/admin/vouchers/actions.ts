@@ -3,8 +3,6 @@
 import { revalidatePath } from "next/cache";
 
 import type {
-  VoucherAudience,
-  VoucherDiscountType,
   VoucherScope,
   VoucherStatus,
 } from "@/generated/prisma/client";
@@ -52,14 +50,6 @@ function selectedIds(formData: FormData, key: string) {
     .filter(Boolean);
 }
 
-function parseAudience(value: FormDataEntryValue | null): VoucherAudience {
-  return value === "RETAIL" ? "RETAIL" : "PUBLIC";
-}
-
-function parseDiscountType(value: FormDataEntryValue | null): VoucherDiscountType {
-  return value === "PERCENTAGE" ? "PERCENTAGE" : "FIXED_AMOUNT";
-}
-
 function parseScope(value: FormDataEntryValue | null): VoucherScope {
   if (value === "PRODUCTS" || value === "CATEGORIES") return value;
   return "ALL";
@@ -75,16 +65,19 @@ function parseDate(value: string) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+function isChecked(value: FormDataEntryValue | null): boolean {
+  return value === "on" || value === "1" || value === "true";
+}
+
 function voucherData(formData: FormData) {
   const scope = parseScope(formData.get("scope"));
 
   return {
-    code: text(formData, "code").toUpperCase(),
     title: text(formData, "title"),
     description: text(formData, "description") || null,
-    audience: parseAudience(formData.get("audience")),
+    showForPublic: isChecked(formData.get("showForPublic")),
+    showForRetail: isChecked(formData.get("showForRetail")),
     status: parseStatus(formData.get("status")),
-    discountType: parseDiscountType(formData.get("discountType")),
     discountValue: parseMoney(formData.get("discountValue")),
     minimumPurchase: nullableMoney(formData, "minimumPurchase"),
     startsAt: parseDate(text(formData, "startsAt")),
@@ -97,24 +90,40 @@ function voucherData(formData: FormData) {
   };
 }
 
-async function ensureVoucherFeature(audience: VoucherAudience) {
-  const key = audience === "RETAIL" ? "enable_retail_voucher" : "enable_public_voucher";
+function generateCode(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const prefix = `VCR-${year}${month}-`;
+  const randomPart = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `${prefix}${randomPart}`;
+}
+
+async function generateUniqueCode(db: ReturnType<typeof getDb>): Promise<string> {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const code = generateCode();
+    const existing = await db.voucher.findUnique({ where: { code } });
+    if (!existing) return code;
+  }
+  return `VCR-${Date.now().toString(36).toUpperCase()}`;
+}
+
+async function ensureVoucherFeature(showForRetail: boolean) {
+  const key = showForRetail ? "enable_retail_voucher" : "enable_public_voucher";
   return isFeatureEnabled(key);
 }
 
 function validateVoucherData(data: ReturnType<typeof voucherData>) {
-  if (!data.code || !data.title) return "Voucher code and title are required.";
-  if (data.discountValue <= 0) return "Discount value must be greater than 0.";
-  if (data.discountType === "PERCENTAGE" && data.discountValue > 100) {
-    return "Percentage discount cannot be above 100.";
-  }
-  if (!data.startsAt || !data.endsAt) return "Start and end dates are required.";
-  if (data.endsAt <= data.startsAt) return "End date must be after start date.";
+  if (!data.title) return "Judul voucher harus diisi.";
+  if (!data.showForPublic && !data.showForRetail) return "Pilih minimal satu target audiens.";
+  if (data.discountValue <= 0) return "Jumlah diskon harus lebih dari 0.";
+  if (!data.startsAt || !data.endsAt) return "Tanggal mulai dan berakhir harus diisi.";
+  if (data.endsAt <= data.startsAt) return "Tanggal berakhir harus setelah tanggal mulai.";
   if (data.scope === "PRODUCTS" && data.productIds.length === 0) {
-    return "Select at least one product for product vouchers.";
+    return "Pilih minimal satu produk.";
   }
   if (data.scope === "CATEGORIES" && data.categoryIds.length === 0) {
-    return "Select at least one category for category vouchers.";
+    return "Pilih minimal satu kategori.";
   }
 
   return null;
@@ -131,21 +140,21 @@ export async function createVoucherAction(
   const validationError = validateVoucherData(data);
   if (validationError) return failure(validationError);
 
-  const featureEnabled = await ensureVoucherFeature(data.audience);
+  const featureEnabled = await ensureVoucherFeature(data.showForRetail);
   if (!featureEnabled) return failure("Voucher feature flag is disabled for this audience.");
 
   const db = getDb();
-  const existingCode = await db.voucher.findUnique({ where: { code: data.code } });
-  if (existingCode) return failure("Voucher code is already used.");
+  const code = await generateUniqueCode(db);
 
   const voucher = await db.voucher.create({
     data: {
-      code: data.code,
+      code,
       title: data.title,
       description: data.description,
-      audience: data.audience,
+      showForPublic: data.showForPublic,
+      showForRetail: data.showForRetail,
       status: data.status,
-      discountType: data.discountType,
+      discountType: "FIXED_AMOUNT",
       discountValue: data.discountValue,
       minimumPurchase: data.minimumPurchase,
       startsAt: data.startsAt!,
@@ -173,13 +182,14 @@ export async function createVoucherAction(
     risk: "MEDIUM",
     metadata: {
       code: voucher.code,
-      audience: voucher.audience,
+      showForPublic: voucher.showForPublic,
+      showForRetail: voucher.showForRetail,
       scope: voucher.scope,
     },
   });
 
   revalidateVoucherPaths(voucher.id);
-  return ok("Voucher created.", voucher.id);
+  return ok("Voucher berhasil dibuat.", voucher.id);
 }
 
 export async function updateVoucherAction(
@@ -196,30 +206,22 @@ export async function updateVoucherAction(
   const validationError = validateVoucherData(data);
   if (validationError) return failure(validationError);
 
-  const featureEnabled = await ensureVoucherFeature(data.audience);
+  const featureEnabled = await ensureVoucherFeature(data.showForRetail);
   if (!featureEnabled) return failure("Voucher feature flag is disabled for this audience.");
 
   const db = getDb();
   const existingVoucher = await db.voucher.findUnique({ where: { id: voucherId } });
   if (!existingVoucher) return failure("Voucher not found.");
 
-  const existingCode = await db.voucher.findFirst({
-    where: {
-      code: data.code,
-      NOT: { id: voucherId },
-    },
-  });
-  if (existingCode) return failure("Voucher code is already used.");
-
   const voucher = await db.voucher.update({
     where: { id: voucherId },
     data: {
-      code: data.code,
       title: data.title,
       description: data.description,
-      audience: data.audience,
+      showForPublic: data.showForPublic,
+      showForRetail: data.showForRetail,
       status: data.status,
-      discountType: data.discountType,
+      discountType: "FIXED_AMOUNT",
       discountValue: data.discountValue,
       minimumPurchase: data.minimumPurchase,
       startsAt: data.startsAt!,
@@ -248,7 +250,8 @@ export async function updateVoucherAction(
     risk: "MEDIUM",
     metadata: {
       code: voucher.code,
-      audience: voucher.audience,
+      showForPublic: voucher.showForPublic,
+      showForRetail: voucher.showForRetail,
       previousStatus: existingVoucher.status,
       status: voucher.status,
     },
@@ -258,39 +261,73 @@ export async function updateVoucherAction(
   return ok("Voucher updated.", voucher.id);
 }
 
-export async function disableVoucherAction(
+export async function toggleVoucherAction(
   _previousState: VoucherFormState,
   formData: FormData,
 ): Promise<VoucherFormState> {
   const session = await getAdminSession();
-  if (!session) return failure("Unauthorized.");
+  if (!session) return failure("Tidak memiliki akses.");
 
   const voucherId = text(formData, "voucherId");
-  if (!voucherId) return failure("Voucher id is required.");
+  if (!voucherId) return failure("ID voucher diperlukan.");
 
-  const voucher = await getDb().voucher.update({
+  const action = text(formData, "action");
+  if (action !== "activate" && action !== "deactivate") return failure("Aksi tidak valid.");
+
+  const db = getDb();
+  const existing = await db.voucher.findUnique({ where: { id: voucherId }, select: { isActive: true } });
+  if (!existing) return failure("Voucher tidak ditemukan.");
+
+  const isActive = action === "activate";
+  const status = isActive ? "ACTIVE" : "DISABLED";
+
+  const voucher = await db.voucher.update({
     where: { id: voucherId },
-    data: {
-      isActive: false,
-      status: "DISABLED",
-    },
+    data: { isActive, status },
   });
 
   await logAdminActivity({
     actorId: session.user.id,
     actorRole: toUserRole(session.user.role),
-    action: "Voucher disabled",
+    action: isActive ? "Voucher activated" : "Voucher deactivated",
     targetType: "Voucher",
     targetId: voucher.id,
     risk: "HIGH",
-    metadata: {
-      code: voucher.code,
-      audience: voucher.audience,
-    },
+    metadata: { code: voucher.code },
   });
 
   revalidateVoucherPaths(voucher.id);
-  return ok("Voucher disabled.", voucher.id);
+  return ok(isActive ? "Voucher diaktifkan." : "Voucher dinonaktifkan.", voucher.id);
+}
+
+export async function deleteVoucherAction(
+  _previousState: VoucherFormState,
+  formData: FormData,
+): Promise<VoucherFormState> {
+  const session = await getAdminSession();
+  if (!session) return failure("Tidak memiliki akses.");
+
+  const voucherId = text(formData, "voucherId");
+  if (!voucherId) return failure("ID voucher diperlukan.");
+
+  const db = getDb();
+  const voucher = await db.voucher.findUnique({ where: { id: voucherId }, select: { id: true, code: true } });
+  if (!voucher) return failure("Voucher tidak ditemukan.");
+
+  await db.voucher.delete({ where: { id: voucherId } });
+
+  await logAdminActivity({
+    actorId: session.user.id,
+    actorRole: toUserRole(session.user.role),
+    action: "Voucher deleted",
+    targetType: "Voucher",
+    targetId: voucherId,
+    risk: "HIGH",
+    metadata: { code: voucher.code },
+  });
+
+  revalidateVoucherPaths(voucherId);
+  return ok("Voucher berhasil dihapus.", voucherId);
 }
 
 function revalidateVoucherPaths(voucherId: string) {
@@ -299,4 +336,5 @@ function revalidateVoucherPaths(voucherId: string) {
   revalidatePath("/vouchers");
   revalidatePath(`/admin/vouchers/${voucherId}/edit`);
   revalidatePath("/admin/vouchers");
+  revalidatePath("/admin/promo-vouchers");
 }

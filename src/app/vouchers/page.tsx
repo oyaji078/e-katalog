@@ -30,9 +30,9 @@ export default async function VouchersPage() {
   });
 
   const displayVouchers = vouchers.filter((voucher) => {
-    if (voucher.audience === "PUBLIC") return publicVoucherEnabled;
-    if (voucher.audience === "RETAIL") return retailVoucherEnabled && canSeeRetailVouchers;
-    return false;
+    const isGuestOrPublic = !canSeeRetailVouchers;
+    if (isGuestOrPublic) return voucher.showForPublic && publicVoucherEnabled;
+    return voucher.showForRetail && retailVoucherEnabled;
   });
 
   const claimedIds = user
@@ -91,7 +91,7 @@ export default async function VouchersPage() {
               title={highlightedVoucher.title}
               subtitle={highlightedVoucher.description ?? undefined}
               discountLabel={voucherLabel(highlightedVoucher)}
-              audience={highlightedVoucher.audience}
+              audience={highlightedVoucher.showForRetail && !highlightedVoucher.showForPublic ? "RETAIL" : "PUBLIC"}
               expiresAt={highlightedVoucher.endsAt.toISOString()}
               minimumPurchase={
                 highlightedVoucher.minimumPurchase
@@ -100,12 +100,7 @@ export default async function VouchersPage() {
               }
               isAuthenticated={!!user}
               isClaimed={claimedIds.has(highlightedVoucher.id)}
-              canClaim={highlightedVoucher.audience === "PUBLIC" || canSeeRetailVouchers}
-              disabledReason={
-                highlightedVoucher.audience === "RETAIL" && !canSeeRetailVouchers
-                  ? "Khusus akun ritel aktif."
-                  : undefined
-              }
+              canClaim={true}
               ctaLabel="Klaim Sekarang"
             />
           </div>
@@ -135,14 +130,11 @@ export default async function VouchersPage() {
                   voucher.startsAt <= now &&
                   voucher.endsAt >= now;
                 const isExpired = voucher.endsAt < now || voucher.status === "EXPIRED";
-                const isRetailBlocked = voucher.audience === "RETAIL" && !canSeeRetailVouchers;
                 const disabledReason = isExpired
                   ? "Voucher sudah expired."
-                  : isRetailBlocked
-                    ? "Khusus akun ritel aktif."
-                    : !isLive
-                      ? "Voucher belum aktif."
-                      : undefined;
+                  : !isLive
+                    ? "Voucher belum aktif."
+                    : undefined;
 
                 return (
                   <VoucherCard
@@ -155,13 +147,13 @@ export default async function VouchersPage() {
                     minimumPurchase={
                       voucher.minimumPurchase ? formatRupiah(voucher.minimumPurchase) : undefined
                     }
-                    audience={voucher.audience}
+                    audience={voucher.showForRetail && !voucher.showForPublic ? "RETAIL" : "PUBLIC"}
                     expiresAt={voucher.endsAt.toISOString()}
                     isActive={isLive}
                     isExpired={isExpired}
                     isAuthenticated={!!user}
                     isClaimed={claimedIds.has(voucher.id)}
-                    canClaim={isLive && !isRetailBlocked}
+                    canClaim={isLive}
                     disabledReason={disabledReason}
                   />
                 );

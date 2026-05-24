@@ -38,7 +38,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         status: "ACTIVE",
       },
       select: productCardSelect,
-      orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
+      orderBy: [
+        { inquiryCount: "desc" },
+        { clickCount: "desc" },
+        { viewCount: "desc" },
+        { createdAt: "desc" },
+      ],
     }),
     db.voucher.findMany({
       where: { isActive: true, status: "ACTIVE" },
@@ -82,4 +87,3 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     </main>
   );
 }
-

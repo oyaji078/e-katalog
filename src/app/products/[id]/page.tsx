@@ -5,12 +5,13 @@ import {
   PackageCheck,
   ShieldCheck,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import FigmaFooter from "@/components/layout/FigmaFooter";
+import ProductImageGallery from "@/components/ui/ProductImageGallery";
 import ProductGrid from "@/components/ui/ProductGrid";
+import ProductTrafficTracker from "@/components/ui/ProductTrafficTracker";
 import FigmaSiteHeader from "@/components/layout/FigmaSiteHeader";
 import VoucherClaimButton from "@/components/ui/VoucherClaimButton";
 import WhatsAppInquiryButton from "@/components/ui/WhatsAppInquiryButton";
@@ -91,7 +92,12 @@ export default async function ProductDetailPage({ params, searchParams }: Produc
         NOT: { id: product.id },
       },
       select: productCardSelect,
-      orderBy: [{ isRecommended: "desc" }, { createdAt: "desc" }],
+      orderBy: [
+        { inquiryCount: "desc" },
+        { clickCount: "desc" },
+        { viewCount: "desc" },
+        { createdAt: "desc" },
+      ],
       take: 5,
     }),
     user
@@ -125,9 +131,11 @@ export default async function ProductDetailPage({ params, searchParams }: Produc
     [product.primaryImageUrl, ...product.images.map((image) => image.url)].map(safeImageSrc),
   );
   const specs = specRows(product.specifications);
+  const detailBadge = productBadge(product);
 
   return (
     <main className="min-h-screen bg-soft-bg pb-20 text-text-dark lg:pb-8">
+      <ProductTrafficTracker productId={product.id} />
       <FigmaSiteHeader />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
@@ -140,64 +148,25 @@ export default async function ProductDetailPage({ params, searchParams }: Produc
         </Link>
 
         <section className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="grid gap-3">
-            <div className="relative overflow-hidden rounded-3xl border border-border-gray bg-white shadow-sm">
-              <div className="relative aspect-square bg-soft-bg">
-                {gallery[0] ? (
-                  <Image
-                    src={gallery[0]}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 45vw"
-                    className="object-cover"
-                    priority
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary-maroon/10 via-white to-soft-teal/20">
-                    <div className="flex flex-col items-center gap-3">
-                      <svg className="size-20 text-primary-maroon/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                        <line x1="8" y1="21" x2="16" y2="21"/>
-                        <line x1="12" y1="17" x2="12" y2="21"/>
-                      </svg>
-                      <span className="rounded-xl bg-white/90 px-4 py-2 text-sm font-black text-primary-maroon shadow-sm">
-                        {product.category.name}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+          <div className="relative">
+            <ProductImageGallery
+              images={gallery}
+              productName={product.name}
+              categoryName={product.category.name}
+            />
+            <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+              {detailBadge ? (
                 <span className="rounded-full bg-primary-maroon px-3 py-1 text-xs font-black text-white">
-                  {productBadge(product)}
+                  {detailBadge}
                 </span>
-                {visibleVouchers.length > 0 ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-accent-rose px-3 py-1 text-xs font-black text-white">
-                    <BadgePercent className="size-4" />
-                    Voucher
-                  </span>
-                ) : null}
-              </div>
+              ) : null}
+              {visibleVouchers.length > 0 ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-accent-rose px-3 py-1 text-xs font-black text-white">
+                  <BadgePercent className="size-4" />
+                  Promo
+                </span>
+              ) : null}
             </div>
-
-            {gallery.length > 1 ? (
-              <div className="grid grid-cols-4 gap-3">
-                {gallery.slice(1, 5).map((image) => (
-                  <div
-                    key={image}
-                    className="relative aspect-square overflow-hidden rounded-2xl border border-border-gray shadow-sm"
-                  >
-                    <Image
-                      src={image}
-                      alt={product.name}
-                      fill
-                      sizes="(max-width: 1024px) 25vw, 12vw"
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : null}
           </div>
 
           <section className="rounded-3xl border border-border-gray bg-white p-5 shadow-sm sm:p-6">
@@ -419,4 +388,3 @@ function specRows(value: unknown): Array<[string, string]> {
   }
   return [["Detail", JSON.stringify(value)]];
 }
-

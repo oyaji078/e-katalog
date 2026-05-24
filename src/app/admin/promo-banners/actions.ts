@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import type { PromoBannerAudience } from "@/generated/prisma/client";
 import { getAdminSession } from "@/lib/admin-auth";
 import { getDb } from "@/lib/db";
 import {
@@ -23,7 +22,9 @@ export type BannerFormFields = {
   startsAt: string;
   endsAt: string;
   sortOrder: string;
-  audience: string;
+  showForPublic: string;
+  showForRetail: string;
+  voucherCode: string;
 };
 
 export type BannerFormState = {
@@ -48,7 +49,9 @@ const emptyFields: BannerFormFields = {
   startsAt: "",
   endsAt: "",
   sortOrder: "0",
-  audience: "PUBLIC",
+  showForPublic: "1",
+  showForRetail: "0",
+  voucherCode: "",
 };
 
 const initialBannerFormState: BannerFormState = {
@@ -74,7 +77,9 @@ function readFields(formData: FormData): BannerFormFields {
     startsAt: text(formData, "startsAt"),
     endsAt: text(formData, "endsAt"),
     sortOrder: text(formData, "sortOrder"),
-    audience: text(formData, "audience"),
+    showForPublic: text(formData, "showForPublic"),
+    showForRetail: text(formData, "showForRetail"),
+    voucherCode: text(formData, "voucherCode"),
   };
 }
 
@@ -105,12 +110,8 @@ function parseSortOrder(value: string): number | null {
   return Number.isSafeInteger(parsed) ? parsed : null;
 }
 
-function parseAudience(value: string): PromoBannerAudience | null {
-  if (value === "PUBLIC" || value === "AUTHENTICATED" || value === "RETAIL") {
-    return value;
-  }
-
-  return null;
+function parseAudienceBoolean(value: string): boolean {
+  return value === "1" || value === "on" || value === "true";
 }
 
 function parseStatus(value: string): boolean | null {
@@ -160,14 +161,16 @@ function buildErrorState(
 
 function validateFields(fields: BannerFormFields): {
   fieldErrors: BannerFormState["fieldErrors"];
-  audience: PromoBannerAudience | null;
+  showForPublic: boolean;
+  showForRetail: boolean;
   isActive: boolean | null;
   sortOrder: number | null;
   startsAt: Date | null;
   endsAt: Date | null;
 } {
   const fieldErrors: BannerFormState["fieldErrors"] = {};
-  const audience = parseAudience(fields.audience);
+  const showForPublic = parseAudienceBoolean(fields.showForPublic);
+  const showForRetail = parseAudienceBoolean(fields.showForRetail);
   const isActive = parseStatus(fields.status);
   const sortOrder = parseSortOrder(fields.sortOrder);
   const startsAt = parseOptionalDate(fields.startsAt, "start");
@@ -181,8 +184,8 @@ function validateFields(fields: BannerFormFields): {
     fieldErrors.status = "Status wajib dipilih.";
   }
 
-  if (!audience) {
-    fieldErrors.audience = "Target Audiens wajib dipilih.";
+  if (!showForPublic && !showForRetail) {
+    fieldErrors.showForPublic = "Pilih minimal satu target audiens.";
   }
 
   if (sortOrder === null) {
@@ -211,7 +214,7 @@ function validateFields(fields: BannerFormFields): {
       "Gambar Banner hanya boleh memakai file /uploads/... yang tersedia.";
   }
 
-  return { fieldErrors, audience, isActive, sortOrder, startsAt, endsAt };
+  return { fieldErrors, showForPublic, showForRetail, isActive, sortOrder, startsAt, endsAt };
 }
 
 async function requireAdminMutation(): Promise<BannerFormState | null> {
@@ -253,8 +256,8 @@ export async function createPromoBannerAction(formData: FormData): Promise<Banne
   const accessError = await requireAdminMutation();
   if (accessError) return { ...accessError, fields };
 
-  const { fieldErrors, audience, isActive, sortOrder, startsAt, endsAt } = validateFields(fields);
-  if (Object.keys(fieldErrors).length > 0 || audience === null || isActive === null || sortOrder === null) {
+  const { fieldErrors, showForPublic, showForRetail, isActive, sortOrder, startsAt, endsAt } = validateFields(fields);
+  if (Object.keys(fieldErrors).length > 0 || isActive === null || sortOrder === null) {
     return buildErrorState(fields, fieldErrors);
   }
 
@@ -269,11 +272,13 @@ export async function createPromoBannerAction(formData: FormData): Promise<Banne
         imageUrl,
         linkUrl: nullableText(fields.ctaHref),
         ctaLabel: nullableText(fields.ctaLabel),
-        audience,
+        showForPublic,
+        showForRetail,
         isActive,
         startsAt,
         endsAt,
         sortOrder,
+        voucherCode: nullableText(fields.voucherCode),
       },
     });
   } catch (error) {
@@ -308,8 +313,8 @@ export async function updatePromoBannerAction(id: string, formData: FormData): P
     };
   }
 
-  const { fieldErrors, audience, isActive, sortOrder, startsAt, endsAt } = validateFields(fields);
-  if (Object.keys(fieldErrors).length > 0 || audience === null || isActive === null || sortOrder === null) {
+  const { fieldErrors, showForPublic, showForRetail, isActive, sortOrder, startsAt, endsAt } = validateFields(fields);
+  if (Object.keys(fieldErrors).length > 0 || isActive === null || sortOrder === null) {
     return buildErrorState(fields, fieldErrors);
   }
 
@@ -340,11 +345,13 @@ export async function updatePromoBannerAction(id: string, formData: FormData): P
         imageUrl,
         linkUrl: nullableText(fields.ctaHref),
         ctaLabel: nullableText(fields.ctaLabel),
-        audience,
+        showForPublic,
+        showForRetail,
         isActive,
         startsAt,
         endsAt,
         sortOrder,
+        voucherCode: nullableText(fields.voucherCode),
       },
     });
 
@@ -372,6 +379,36 @@ export async function updatePromoBannerAction(id: string, formData: FormData): P
   revalidatePath("/");
   revalidatePath("/admin/promo-banners");
   redirect("/admin/promo-banners");
+}
+
+export async function toggleBannerAction(
+  id: string,
+  formData: FormData,
+): Promise<BannerFormState> {
+  const session = await getAdminSession();
+  if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
+    return { ...initialBannerFormState, error: "Tidak memiliki akses." };
+  }
+
+  if (!id) return { ...initialBannerFormState, error: "ID banner tidak valid." };
+
+  const actionValue = String(formData.get("action") ?? "").trim();
+  if (actionValue !== "activate" && actionValue !== "deactivate") {
+    return { ...initialBannerFormState, error: "Aksi tidak valid." };
+  }
+
+  let isActive = false;
+  try {
+    const db = getDb();
+    isActive = actionValue === "activate";
+    await db.promoBanner.update({ where: { id }, data: { isActive } });
+  } catch {
+    return { ...initialBannerFormState, error: "Gagal memperbarui status banner." };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/promo-banners");
+  return { success: true, message: isActive ? "Banner diaktifkan." : "Banner dinonaktifkan.", error: "", fieldErrors: {}, fields: emptyFields };
 }
 
 export async function deletePromoBannerAction(id: string): Promise<DeleteResult> {

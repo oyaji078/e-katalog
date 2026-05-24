@@ -7,8 +7,8 @@ import { formatRupiah, voucherLabel } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
 import { isRenderablePromoBannerImageUrl } from "@/lib/promo-banner-url";
-import VoucherDisableFormClient from "../vouchers/VoucherDisableFormClient";
-import DeleteBannerForm from "./DeleteBannerForm";
+import VoucherActionsClient from "./VoucherActionsClient";
+import BannerActionsClient from "./BannerActionsClient";
 
 type VoucherWithRelations = Prisma.VoucherGetPayload<{
   include: { categories: true; products: true };
@@ -118,7 +118,7 @@ export default async function PromoVouchersPage({
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="size-1.5 rounded-full bg-primary-maroon" />
-                  Produk Unggulan
+                  Produk Populer
                 </li>
               </ul>
             </div>
@@ -163,8 +163,9 @@ function VoucherTab({ vouchers }: { vouchers: VoucherWithRelations[] }) {
                     <p className="font-mono text-xs text-text-muted">{voucher.code}</p>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-1 text-xs font-bold ${voucher.audience === "RETAIL" ? "bg-soft-teal/20 text-primary-maroon" : "bg-accent-rose/10 text-accent-rose"}`}>
-                      {voucher.audience === "RETAIL" ? "Retail" : "Public"}
+                    <span className="inline-flex gap-1">
+                      {voucher.showForPublic ? <span className="rounded-full bg-accent-rose/10 px-2 py-1 text-xs font-bold text-accent-rose">Public</span> : null}
+                      {voucher.showForRetail ? <span className="rounded-full bg-soft-teal/20 px-2 py-1 text-xs font-bold text-primary-maroon">Retail</span> : null}
                     </span>
                   </td>
                   <td className="px-4 py-3 font-semibold text-accent-rose">{voucherLabel(voucher)}</td>
@@ -185,10 +186,7 @@ function VoucherTab({ vouchers }: { vouchers: VoucherWithRelations[] }) {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <Link href={`/admin/vouchers/${voucher.id}/edit`} className="text-xs font-bold text-primary-maroon">Edit</Link>
-                      <VoucherDisableFormClient voucherId={voucher.id} />
-                    </div>
+                    <VoucherActionsClient voucherId={voucher.id} isActive={voucher.isActive && voucher.status === "ACTIVE"} />
                   </td>
                 </tr>
               ))}
@@ -246,7 +244,10 @@ function BannerTab({ banners }: { banners: Prisma.PromoBannerGetPayload<object>[
 
                 <p className="text-sm text-text-dark">
                   <span className="md:hidden text-xs font-bold text-text-muted">Target Audiens: </span>
-                  {audienceLabel(banner.audience)}
+                  {banner.showForPublic ? "Public" : null}
+                  {banner.showForPublic && banner.showForRetail ? " & " : null}
+                  {banner.showForRetail ? "Retail" : null}
+                  {!banner.showForPublic && !banner.showForRetail ? "-" : null}
                 </p>
                 <p className="text-sm text-text-dark">
                   <span className="md:hidden text-xs font-bold text-text-muted">Jadwal: </span>
@@ -258,8 +259,7 @@ function BannerTab({ banners }: { banners: Prisma.PromoBannerGetPayload<object>[
                 </p>
 
                 <div className="flex flex-wrap gap-2">
-                  <Link href={`/admin/promo-banners/${banner.id}/edit`} className="rounded-lg bg-soft-bg px-3 py-1.5 text-xs font-semibold text-primary-maroon">Edit</Link>
-                  <DeleteBannerForm id={banner.id} />
+                  <BannerActionsClient id={banner.id} isActive={banner.isActive} />
                 </div>
               </article>
             );
@@ -278,36 +278,33 @@ async function PromoProductsTab({
 }: {
   db: ReturnType<typeof getDb>;
 }) {
-  const promoProducts = await db.product.findMany({
-    where: {
-      OR: [
-        { isFeatured: true },
-        { isRecommended: true },
-      ],
-    },
-    select: {
-      id: true,
-      name: true,
-      publicPrice: true,
-      isFeatured: true,
-      isRecommended: true,
-      createdAt: true,
-    },
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
-
-  const flashSaleProductIds = await db.flashSaleProduct.findMany({
-    where: { flashSale: { isActive: true, endsAt: { gte: new Date() } } },
-    select: { productId: true },
-  });
+  const [flashSaleProductIds, voucherProductIds] = await Promise.all([
+    db.flashSaleProduct.findMany({
+      where: { flashSale: { isActive: true, endsAt: { gte: new Date() } } },
+      select: { productId: true },
+    }),
+    db.productVoucher.findMany({
+      where: { voucher: { isActive: true, status: "ACTIVE" } },
+      select: { productId: true },
+    }),
+  ]);
   const flashSaleIds = new Set(flashSaleProductIds.map((fsp) => fsp.productId));
-
-  const voucherProductIds = await db.productVoucher.findMany({
-    where: { voucher: { isActive: true, status: "ACTIVE" } },
-    select: { productId: true },
-  });
   const voucherIds = new Set(voucherProductIds.map((vp) => vp.productId));
+  const promoProductIds = Array.from(new Set([...flashSaleIds, ...voucherIds]));
+
+  const promoProducts = promoProductIds.length > 0
+    ? await db.product.findMany({
+        where: { id: { in: promoProductIds } },
+        select: {
+          id: true,
+          name: true,
+          publicPrice: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+        take: 200,
+      })
+    : [];
 
   return (
     <div>
@@ -330,7 +327,6 @@ async function PromoProductsTab({
                 <tr>
                   <th className="px-4 py-3 text-left">Nama Produk</th>
                   <th className="px-4 py-3 text-left">Harga</th>
-                  <th className="px-4 py-3 text-left">Label</th>
                   <th className="px-4 py-3 text-left">Status Promo</th>
                   <th className="px-4 py-3 text-left">Aksi</th>
                 </tr>
@@ -347,18 +343,8 @@ async function PromoProductsTab({
                       <td className="whitespace-nowrap px-4 py-3 font-semibold text-accent-rose">
                         {formatRupiah(p.publicPrice)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3">
+                      <td className="whitespace-nowrap px-4 py-3 text-xs text-text-muted">
                         <div className="flex flex-wrap gap-1">
-                          {p.isFeatured ? (
-                            <span className="rounded-full bg-primary-maroon/10 px-2 py-0.5 text-[10px] font-semibold text-primary-maroon">
-                              Unggulan
-                            </span>
-                          ) : null}
-                          {p.isRecommended ? (
-                            <span className="rounded-full bg-soft-teal/20 px-2 py-0.5 text-[10px] font-semibold text-soft-teal">
-                              Rekomendasi
-                            </span>
-                          ) : null}
                           {hasFlashSale ? (
                             <span className="rounded-full bg-accent-rose/15 px-2 py-0.5 text-[10px] font-semibold text-accent-rose">
                               Flash Sale
@@ -370,9 +356,6 @@ async function PromoProductsTab({
                             </span>
                           ) : null}
                         </div>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-xs text-text-muted">
-                        {new Date(p.createdAt).toLocaleDateString("id-ID")}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3">
                         <Link
@@ -393,12 +376,6 @@ async function PromoProductsTab({
       </div>
     </div>
   );
-}
-
-function audienceLabel(audience: string) {
-  if (audience === "AUTHENTICATED") return "User Login";
-  if (audience === "RETAIL") return "Ritel Aktif";
-  return "Semua Pengunjung";
 }
 
 function scheduleLabel(startsAt: Date | null, endsAt: Date | null) {

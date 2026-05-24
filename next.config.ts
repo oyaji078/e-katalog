@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-mariadb", "mariadb"],
   experimental: {
     serverActions: {
-      bodySizeLimit: "8mb",
+      bodySizeLimit: "25mb",
     },
   },
   images: {

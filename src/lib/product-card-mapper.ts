@@ -47,7 +47,11 @@ export function toProductCardProps(
     publicPrice: formatRupiah(product.publicPrice),
     retailPrice: showRetail && product.retailPrice ? formatRupiah(product.retailPrice) : undefined,
     showRetailAsPrimary: showRetail && !!product.retailPrice,
-    badge: productBadge(product),
+    badge: options.flashSalePrice
+      ? "FLASH SALE"
+      : visibleVouchers.length > 0
+        ? "PROMO"
+        : productBadge(product),
     voucherAvailable: visibleVouchers.length > 0,
     voucherLabel: visibleVouchers[0] ? voucherLabel(visibleVouchers[0]) : undefined,
     stockStatus: product.stockStatus,
