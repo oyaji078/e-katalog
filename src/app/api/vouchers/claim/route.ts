@@ -45,15 +45,17 @@ export async function POST(request: NextRequest) {
     const publicVoucherEnabled = await isFeatureEnabled("enable_public_voucher");
     const retailVoucherEnabled = await isFeatureEnabled("enable_retail_voucher");
 
-    if (voucher.audience === "PUBLIC" && !publicVoucherEnabled) {
+    const isRetailUser = user.retailStatus === "RETAIL_ACTIVE";
+
+    if (voucher.showForPublic && !isRetailUser && !publicVoucherEnabled) {
       return NextResponse.json({ status: "error", message: "Voucher publik sedang tidak tersedia." }, { status: 403 });
     }
 
-    if (voucher.audience === "RETAIL") {
-      if (!retailVoucherEnabled) {
+    if (voucher.showForRetail || isRetailUser) {
+      if (voucher.showForRetail && !retailVoucherEnabled) {
         return NextResponse.json({ status: "error", message: "Voucher retail sedang tidak tersedia." }, { status: 403 });
       }
-      if (user.retailStatus !== "RETAIL_ACTIVE") {
+      if (voucher.showForRetail && !isRetailUser) {
         return NextResponse.json({ status: "error", message: "Voucher retail hanya untuk akun retail aktif." }, { status: 403 });
       }
     }

@@ -28,9 +28,9 @@ export default function CategoryGrid({
           <Link
             key={category.label}
             href="#"
-            className="rounded-2xl border border-border-gray bg-white p-4 shadow-sm flex flex-col items-center"
+            className="rounded-2xl border border-brand-border bg-white p-4 shadow-sm flex flex-col items-center"
           >
-            <Icon className="mb-3 size-6 text-soft-teal" />
+            <Icon className="mb-3 size-6 text-brand-secondary" />
             <p className="font-semibold text-center text-xs">{category.label}</p>
           </Link>
         );

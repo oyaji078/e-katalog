@@ -1,5 +1,5 @@
 export default function WhatsAppButton({
-  href = "https://wa.me/6280000000000",
+  href = "/products",
   children = "Tanya via WhatsApp",
   className = "",
 }: {

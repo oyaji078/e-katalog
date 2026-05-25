@@ -14,6 +14,7 @@ function userCode() {
 export const auth = betterAuth({
   appName: "E-Katalog Komputer",
   baseURL: process.env.BETTER_AUTH_URL,
+  trustedOrigins: ["http://localhost:3000", "http://127.0.0.1:3000"],
   secret: process.env.BETTER_AUTH_SECRET ?? (isNextBuild ? buildTimeSecret : undefined),
   database: prismaAdapter(prisma, {
     provider: "mysql",

@@ -161,6 +161,7 @@ model Category {
   name        String
   slug        String   @unique
   description String?  @db.Text
+  icon        String?  @default("tag")
   isActive    Boolean  @default(true)
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
@@ -253,6 +254,8 @@ model FlashSale {
   startsAt  DateTime
   endsAt    DateTime
   isActive  Boolean  @default(false)
+  showForPublic Boolean @default(true)
+  showForRetail Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -262,13 +265,14 @@ model FlashSale {
 }
 
 model FlashSaleProduct {
-  id              String   @id @default(cuid())
-  flashSaleId     String
-  productId       String
-  flashSalePrice  Decimal  @db.Decimal(14, 2)
-  flashSaleStock  Int      @default(0)
-  sortOrder       Int      @default(0)
-  createdAt       DateTime @default(now())
+  id                   String   @id @default(cuid())
+  flashSaleId          String
+  productId            String
+  flashSalePublicPrice Decimal? @map("flashSalePrice") @db.Decimal(14, 2)
+  flashSaleRetailPrice Decimal? @db.Decimal(14, 2)
+  flashSaleStock       Int      @default(0)
+  sortOrder            Int      @default(0)
+  createdAt            DateTime @default(now())
 
   flashSale FlashSale @relation(fields: [flashSaleId], references: [id], onDelete: Cascade)
   product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
@@ -287,6 +291,11 @@ enum VoucherScope {
   ALL
   PRODUCTS
   CATEGORIES
+}
+
+enum PromoBannerLinkType {
+  STANDALONE
+  VOUCHER
 }
 
 model Voucher {
@@ -312,6 +321,7 @@ model Voucher {
   categories      Category[]      @relation("VoucherCategories")
   products        ProductVoucher[]
   voucherClaims   VoucherClaim[]
+  promoBanners    PromoBanner[]
 }
 
 model ProductVoucher {
@@ -378,11 +388,14 @@ model PromoBanner {
   startsAt       DateTime?
   endsAt         DateTime?
   sortOrder      Int                  @default(0)
-  voucherCode    String?              @db.VarChar(20)
+  linkType       PromoBannerLinkType  @default(STANDALONE)
+  voucherId      String?
+  voucher        Voucher?             @relation(fields: [voucherId], references: [id], onDelete: SetNull)
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
 
   @@index([isActive, sortOrder])
+  @@index([voucherId])
 }
 
 model HeroBanner {
@@ -458,6 +471,27 @@ model StoreSetting {
   isSecret    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model SiteSetting {
+  id                String   @id @default(cuid())
+  singletonKey      String   @unique @default("default")
+  siteName          String   @default("Rama Computer Katalog")
+  storeName         String   @default("Rama Komputer")
+  tagline           String   @default("Katalog komputer dan aksesoris elektronik dengan alur inquiry WhatsApp.") @db.Text
+  logoUrl           String?  @db.Text
+  faviconUrl        String?  @db.Text
+  primaryColor      String   @default("#1A3D6A") @db.VarChar(7)
+  secondaryColor    String   @default("#2E4E79") @db.VarChar(7)
+  accentColor       String   @default("#C8A91E") @db.VarChar(7)
+  whatsappNumber    String   @default("6280000000000") @db.VarChar(32)
+  email             String?
+  address           String?  @db.Text
+  googleMapsUrl     String?  @db.Text
+  businessHours     String?  @db.Text
+  footerDescription String   @default("Katalog komputer dan aksesoris elektronik dengan alur inquiry WhatsApp.") @db.Text
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model AdminActivityLog {

@@ -9,10 +9,23 @@ import FigmaHeroCarousel from "@/components/ui/FigmaHeroCarousel";
 import FigmaPromoBannerRow from "@/components/ui/FigmaPromoBannerRow";
 import FigmaServiceStrip from "@/components/ui/FigmaServiceStrip";
 import ProductGrid from "@/components/ui/ProductGrid";
-import { canUseRetailVoucher, getVisibleVouchers, productCardSelect } from "@/lib/catalog";
+import {
+  canSeeRetailPrice,
+  canUseRetailVoucher,
+  getVisibleVouchers,
+  productCardSelect,
+  voucherWithScopeSelect,
+} from "@/lib/catalog";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import {
+  activeFlashSaleProductSelect,
+  buildActiveFlashSaleMap,
+  getFlashSaleDisplayForViewer,
+} from "@/lib/flash-sale";
 import { toProductCardProps } from "@/lib/product-card-mapper";
+import { publicPromoBannerSelect, toPublicPromoBanners } from "@/lib/promo-banner-display";
+import { bannerVoucherSelect } from "@/lib/banner-voucher";
 import { getCurrentUser } from "@/lib/session";
 import { buildWhatsappUrl, resolveStoreWhatsappNumber } from "@/lib/whatsapp";
 
@@ -44,12 +57,12 @@ export default async function Home() {
   ];
 
   const [categories, recommendedProducts, newArrivalProducts, popularProducts,
-    vouchers, whatsappNumber, flashSaleData, promoBanners, promoEnabled, heroBanners] =
+    vouchers, whatsappNumber, activeFlashSaleProducts, promoBanners, promoEnabled, heroBanners] =
     await Promise.all([
       db.category.findMany({
         where: { isActive: true },
         orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-        select: { id: true, name: true, slug: true },
+        select: { id: true, name: true, slug: true, icon: true },
       }),
       // Rekomendasi Produk: traffic first, latest as fallback when traffic is empty.
       db.product.findMany({
@@ -74,34 +87,22 @@ export default async function Home() {
       }),
       db.voucher.findMany({
         where: { isActive: true, status: "ACTIVE" },
-        include: {
-          categories: { select: { id: true } },
-          products: { select: { productId: true } },
-        },
+        select: voucherWithScopeSelect,
         orderBy: [{ endsAt: "asc" }, { createdAt: "desc" }],
         take: 6,
       }),
       resolveStoreWhatsappNumber(db),
-      // Flash Sale: active sales with products
-      db.flashSale.findMany({
+      db.flashSaleProduct.findMany({
         where: {
-          isActive: true,
-          startsAt: { lte: new Date() },
-          endsAt: { gte: new Date() },
-        },
-        include: {
-          products: {
-            include: {
-              product: {
-                select: productCardSelect,
-              },
-            },
-            orderBy: { sortOrder: "asc" },
-            take: 10,
+          flashSale: {
+            isActive: true,
+            startsAt: { lte: new Date() },
+            endsAt: { gte: new Date() },
           },
         },
-        orderBy: { createdAt: "desc" },
-        take: 1,
+        select: activeFlashSaleProductSelect,
+        orderBy: { sortOrder: "asc" },
+        take: 100,
       }),
       db.promoBanner.findMany({
         where: {
@@ -112,6 +113,7 @@ export default async function Home() {
             { OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }] },
           ],
         },
+        select: publicPromoBannerSelect,
         orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
         take: 10,
       }),
@@ -129,30 +131,66 @@ export default async function Home() {
       }),
     ]);
 
+  const showRetailPrice = canSeeRetailPrice(user, retailPriceEnabled);
+  const flashSaleMap = buildActiveFlashSaleMap(activeFlashSaleProducts);
   const mapCards = (products: typeof recommendedProducts) =>
-    products.map((p) =>
-      toProductCardProps(p, { user, retailPriceEnabled, publicVoucherEnabled, retailVoucherEnabled, vouchers }),
-    );
+    products.map((p) => {
+      const activeFlashSale = flashSaleMap.get(p.id);
+      const flashSaleDisplay = getFlashSaleDisplayForViewer(activeFlashSale, showRetailPrice);
+
+      return toProductCardProps(p, {
+        user,
+        retailPriceEnabled,
+        publicVoucherEnabled,
+        retailVoucherEnabled,
+        vouchers,
+        hasActiveFlashSale: Boolean(activeFlashSale),
+        flashSalePrice: flashSaleDisplay?.price,
+        flashSaleStock: flashSaleDisplay?.stock,
+      });
+    });
 
   const recommendedCards = mapCards(recommendedProducts);
   const newArrivalCards = mapCards(newArrivalProducts);
   const popularCards = mapCards(popularProducts);
 
-  const flashSaleProducts = flashSaleData.flatMap((fs) =>
-    fs.products.map((fp) =>
+  const flashSaleProducts = activeFlashSaleProducts.flatMap((fp) => {
+    const flashSaleDisplay = getFlashSaleDisplayForViewer(fp, showRetailPrice);
+    if (!flashSaleDisplay) return [];
+
+    return [
       toProductCardProps(fp.product, {
         user,
         retailPriceEnabled,
         publicVoucherEnabled,
         retailVoucherEnabled,
         vouchers,
-        flashSalePrice: Number(fp.flashSalePrice),
-        flashSaleStock: fp.flashSaleStock,
+        hasActiveFlashSale: true,
+        flashSalePrice: flashSaleDisplay.price,
+        flashSaleStock: flashSaleDisplay.stock,
       }),
-    ),
-  );
+    ];
+  });
 
   const canSeeRetailVouchers = canUseRetailVoucher(user);
+  const promoBannerVoucherIds = Array.from(
+    new Set(promoBanners.map((banner) => banner.voucherId).filter(Boolean)),
+  ) as string[];
+  const promoBannerVouchers = promoBannerVoucherIds.length
+    ? await db.voucher.findMany({
+        where: { id: { in: promoBannerVoucherIds } },
+        select: bannerVoucherSelect,
+      })
+    : [];
+  const publicPromoBanners = toPublicPromoBanners(
+    promoBanners,
+    new Map(promoBannerVouchers.map((voucher) => [voucher.id, voucher])),
+    {
+      publicVoucherEnabled,
+      retailVoucherEnabled,
+      canSeeRetailVoucher: canSeeRetailVouchers,
+    },
+  );
   const visibleVouchers = getVisibleVouchers(vouchers, {
     publicVoucherEnabled,
     retailVoucherEnabled,
@@ -165,8 +203,8 @@ export default async function Home() {
 
   return (
     <main
-      className="min-h-screen text-text-dark"
-      style={{ backgroundColor: "#f5f5f7", fontFamily: "'Nunito', 'Plus Jakarta Sans', sans-serif" }}
+      className="min-h-screen text-brand-text"
+      style={{ backgroundColor: "var(--brand-bg)", fontFamily: "'Nunito', 'Plus Jakarta Sans', sans-serif" }}
     >
       <FigmaSiteHeader />
 
@@ -184,7 +222,7 @@ export default async function Home() {
         <FigmaPromoBannerRow
           whatsappUrl={generalWaUrl}
           hasVoucher={visibleVouchers.length > 0}
-          banners={promoBanners}
+          banners={publicPromoBanners}
           enabled={promoEnabled}
         />
 
@@ -192,7 +230,7 @@ export default async function Home() {
         user.retailStatus !== "RETAIL_ACTIVE" &&
         user.role !== "ADMIN" &&
         user.role !== "SUPER_ADMIN" ? (
-          <section className="mt-6 rounded-2xl border border-soft-teal/30 bg-soft-teal/10 p-4 text-sm text-primary-maroon">
+          <section className="mt-6 rounded-2xl border border-brand-secondary/30 bg-brand-secondary/10 p-4 text-sm text-brand-primary">
             Akun ritel Anda belum aktif.{" "}
             {user.retailStatus === "PENDING_RETAIL" ? (
               <Link href="/retail/activate" className="font-black underline">
@@ -230,7 +268,7 @@ export default async function Home() {
 
         {/* 6. Catalog Teaser */}
         {recommendedCards.length === 0 && newArrivalCards.length === 0 && popularCards.length === 0 ? (
-          <div className="bg-white p-8 text-center text-sm text-text-muted md:rounded-2xl">
+          <div className="bg-white p-8 text-center text-sm text-brand-muted md:rounded-2xl">
             Produk aktif belum tersedia.
           </div>
         ) : null}
@@ -238,8 +276,7 @@ export default async function Home() {
         <div className="mb-2 mt-6 flex justify-center md:mx-4">
           <Link
             href="/products"
-            className="rounded-full px-8 py-3 text-sm font-bold text-white shadow-md transition-all hover:scale-105 hover:shadow-lg active:scale-95"
-            style={{ background: "linear-gradient(135deg, #AE2448, #6E1A37)" }}
+            className="rounded-full bg-brand-primary px-8 py-3 text-sm font-bold text-white shadow-md transition-all hover:scale-105 hover:bg-brand-hover hover:shadow-lg active:scale-95"
           >
             Lihat Lebih Banyak Produk
           </Link>
@@ -258,8 +295,7 @@ function Section({ title, href, children }: { title: string; href: string; child
         <h2 className="text-base font-black text-gray-900 md:text-lg">{title}</h2>
         <Link
           href={href}
-          className="flex items-center gap-0.5 text-xs font-bold transition-opacity hover:opacity-70"
-          style={{ color: "#AE2448" }}
+          className="flex items-center gap-0.5 text-xs font-bold text-brand-primary transition-opacity hover:opacity-70"
         >
           Lihat Semua <ChevronRight size={13} />
         </Link>

@@ -4,8 +4,7 @@ import { auth } from "@/lib/auth";
 import {
   canSeeRetailPrice,
   canUseRetailVoucher,
-  getApplicableVouchers,
-  getVisibleVouchers,
+  getEligibleProductVouchers,
   voucherLabel,
 } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
@@ -120,23 +119,40 @@ export async function POST(request: NextRequest) {
     const showRetailPrice = canSeeRetailPrice(user, retailPriceEnabled);
     const canSeeRetailVouchers = canUseRetailVoucher(user);
 
-    const vouchers = await db.voucher.findMany({
-      where: {
-        isActive: true,
-        status: "ACTIVE",
-        startsAt: { lte: new Date() },
-        endsAt: { gte: new Date() },
-      },
-      include: {
-        categories: { select: { id: true } },
-        products: { select: { productId: true } },
-      },
-    });
+    const [vouchers, activeFlashSale] = await Promise.all([
+      db.voucher.findMany({
+        where: {
+          isActive: true,
+          status: "ACTIVE",
+          startsAt: { lte: new Date() },
+          endsAt: { gte: new Date() },
+        },
+        include: {
+          categories: { select: { id: true } },
+          products: { select: { productId: true } },
+        },
+      }),
+      db.flashSaleProduct.findFirst({
+        where: {
+          productId: product.id,
+          flashSale: {
+            isActive: true,
+            startsAt: { lte: new Date() },
+            endsAt: { gte: new Date() },
+          },
+        },
+        select: { id: true },
+      }),
+    ]);
 
-    const applicableVouchers = getVisibleVouchers(getApplicableVouchers(product, vouchers), {
+    const priceForMinimum =
+      showRetailPrice && product.retailPrice ? Number(product.retailPrice) : Number(product.publicPrice);
+    const applicableVouchers = getEligibleProductVouchers(product, vouchers, {
       publicVoucherEnabled,
       retailVoucherEnabled,
-      canSeeRetail: canSeeRetailVouchers,
+      canSeeRetailVoucher: canSeeRetailVouchers,
+      priceForMinimum,
+      hasActiveFlashSale: Boolean(activeFlashSale),
     });
     const applicableIds = applicableVouchers.map((v) => v.id);
 

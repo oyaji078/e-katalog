@@ -22,16 +22,16 @@ export default async function MaintenancePage() {
   return (
     <main>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text-dark">Maintenance Mode</h1>
-        <p className="mt-1 text-sm text-text-muted">
+        <h1 className="text-2xl font-bold text-brand-text">Maintenance Mode</h1>
+        <p className="mt-1 text-sm text-brand-muted">
           Enable or disable maintenance mode for the public site.
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-text-dark">Status</h2>
+            <h2 className="text-lg font-bold text-brand-text">Status</h2>
             <span
               className={`rounded-full px-3 py-1 text-xs font-bold text-white ${
                 isEnabled ? "bg-danger" : "bg-success"
@@ -40,7 +40,7 @@ export default async function MaintenancePage() {
               {isEnabled ? "MAINTENANCE ON" : "LIVE"}
             </span>
           </div>
-          <p className="mb-4 text-sm text-text-muted">
+          <p className="mb-4 text-sm text-brand-muted">
             {isEnabled
               ? "The public site is currently in maintenance mode. Only Super Admins can access system routes."
               : "The site is live and accessible to all users."}
@@ -48,15 +48,15 @@ export default async function MaintenancePage() {
           <MaintenanceToggle enabled={isEnabled} flagId={flag?.id ?? null} />
         </div>
 
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-text-dark">Maintenance Message</h2>
-          <p className="mb-2 text-sm text-text-muted">Current message shown to users:</p>
-          <div className="rounded-md border border-border-gray bg-soft-bg p-4 text-sm text-text-dark">
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-brand-text">Maintenance Message</h2>
+          <p className="mb-2 text-sm text-brand-muted">Current message shown to users:</p>
+          <div className="rounded-md border border-brand-border bg-brand-bg p-4 text-sm text-brand-text">
             {message}
           </div>
-          <p className="mt-4 text-xs text-text-muted">
+          <p className="mt-4 text-xs text-brand-muted">
             Change the maintenance message in Store Settings under key{" "}
-            <code className="font-mono text-primary-maroon">maintenance_message</code>.
+            <code className="font-mono text-brand-primary">maintenance_message</code>.
           </p>
         </div>
       </div>

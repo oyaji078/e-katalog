@@ -18,15 +18,15 @@ export default async function EnvironmentPage() {
   return (
     <main>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text-dark">Environment Info</h1>
-        <p className="mt-1 text-sm text-text-muted">
+        <h1 className="text-2xl font-bold text-brand-text">Environment Info</h1>
+        <p className="mt-1 text-sm text-brand-muted">
           Safe environment metadata. Secrets are never displayed.
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-text-dark">Runtime</h2>
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-brand-text">Runtime</h2>
           <dl className="grid gap-3 text-sm">
             <EnvField label="NODE_ENV" value={process.env.NODE_ENV ?? "Not set"} />
             <EnvField label="Node Version" value={process.version} />
@@ -35,11 +35,11 @@ export default async function EnvironmentPage() {
           </dl>
         </div>
 
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-text-dark">Database</h2>
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-brand-text">Database</h2>
           <dl className="grid gap-3 text-sm">
             <div className="grid grid-cols-[160px_1fr] gap-3">
-              <dt className="font-semibold text-text-dark">Status</dt>
+              <dt className="font-semibold text-brand-text">Status</dt>
               <dd>
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-bold text-white ${
@@ -54,16 +54,16 @@ export default async function EnvironmentPage() {
           </dl>
         </div>
 
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-text-dark">Storage</h2>
-          <p className="text-sm text-text-muted">
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-brand-text">Storage</h2>
+          <p className="text-sm text-brand-muted">
             Storage status not yet configured for display.
           </p>
         </div>
 
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-text-dark">Domain &amp; CDN</h2>
-          <p className="text-sm text-text-muted">
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-brand-text">Domain &amp; CDN</h2>
+          <p className="text-sm text-brand-muted">
             Domain and CDN configuration not yet available for display.
           </p>
         </div>
@@ -81,8 +81,8 @@ export default async function EnvironmentPage() {
 function EnvField({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid grid-cols-[160px_1fr] gap-3">
-      <dt className="font-semibold text-text-dark">{label}</dt>
-      <dd className="font-mono text-xs text-text-muted">{value}</dd>
+      <dt className="font-semibold text-brand-text">{label}</dt>
+      <dd className="font-mono text-xs text-brand-muted">{value}</dd>
     </div>
   );
 }

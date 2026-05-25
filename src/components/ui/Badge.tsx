@@ -9,10 +9,10 @@ export default function Badge({
 }: BadgeProps) {
   const baseClasses = "inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full";
   const variantClasses = {
-    promo: "bg-accent-rose/20 text-accent-rose",
+    promo: "bg-brand-accent/25 text-brand-primary-dark",
     ready: "bg-success/20 text-success",
     "low-stock": "bg-warning/20 text-warning",
-    retail: "bg-soft-teal/20 text-soft-teal",
+    retail: "bg-brand-secondary/20 text-brand-secondary",
   };
 
   return (

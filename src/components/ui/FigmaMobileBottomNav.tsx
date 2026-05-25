@@ -23,7 +23,7 @@ export default function FigmaMobileBottomNav({ user }: FigmaMobileBottomNavProps
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-100 bg-white shadow-[0_-2px_12px_rgba(0,0,0,0.08)] md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-brand-border bg-white shadow-[0_-2px_12px_rgba(0,0,0,0.08)] md:hidden">
       <div className="grid h-16 grid-cols-5">
         {items.map((item) => {
           const Icon = item.icon;
@@ -38,14 +38,12 @@ export default function FigmaMobileBottomNav({ user }: FigmaMobileBottomNavProps
             <Link
               key={item.id}
               href={item.href}
-              className="relative flex flex-col items-center justify-center gap-0.5 transition-colors"
-              style={{ color: isActive ? "#AE2448" : "#9CA3AF" }}
+              className={`relative flex flex-col items-center justify-center gap-0.5 transition-colors ${
+                isActive ? "text-brand-primary" : "text-brand-muted"
+              }`}
             >
               {isActive ? (
-                <span
-                  className="absolute left-1/2 top-0 h-0.5 w-8 -translate-x-1/2 rounded-full"
-                  style={{ backgroundColor: "#AE2448" }}
-                />
+                <span className="absolute left-1/2 top-0 h-0.5 w-8 -translate-x-1/2 rounded-full bg-brand-primary" />
               ) : null}
               <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
               <span className="text-[10px] font-bold">{item.label}</span>

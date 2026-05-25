@@ -22,17 +22,17 @@ export default function AdminUsersClient({ users, currentUserId }: { users: Admi
     <main>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-dark">Admin Users</h1>
-          <p className="mt-1 text-sm text-text-muted">
+          <h1 className="text-2xl font-bold text-brand-text">Admin Users</h1>
+          <p className="mt-1 text-sm text-brand-muted">
             Manage admin and super admin accounts.
           </p>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border-gray bg-white shadow-sm">
+      <div className="overflow-hidden rounded-lg border border-brand-border bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border-gray bg-soft-bg text-left text-xs text-text-muted">
+            <tr className="border-b border-brand-border bg-brand-bg text-left text-xs text-brand-muted">
               <th className="px-4 py-3 font-medium">Name</th>
               <th className="px-4 py-3 font-medium">Email</th>
               <th className="px-4 py-3 font-medium">Role</th>
@@ -53,7 +53,7 @@ export default function AdminUsersClient({ users, currentUserId }: { users: Admi
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-text-muted">
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-brand-muted">
                   No admin users found.
                 </td>
               </tr>
@@ -71,28 +71,28 @@ function UserRow({ user, isSelf, isLastSuperAdmin }: { user: AdminUser; isSelf: 
 
   return (
     <>
-      <tr className="border-b border-border-gray/50">
-        <td className="px-4 py-3 font-medium text-text-dark">
+      <tr className="border-b border-brand-border/50">
+        <td className="px-4 py-3 font-medium text-brand-text">
           {user.name}
-          {isSelf ? <span className="ml-2 text-[10px] text-text-muted">(Anda)</span> : null}
+          {isSelf ? <span className="ml-2 text-[10px] text-brand-muted">(Anda)</span> : null}
         </td>
-        <td className="px-4 py-3 text-text-muted">{user.email}</td>
+        <td className="px-4 py-3 text-brand-muted">{user.email}</td>
         <td className="px-4 py-3">
           <RoleCell user={user} isSelf={isSelf} isLastSuperAdmin={isLastSuperAdmin} />
         </td>
         <td className="px-4 py-3">
           {isSelf ? (
-            <span className="text-xs text-text-muted">—</span>
+            <span className="text-xs text-brand-muted">—</span>
           ) : (
             <button
               onClick={() => setShowPasswordModal(true)}
-              className="rounded-lg border border-border-gray px-3 py-1 text-xs font-semibold text-text-muted hover:bg-soft-bg"
+              className="rounded-lg border border-brand-border px-3 py-1 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
             >
               Reset
             </button>
           )}
         </td>
-        <td className="px-4 py-3 text-text-muted">
+        <td className="px-4 py-3 text-brand-muted">
           {new Date(user.createdAt).toLocaleDateString("id-ID")}
         </td>
         <td className="px-4 py-3">
@@ -110,9 +110,9 @@ function UserRow({ user, isSelf, isLastSuperAdmin }: { user: AdminUser; isSelf: 
       {showDeleteConfirm ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowDeleteConfirm(false)}>
           <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-base font-bold text-text-dark">Hapus User</h3>
-            <p className="mt-2 text-sm text-text-muted">
-              Yakin ingin menghapus <span className="font-semibold text-text-dark">{user.name}</span>?
+            <h3 className="text-base font-bold text-brand-text">Hapus User</h3>
+            <p className="mt-2 text-sm text-brand-muted">
+              Yakin ingin menghapus <span className="font-semibold text-brand-text">{user.name}</span>?
               <br />Tindakan ini tidak dapat dibatalkan.
             </p>
             <DeleteConfirmForm user={user} onDone={() => setShowDeleteConfirm(false)} />
@@ -166,16 +166,16 @@ function RoleCell({ user, isSelf, isLastSuperAdmin }: { user: AdminUser; isSelf:
           value={role}
           disabled={isPending}
           onChange={(e) => handleChange(e.target.value as AdminUser["role"])}
-          className="rounded-lg border border-border-gray bg-soft-bg px-2 py-1 text-xs outline-none focus:border-primary-maroon disabled:opacity-60"
+          className="rounded-lg border border-brand-border bg-brand-bg px-2 py-1 text-xs outline-none focus:border-brand-primary disabled:opacity-60"
         >
           <option value="USER">USER</option>
           <option value="ADMIN">ADMIN</option>
           <option value="SUPER_ADMIN">SUPER_ADMIN</option>
         </select>
-        {isPending ? <span className="text-[10px] text-text-muted">...</span> : null}
+        {isPending ? <span className="text-[10px] text-brand-muted">...</span> : null}
       </div>
       {isLastSuperAdmin && role === "SUPER_ADMIN" ? (
-        <p className="mt-1 text-[10px] text-text-muted">Super Admin terakhir tidak dapat diturunkan.</p>
+        <p className="mt-1 text-[10px] text-brand-muted">Super Admin terakhir tidak dapat diturunkan.</p>
       ) : null}
       {error ? (
         <p className="mt-1 text-[10px] text-danger">{error}</p>
@@ -192,7 +192,7 @@ function DeleteCell({ user, isSelf, isLastSuperAdmin }: { user: AdminUser; isSel
   const [showConfirm, setShowConfirm] = useState(false);
 
   if (isSelf || isLastSuperAdmin) {
-    return <span className="text-xs text-text-muted">—</span>;
+    return <span className="text-xs text-brand-muted">—</span>;
   }
 
   return (
@@ -200,9 +200,9 @@ function DeleteCell({ user, isSelf, isLastSuperAdmin }: { user: AdminUser; isSel
       {showConfirm ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowConfirm(false)}>
           <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-base font-bold text-text-dark">Hapus User</h3>
-            <p className="mt-2 text-sm text-text-muted">
-              Yakin ingin menghapus <span className="font-semibold text-text-dark">{user.name}</span>?
+            <h3 className="text-base font-bold text-brand-text">Hapus User</h3>
+            <p className="mt-2 text-sm text-brand-muted">
+              Yakin ingin menghapus <span className="font-semibold text-brand-text">{user.name}</span>?
               <br />Tindakan ini tidak dapat dibatalkan.
             </p>
             {state.error ? (
@@ -211,7 +211,7 @@ function DeleteCell({ user, isSelf, isLastSuperAdmin }: { user: AdminUser; isSel
             <div className="mt-4 flex justify-end gap-2">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="rounded-xl border border-border-gray px-4 py-2 text-xs font-semibold text-text-muted hover:bg-soft-bg"
+                className="rounded-xl border border-brand-border px-4 py-2 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
               >
                 Batal
               </button>
@@ -264,7 +264,7 @@ function DeleteConfirmForm({ user, onDone }: { user: AdminUser; onDone: () => vo
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onDone}
-            className="rounded-xl border border-border-gray px-4 py-2 text-xs font-semibold text-text-muted hover:bg-soft-bg"
+            className="rounded-xl border border-brand-border px-4 py-2 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
           >
             Batal
           </button>
@@ -299,9 +299,9 @@ function PasswordResetModal({ user, onClose }: { user: AdminUser; onClose: () =>
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-base font-bold text-text-dark">Reset Password</h3>
-        <p className="mt-1 text-sm text-text-muted">
-          Reset password untuk <span className="font-semibold text-text-dark">{user.name}</span>
+        <h3 className="text-base font-bold text-brand-text">Reset Password</h3>
+        <p className="mt-1 text-sm text-brand-muted">
+          Reset password untuk <span className="font-semibold text-brand-text">{user.name}</span>
         </p>
 
         {state.error ? (
@@ -317,7 +317,7 @@ function PasswordResetModal({ user, onClose }: { user: AdminUser; onClose: () =>
             <input type="hidden" name="userId" value={user.id} />
 
             <div>
-              <label className="block text-xs font-semibold text-text-dark">Password Baru</label>
+              <label className="block text-xs font-semibold text-brand-text">Password Baru</label>
               <input
                 name="newPassword"
                 type="password"
@@ -327,12 +327,12 @@ function PasswordResetModal({ user, onClose }: { user: AdminUser; onClose: () =>
                 minLength={8}
                 maxLength={128}
                 placeholder="Minimal 8 karakter"
-                className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2 text-sm outline-none focus:border-primary-maroon"
+                className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2 text-sm outline-none focus:border-brand-primary"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-text-dark">
+              <label className="block text-xs font-semibold text-brand-text">
                 Password Anda Saat Ini
               </label>
               <input
@@ -342,9 +342,9 @@ function PasswordResetModal({ user, onClose }: { user: AdminUser; onClose: () =>
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 required
                 placeholder="Konfirmasi identitas Anda"
-                className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2 text-sm outline-none focus:border-primary-maroon"
+                className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2 text-sm outline-none focus:border-brand-primary"
               />
-              <p className="mt-1 text-[10px] text-text-muted">
+              <p className="mt-1 text-[10px] text-brand-muted">
                 Masukkan password Anda sendiri untuk memverifikasi identitas
               </p>
             </div>
@@ -353,14 +353,14 @@ function PasswordResetModal({ user, onClose }: { user: AdminUser; onClose: () =>
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-xl border border-border-gray px-4 py-2 text-xs font-semibold text-text-muted hover:bg-soft-bg"
+                className="rounded-xl border border-brand-border px-4 py-2 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
               >
                 Batal
               </button>
               <button
                 type="submit"
                 disabled={isPending}
-                className="rounded-xl bg-primary-maroon px-4 py-2 text-xs font-bold text-white disabled:opacity-60"
+                className="rounded-xl bg-brand-primary px-4 py-2 text-xs font-bold text-white disabled:opacity-60"
               >
                 {isPending ? "Menyimpan..." : "Simpan Password Baru"}
               </button>
@@ -377,7 +377,7 @@ function RoleBadge({ role }: { role: string }) {
   return (
     <span
       className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-        isSuper ? "bg-accent-rose/20 text-accent-rose" : "bg-soft-teal/15 text-primary-maroon"
+        isSuper ? "bg-brand-accent/20 text-brand-accent" : "bg-brand-secondary/15 text-brand-primary"
       }`}
     >
       {role}

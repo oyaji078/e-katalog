@@ -10,10 +10,12 @@ import TrackedProductLink from "@/components/ui/TrackedProductLink";
 import FigmaSiteHeader from "@/components/layout/FigmaSiteHeader";
 
 import type { Prisma, StockStatus } from "@/generated/prisma/client";
-import { productCardSelect, canUseRetailVoucher, getVisibleVouchers } from "@/lib/catalog";
+import { canSeeRetailPrice, productCardSelect, canUseRetailVoucher, getVisibleVouchers } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { buildActiveFlashSaleMap, getFlashSaleDisplayForViewer } from "@/lib/flash-sale";
 import { toProductCardProps } from "@/lib/product-card-mapper";
+import { toPublicPromoBanners } from "@/lib/promo-banner-display";
 import { getCurrentUser } from "@/lib/session";
 import { buildWhatsappUrl, resolveStoreWhatsappNumber } from "@/lib/whatsapp";
 
@@ -132,7 +134,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const isRetailActive = user?.retailStatus === "RETAIL_ACTIVE";
 
   const [categories, brands, totalProducts, products, vouchers,
-    flashSaleData, promoBanners, promoEnabled, whatsappNumber] = await Promise.all([
+    activeFlashSaleProducts, promoBanners, promoEnabled, whatsappNumber] = await Promise.all([
     db.category.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
@@ -157,18 +159,20 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       },
       orderBy: { createdAt: "desc" },
     }),
-    db.flashSale.findMany({
-      where: { isActive: true, startsAt: { lte: new Date() }, endsAt: { gte: new Date() } },
-      include: {
-        products: {
-          include: {
-            product: { select: productCardSelect },
-          },
-          orderBy: { sortOrder: "asc" },
-          take: 6,
+    db.flashSaleProduct.findMany({
+      where: {
+        flashSale: {
+          isActive: true,
+          startsAt: { lte: new Date() },
+          endsAt: { gte: new Date() },
         },
       },
-      take: 1,
+      include: {
+        flashSale: { select: { showForPublic: true, showForRetail: true, endsAt: true } },
+        product: { select: productCardSelect },
+      },
+      orderBy: { sortOrder: "asc" },
+      take: 100,
     }),
     db.promoBanner.findMany({
       where: {
@@ -188,37 +192,64 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   const totalPages = Math.max(1, Math.ceil(totalProducts / pageSize));
 
-  const productCards = products.map((product) =>
-    toProductCardProps(product, {
+  const showRetailPrice = canSeeRetailPrice(user, retailPriceEnabled);
+  const flashSaleMap = buildActiveFlashSaleMap(activeFlashSaleProducts);
+  const productCards = products.map((product) => {
+    const activeFlashSale = flashSaleMap.get(product.id);
+    const flashSaleDisplay = getFlashSaleDisplayForViewer(activeFlashSale, showRetailPrice);
+
+    return toProductCardProps(product, {
       user,
       retailPriceEnabled,
       publicVoucherEnabled,
       retailVoucherEnabled,
       vouchers,
-    }),
-  );
+      hasActiveFlashSale: Boolean(activeFlashSale),
+      flashSalePrice: flashSaleDisplay?.price,
+      flashSaleStock: flashSaleDisplay?.stock,
+    });
+  });
 
   const cardsWithReturnUrl = productCards.map((card) => ({
     ...card,
     href: `${card.href}?returnUrl=${encodeURIComponent(currentUrl)}`,
   }));
 
-  const activeFlashSale = flashSaleData[0] ?? null;
-  const flashSaleProducts = activeFlashSale
-    ? activeFlashSale.products.map((fp) =>
-        toProductCardProps(fp.product, {
-          user,
-          retailPriceEnabled,
-          publicVoucherEnabled,
-          retailVoucherEnabled,
-          vouchers,
-          flashSalePrice: Number(fp.flashSalePrice),
-          flashSaleStock: fp.flashSaleStock,
-        }),
-      )
-    : [];
+  const activeFlashSale = activeFlashSaleProducts[0]?.flashSale ?? null;
+  const flashSaleProducts = activeFlashSaleProducts.flatMap((fp) => {
+    const flashSaleDisplay = getFlashSaleDisplayForViewer(fp, showRetailPrice);
+    if (!flashSaleDisplay) return [];
+
+    return [
+      toProductCardProps(fp.product, {
+        user,
+        retailPriceEnabled,
+        publicVoucherEnabled,
+        retailVoucherEnabled,
+        vouchers,
+        hasActiveFlashSale: true,
+        flashSalePrice: flashSaleDisplay.price,
+        flashSaleStock: flashSaleDisplay.stock,
+      }),
+    ];
+  });
 
   const canSeeRetailVouchers = canUseRetailVoucher(user);
+  const promoBannerVoucherIds = Array.from(
+    new Set(promoBanners.map((banner) => banner.voucherId).filter(Boolean)),
+  ) as string[];
+  const promoBannerVouchers = promoBannerVoucherIds.length
+    ? await db.voucher.findMany({ where: { id: { in: promoBannerVoucherIds } } })
+    : [];
+  const publicPromoBanners = toPublicPromoBanners(
+    promoBanners,
+    new Map(promoBannerVouchers.map((voucher) => [voucher.id, voucher])),
+    {
+      publicVoucherEnabled,
+      retailVoucherEnabled,
+      canSeeRetailVoucher: canSeeRetailVouchers,
+    },
+  );
   const visibleVouchers = getVisibleVouchers(vouchers, {
     publicVoucherEnabled,
     retailVoucherEnabled,
@@ -236,15 +267,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   });
 
   return (
-    <main className="min-h-screen bg-soft-bg pb-8 text-text-dark">
+    <main className="min-h-screen bg-brand-bg pb-8 text-brand-text">
       <FigmaSiteHeader />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         {/* ── Hero / Catalog Banner ── */}
-        <section className="rounded-3xl bg-gradient-to-br from-primary-maroon to-accent-rose p-5 text-white shadow-sm sm:p-6">
+        <section className="rounded-3xl bg-gradient-to-br from-brand-primary-dark via-brand-primary to-brand-secondary p-5 text-white shadow-sm sm:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-wide text-soft-teal">
+              <p className="text-xs font-black uppercase tracking-wide text-brand-accent">
                 Katalog marketplace
               </p>
               <h1 className="mt-2 text-3xl font-black leading-tight">
@@ -256,7 +287,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               </p>
             </div>
             <div className="inline-flex w-fit items-center gap-2 rounded-2xl bg-white/10 px-4 py-3 text-sm font-black ring-1 ring-white/20">
-              <Filter className="size-5 text-soft-teal" />
+              <Filter className="size-5 text-brand-accent" />
               {totalProducts} produk ditemukan
             </div>
           </div>
@@ -264,12 +295,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
         {/* ── Flash Sale Strip ── */}
         {flashSaleProducts.length > 0 && activeFlashSale ? (
-          <section className="mt-5 overflow-hidden rounded-2xl border border-border-gray bg-white shadow-sm">
+          <section className="mt-5 overflow-hidden rounded-2xl border border-brand-border bg-white shadow-sm">
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1.5">
-                  <Zap size={18} fill="#AE2448" stroke="none" />
-                  <span className="text-base font-black text-primary-maroon">FLASH SALE</span>
+                  <Zap size={18} fill="var(--brand-accent)" stroke="none" />
+                  <span className="text-base font-black text-brand-primary">FLASH SALE</span>
                 </div>
                 <FlashSaleCountdown
                   endsAt={activeFlashSale.endsAt.toISOString()}
@@ -278,7 +309,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               </div>
               <Link
                 href="/products"
-                className="text-xs font-bold text-primary-maroon transition-opacity hover:opacity-70"
+                className="text-xs font-bold text-brand-primary transition-opacity hover:opacity-70"
               >
                 Lihat Semua &rarr;
               </Link>
@@ -290,7 +321,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                   href={product.href}
                   productId={product.productId}
                   source="flash-sale-strip"
-                  className="group w-44 shrink-0 overflow-hidden rounded-xl border border-border-gray bg-soft-bg transition hover:border-primary-maroon hover:bg-white hover:shadow-sm"
+                  className="group w-44 shrink-0 overflow-hidden rounded-xl border border-brand-border bg-brand-bg transition hover:border-brand-primary hover:bg-white hover:shadow-sm"
                 >
                   <div className="relative h-36 w-full overflow-hidden bg-gray-50">
                     {product.image ? (
@@ -302,31 +333,31 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex size-full items-center justify-center bg-gradient-to-br from-primary-maroon/10 to-soft-teal/25">
-                        <Zap className="size-8 text-primary-maroon/60" />
+                      <div className="flex size-full items-center justify-center bg-gradient-to-br from-brand-primary/10 to-brand-secondary/25">
+                        <Zap className="size-8 text-brand-primary/60" />
                       </div>
                     )}
-                    <span className="absolute left-2 top-2 rounded bg-accent-rose px-1.5 py-0.5 text-[10px] font-black text-white shadow-sm">
+                    <span className="absolute left-2 top-2 rounded bg-brand-accent px-1.5 py-0.5 text-[10px] font-black text-white shadow-sm">
                       {product.badge ?? "PROMO"}
                     </span>
                   </div>
                   <div className="p-2.5">
-                    <p className="mb-1.5 line-clamp-2 text-xs font-semibold leading-tight text-text-dark">
+                    <p className="mb-1.5 line-clamp-2 text-xs font-semibold leading-tight text-brand-text">
                       {product.name}
                     </p>
                     {product.flashSalePrice ? (
                       <>
-                        <p className="text-sm font-black text-accent-rose">
+                        <p className="text-sm font-black text-brand-accent">
                           {product.flashSalePrice}
                         </p>
-                        <p className="mt-0.5 text-[10px] text-text-muted line-through">
+                        <p className="mt-0.5 text-[10px] text-brand-muted line-through">
                           {product.showRetailAsPrimary && product.retailPrice
                             ? product.retailPrice
                             : product.publicPrice}
                         </p>
                       </>
                     ) : (
-                      <p className="text-sm font-black text-accent-rose">
+                      <p className="text-sm font-black text-brand-accent">
                         {product.showRetailAsPrimary && product.retailPrice
                           ? product.retailPrice
                           : product.publicPrice}
@@ -337,11 +368,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                         className="h-full rounded-full"
                         style={{
                           width: "60%",
-                          background: "linear-gradient(to right, #D5E7B5, #AE2448)",
+                          background:
+                            "linear-gradient(to right, var(--brand-accent), var(--brand-primary))",
                         }}
                       />
                     </div>
-                    <p className="mt-0.5 text-[10px] text-text-muted">
+                    <p className="mt-0.5 text-[10px] text-brand-muted">
                       {product.stockText ?? "Cek stok"}
                     </p>
                   </div>
@@ -356,13 +388,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <FigmaPromoBannerRow
             whatsappUrl={generalWaUrl}
             hasVoucher={visibleVouchers.length > 0}
-            banners={promoBanners}
+            banners={publicPromoBanners}
             enabled={promoEnabled}
           />
         </div>
 
         {/* ── Search & Sort bar ── */}
-        <section className="mt-5 rounded-2xl border border-border-gray bg-white p-4 shadow-sm">
+        <section className="mt-5 rounded-2xl border border-brand-border bg-white p-4 shadow-sm">
           <form action="/products" className="grid gap-3 lg:grid-cols-[1fr_210px_auto]">
             <input type="hidden" name="category" value={category} />
             <input type="hidden" name="brand" value={brand} />
@@ -371,8 +403,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <input type="hidden" name="priceMax" value={priceMax ?? ""} />
             <input type="hidden" name="promo" value={promoFilter ? "1" : ""} />
             <input type="hidden" name="flashSale" value={flashSaleFilter ? "1" : ""} />
-            <label className="flex items-center gap-2 rounded-2xl border border-border-gray bg-soft-bg px-3 py-2 focus-within:border-primary-maroon focus-within:bg-white">
-              <Search className="size-5 shrink-0 text-primary-maroon" />
+            <label className="flex items-center gap-2 rounded-2xl border border-brand-border bg-brand-bg px-3 py-2 focus-within:border-brand-primary focus-within:bg-white">
+              <Search className="size-5 shrink-0 text-brand-primary" />
               <input
                 name="q"
                 defaultValue={q}
@@ -383,7 +415,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <select
               name="sort"
               defaultValue={sort}
-              className="rounded-2xl border border-border-gray bg-white px-3 py-3 text-sm font-bold outline-none focus:border-primary-maroon"
+              className="rounded-2xl border border-brand-border bg-white px-3 py-3 text-sm font-bold outline-none focus:border-brand-primary"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -393,7 +425,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </select>
             <button
               type="submit"
-              className="rounded-2xl bg-primary-maroon px-5 py-3 text-sm font-black text-white transition hover:bg-accent-rose"
+              className="rounded-2xl bg-brand-primary px-5 py-3 text-sm font-black text-white transition hover:bg-brand-hover"
             >
               Terapkan
             </button>
@@ -401,14 +433,14 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
           {activeFilters.length > 0 ? (
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-black uppercase tracking-wide text-text-muted">
+              <span className="text-xs font-black uppercase tracking-wide text-brand-muted">
                 Filter aktif
               </span>
               {activeFilters.map((filter) => (
                 <Link
                   key={filter.key}
                   href={filter.href}
-                  className="inline-flex items-center gap-1 rounded-full bg-soft-bg px-3 py-1.5 text-xs font-black text-primary-maroon transition hover:bg-primary-maroon hover:text-white"
+                  className="inline-flex items-center gap-1 rounded-full bg-brand-bg px-3 py-1.5 text-xs font-black text-brand-primary transition hover:bg-brand-primary hover:text-white"
                 >
                   {filter.label}
                   <X className="size-3" />
@@ -416,7 +448,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               ))}
               <Link
                 href="/products"
-                className="rounded-full border border-border-gray px-3 py-1.5 text-xs font-black text-text-muted transition hover:border-primary-maroon hover:text-primary-maroon"
+                className="rounded-full border border-brand-border px-3 py-1.5 text-xs font-black text-brand-muted transition hover:border-brand-primary hover:text-brand-primary"
               >
                 Reset semua
               </Link>
@@ -443,8 +475,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           </aside>
 
           <section className="min-w-0">
-            <details className="mb-4 rounded-2xl border border-border-gray bg-white p-4 shadow-sm lg:hidden">
-              <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-black text-primary-maroon">
+            <details className="mb-4 rounded-2xl border border-brand-border bg-white p-4 shadow-sm lg:hidden">
+              <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-black text-brand-primary">
                 <span className="inline-flex items-center gap-2">
                   <SlidersHorizontal className="size-5" />
                   Filter produk
@@ -470,15 +502,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </details>
 
             <div className="mb-4 flex items-center justify-between gap-3">
-              <p className="text-sm font-bold text-text-muted">
+              <p className="text-sm font-bold text-brand-muted">
                 Menampilkan{" "}
-                <span className="text-primary-maroon">{cardsWithReturnUrl.length}</span> dari{" "}
-                <span className="text-primary-maroon">{totalProducts}</span> produk
+                <span className="text-brand-primary">{cardsWithReturnUrl.length}</span> dari{" "}
+                <span className="text-brand-primary">{totalProducts}</span> produk
                 {totalPages > 1 ? ` · Halaman ${page} / ${totalPages}` : ""}
               </p>
               <Link
                 href="/vouchers"
-                className="rounded-xl border border-accent-rose/20 bg-white px-3 py-2 text-xs font-black text-accent-rose transition hover:border-accent-rose"
+                className="rounded-xl border border-brand-accent/20 bg-white px-3 py-2 text-xs font-black text-brand-accent transition hover:border-brand-accent"
               >
                 Cek voucher
               </Link>
@@ -496,31 +528,31 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                       <Link
                         href={buildCurrentUrl({ q, category, brand, stock, sort, page: page - 1, pageSize, priceMin, priceMax, promo: promoFilter ? "1" : "", flashSale: flashSaleFilter ? "1" : "" })}
                         rel="prev"
-                        className="inline-flex items-center gap-1 rounded-xl border border-border-gray bg-white px-4 py-2 text-sm font-black text-primary-maroon transition hover:border-primary-maroon"
+                        className="inline-flex items-center gap-1 rounded-xl border border-brand-border bg-white px-4 py-2 text-sm font-black text-brand-primary transition hover:border-brand-primary"
                       >
                         <ChevronLeft className="size-4" />
                         Sebelumnya
                       </Link>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-xl border border-border-gray bg-soft-bg px-4 py-2 text-sm font-black text-text-muted opacity-60">
+                      <span className="inline-flex items-center gap-1 rounded-xl border border-brand-border bg-brand-bg px-4 py-2 text-sm font-black text-brand-muted opacity-60">
                         <ChevronLeft className="size-4" />
                         Sebelumnya
                       </span>
                     )}
-                    <span className="px-2 text-sm font-bold text-text-muted">
+                    <span className="px-2 text-sm font-bold text-brand-muted">
                       {page} / {totalPages}
                     </span>
                     {page < totalPages ? (
                       <Link
                         href={buildCurrentUrl({ q, category, brand, stock, sort, page: page + 1, pageSize, priceMin, priceMax, promo: promoFilter ? "1" : "", flashSale: flashSaleFilter ? "1" : "" })}
                         rel="next"
-                        className="inline-flex items-center gap-1 rounded-xl border border-border-gray bg-white px-4 py-2 text-sm font-black text-primary-maroon transition hover:border-primary-maroon"
+                        className="inline-flex items-center gap-1 rounded-xl border border-brand-border bg-white px-4 py-2 text-sm font-black text-brand-primary transition hover:border-brand-primary"
                       >
                         Berikutnya
                         <ChevronRight className="size-4" />
                       </Link>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-xl border border-border-gray bg-soft-bg px-4 py-2 text-sm font-black text-text-muted opacity-60">
+                      <span className="inline-flex items-center gap-1 rounded-xl border border-brand-border bg-brand-bg px-4 py-2 text-sm font-black text-brand-muted opacity-60">
                         Berikutnya
                         <ChevronRight className="size-4" />
                       </span>
@@ -529,14 +561,14 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 ) : null}
               </>
             ) : (
-              <div className="rounded-2xl border border-border-gray bg-white p-10 text-center shadow-sm">
-                <h2 className="text-lg font-black text-text-dark">Produk tidak ditemukan</h2>
-                <p className="mt-2 text-sm text-text-muted">
+              <div className="rounded-2xl border border-brand-border bg-white p-10 text-center shadow-sm">
+                <h2 className="text-lg font-black text-brand-text">Produk tidak ditemukan</h2>
+                <p className="mt-2 text-sm text-brand-muted">
                   Coba ubah kata kunci, kategori, brand, harga, atau status stok.
                 </p>
                 <Link
                   href="/products"
-                  className="mt-5 inline-flex rounded-xl bg-primary-maroon px-4 py-2 text-sm font-black text-white"
+                  className="mt-5 inline-flex rounded-xl bg-brand-primary px-4 py-2 text-sm font-black text-white"
                 >
                   Reset filter
                 </Link>
@@ -582,16 +614,16 @@ function FilterPanel({
   return (
     <form
       action="/products"
-      className={`rounded-2xl border border-border-gray bg-white p-4 shadow-sm ${compact ? "border-0 p-0 shadow-none" : ""}`}
+      className={`rounded-2xl border border-brand-border bg-white p-4 shadow-sm ${compact ? "border-0 p-0 shadow-none" : ""}`}
     >
       <input type="hidden" name="q" value={q} />
       <input type="hidden" name="sort" value={sort} />
       <div className="flex items-center justify-between">
-        <h2 className="inline-flex items-center gap-2 text-sm font-black text-text-dark">
-          <SlidersHorizontal className="size-5 text-primary-maroon" />
+        <h2 className="inline-flex items-center gap-2 text-sm font-black text-brand-text">
+          <SlidersHorizontal className="size-5 text-brand-primary" />
           Filter Katalog
         </h2>
-        <Link href="/products" className="text-xs font-black text-accent-rose">
+        <Link href="/products" className="text-xs font-black text-brand-accent">
           Reset
         </Link>
       </div>
@@ -628,7 +660,7 @@ function FilterPanel({
         </SelectFilter>
 
         {/* Rentang Harga */}
-        <fieldset className="block text-sm font-black text-text-dark">
+        <fieldset className="block text-sm font-black text-brand-text">
           <legend className="mb-2">Rentang Harga</legend>
           <div className="flex items-center gap-2">
             <input
@@ -637,47 +669,47 @@ function FilterPanel({
               defaultValue={priceMin}
               placeholder="Min"
               min="0"
-              className="w-full rounded-2xl border border-border-gray bg-white px-3 py-2 text-sm font-semibold text-text-dark outline-none focus:border-primary-maroon"
+              className="w-full rounded-2xl border border-brand-border bg-white px-3 py-2 text-sm font-semibold text-brand-text outline-none focus:border-brand-primary"
             />
-            <span className="text-xs text-text-muted">—</span>
+            <span className="text-xs text-brand-muted">—</span>
             <input
               type="number"
               name="priceMax"
               defaultValue={priceMax}
               placeholder="Max"
               min="0"
-              className="w-full rounded-2xl border border-border-gray bg-white px-3 py-2 text-sm font-semibold text-text-dark outline-none focus:border-primary-maroon"
+              className="w-full rounded-2xl border border-brand-border bg-white px-3 py-2 text-sm font-semibold text-brand-text outline-none focus:border-brand-primary"
             />
           </div>
         </fieldset>
 
         {/* Promo */}
-        <label className="flex items-center gap-2 text-sm font-semibold text-text-dark">
+        <label className="flex items-center gap-2 text-sm font-semibold text-brand-text">
           <input
             type="checkbox"
             name="promo"
             value="1"
             defaultChecked={promo === "1"}
-            className="size-4 rounded border-border-gray text-primary-maroon focus:ring-primary-maroon/30"
+            className="size-4 rounded border-brand-border text-brand-primary focus:ring-brand-primary/30"
           />
           Promo
         </label>
 
         {/* Flash Sale */}
-        <label className="flex items-center gap-2 text-sm font-semibold text-text-dark">
+        <label className="flex items-center gap-2 text-sm font-semibold text-brand-text">
           <input
             type="checkbox"
             name="flashSale"
             value="1"
             defaultChecked={flashSale === "1"}
-            className="size-4 rounded border-border-gray text-primary-maroon focus:ring-primary-maroon/30"
+            className="size-4 rounded border-brand-border text-brand-primary focus:ring-brand-primary/30"
           />
           Flash Sale
         </label>
 
         <button
           type="submit"
-          className="rounded-2xl bg-primary-maroon px-4 py-3 text-sm font-black text-white transition hover:bg-accent-rose"
+          className="rounded-2xl bg-brand-primary px-4 py-3 text-sm font-black text-white transition hover:bg-brand-hover"
         >
           Terapkan Filter
         </button>
@@ -698,12 +730,12 @@ function SelectFilter({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block text-sm font-black text-text-dark">
+    <label className="block text-sm font-black text-brand-text">
       {label}
       <select
         name={name}
         defaultValue={value}
-        className="mt-2 w-full rounded-2xl border border-border-gray bg-white px-3 py-3 text-sm font-semibold text-text-dark outline-none focus:border-primary-maroon"
+        className="mt-2 w-full rounded-2xl border border-brand-border bg-white px-3 py-3 text-sm font-semibold text-brand-text outline-none focus:border-brand-primary"
       >
         {children}
       </select>

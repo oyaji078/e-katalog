@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from "node:crypto";
 import { unlinkSync, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import sharp from "sharp";
 
 const PRODUCT_UPLOAD_DIR = path.resolve(
   /* turbopackIgnore: true */ process.cwd(),
@@ -14,9 +15,16 @@ const PROMO_BANNER_UPLOAD_DIR = path.resolve(
   "uploads",
   "promo-banners",
 );
+const SITE_UPLOAD_DIR = path.resolve(
+  /* turbopackIgnore: true */ process.cwd(),
+  "public",
+  "uploads",
+  "site",
+);
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5 MB
+export const MAX_SITE_UPLOAD_SIZE = 2 * 1024 * 1024; // 2 MB
 
 export function ensureUploadDirectory(uploadDir = PRODUCT_UPLOAD_DIR): void {
   if (!existsSync(uploadDir)) {
@@ -30,6 +38,16 @@ export function validateImageFile(file: File): string | null {
   }
   if (file.size > MAX_UPLOAD_SIZE) {
     return "Ukuran file maksimal 5 MB.";
+  }
+  return null;
+}
+
+export function validateSiteImageFile(file: File): string | null {
+  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    return "Tipe file tidak didukung. Gunakan JPG, PNG, atau WebP.";
+  }
+  if (file.size > MAX_SITE_UPLOAD_SIZE) {
+    return "Ukuran file maksimal 2 MB.";
   }
   return null;
 }
@@ -51,6 +69,27 @@ export async function saveProductImage(file: File): Promise<string> {
 
 export async function savePromoBannerImage(file: File): Promise<string> {
   return saveImageFile(file, PROMO_BANNER_UPLOAD_DIR, "/uploads/promo-banners");
+}
+
+export async function saveSiteImage(file: File, kind: "logo" | "favicon"): Promise<string> {
+  const error = validateSiteImageFile(file);
+  if (error) throw new Error(error);
+
+  ensureUploadDirectory(SITE_UPLOAD_DIR);
+
+  const suffix = randomBytes(4).toString("hex");
+  const fileName = `${kind}-${suffix}.webp`;
+  const filePath = path.join(SITE_UPLOAD_DIR, fileName);
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  try {
+    const webp = await sharp(buffer).webp({ quality: 90 }).toBuffer();
+    writeFileSync(filePath, webp);
+  } catch {
+    throw new Error("Gambar gagal diproses. Pastikan file gambar valid.");
+  }
+
+  return `/uploads/site/${fileName}`;
 }
 
 async function saveImageFile(file: File, uploadDir: string, publicBasePath: string): Promise<string> {
@@ -105,6 +144,18 @@ export function deletePromoBannerImage(publicPath: string): void {
   }
 }
 
+export function deleteSiteImage(publicPath: string): void {
+  if (!isLocalSiteUploadPath(publicPath)) return;
+  const absolutePath = resolvePublicUploadPath(publicPath);
+  if (absolutePath && existsSync(absolutePath)) {
+    try {
+      unlinkSync(absolutePath);
+    } catch {
+      // Best-effort cleanup; DB mutation must remain authoritative.
+    }
+  }
+}
+
 export function isLocalUploadPath(value: string): boolean {
   if (!value) return false;
   return value.startsWith("/uploads/products/");
@@ -113,6 +164,11 @@ export function isLocalUploadPath(value: string): boolean {
 export function isLocalPromoBannerUploadPath(value: string): boolean {
   if (!value) return false;
   return value.startsWith("/uploads/promo-banners/");
+}
+
+export function isLocalSiteUploadPath(value: string): boolean {
+  if (!value) return false;
+  return /^\/uploads\/site\/(?:logo|favicon)-[a-f0-9]{8}\.webp$/.test(value);
 }
 
 function isPathInside(parent: string, child: string): boolean {
@@ -172,4 +228,10 @@ export function isSafePromoBannerImageUrl(value: string): boolean {
   }
 
   return false;
+}
+
+export function isSafeSiteImageUrl(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed || hasBlockedProtocol(trimmed)) return false;
+  return isLocalSiteUploadPath(trimmed) && isExistingPublicFile(trimmed);
 }

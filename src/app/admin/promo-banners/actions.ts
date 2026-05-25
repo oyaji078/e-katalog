@@ -18,13 +18,12 @@ export type BannerFormFields = {
   imageUrl: string;
   ctaLabel: string;
   ctaHref: string;
-  status: string;
   startsAt: string;
   endsAt: string;
   sortOrder: string;
   showForPublic: string;
   showForRetail: string;
-  voucherCode: string;
+  voucherId: string;
 };
 
 export type BannerFormState = {
@@ -45,13 +44,12 @@ const emptyFields: BannerFormFields = {
   imageUrl: "",
   ctaLabel: "",
   ctaHref: "",
-  status: "ACTIVE",
   startsAt: "",
   endsAt: "",
   sortOrder: "0",
   showForPublic: "1",
   showForRetail: "0",
-  voucherCode: "",
+  voucherId: "",
 };
 
 const initialBannerFormState: BannerFormState = {
@@ -73,13 +71,12 @@ function readFields(formData: FormData): BannerFormFields {
     imageUrl: text(formData, "imageUrl"),
     ctaLabel: text(formData, "ctaLabel"),
     ctaHref: text(formData, "ctaHref"),
-    status: text(formData, "status"),
     startsAt: text(formData, "startsAt"),
     endsAt: text(formData, "endsAt"),
     sortOrder: text(formData, "sortOrder"),
     showForPublic: text(formData, "showForPublic"),
     showForRetail: text(formData, "showForRetail"),
-    voucherCode: text(formData, "voucherCode"),
+    voucherId: text(formData, "voucherId"),
   };
 }
 
@@ -112,12 +109,6 @@ function parseSortOrder(value: string): number | null {
 
 function parseAudienceBoolean(value: string): boolean {
   return value === "1" || value === "on" || value === "true";
-}
-
-function parseStatus(value: string): boolean | null {
-  if (value === "ACTIVE") return true;
-  if (value === "INACTIVE") return false;
-  return null;
 }
 
 function hasBlockedProtocol(value: string): boolean {
@@ -163,7 +154,6 @@ function validateFields(fields: BannerFormFields): {
   fieldErrors: BannerFormState["fieldErrors"];
   showForPublic: boolean;
   showForRetail: boolean;
-  isActive: boolean | null;
   sortOrder: number | null;
   startsAt: Date | null;
   endsAt: Date | null;
@@ -171,17 +161,13 @@ function validateFields(fields: BannerFormFields): {
   const fieldErrors: BannerFormState["fieldErrors"] = {};
   const showForPublic = parseAudienceBoolean(fields.showForPublic);
   const showForRetail = parseAudienceBoolean(fields.showForRetail);
-  const isActive = parseStatus(fields.status);
   const sortOrder = parseSortOrder(fields.sortOrder);
   const startsAt = parseOptionalDate(fields.startsAt, "start");
   const endsAt = parseOptionalDate(fields.endsAt, "end");
+  const isLinkedToVoucher = Boolean(fields.voucherId);
 
-  if (!fields.title) {
+  if (!isLinkedToVoucher && !fields.title) {
     fieldErrors.title = "Judul Banner wajib diisi.";
-  }
-
-  if (isActive === null) {
-    fieldErrors.status = "Status wajib dipilih.";
   }
 
   if (!showForPublic && !showForRetail) {
@@ -204,7 +190,7 @@ function validateFields(fields: BannerFormFields): {
     fieldErrors.endsAt = "Tanggal Berakhir harus setelah Tanggal Mulai.";
   }
 
-  if (!isSafeCtaHref(fields.ctaHref)) {
+  if (!isLinkedToVoucher && !isSafeCtaHref(fields.ctaHref)) {
     fieldErrors.ctaHref =
       "Link Tombol hanya boleh memakai path internal yang diawali / atau URL https://.";
   }
@@ -214,7 +200,7 @@ function validateFields(fields: BannerFormFields): {
       "Gambar Banner hanya boleh memakai file /uploads/... yang tersedia.";
   }
 
-  return { fieldErrors, showForPublic, showForRetail, isActive, sortOrder, startsAt, endsAt };
+  return { fieldErrors, showForPublic, showForRetail, sortOrder, startsAt, endsAt };
 }
 
 async function requireAdminMutation(): Promise<BannerFormState | null> {
@@ -256,29 +242,39 @@ export async function createPromoBannerAction(formData: FormData): Promise<Banne
   const accessError = await requireAdminMutation();
   if (accessError) return { ...accessError, fields };
 
-  const { fieldErrors, showForPublic, showForRetail, isActive, sortOrder, startsAt, endsAt } = validateFields(fields);
-  if (Object.keys(fieldErrors).length > 0 || isActive === null || sortOrder === null) {
+  const { fieldErrors, showForPublic, showForRetail, sortOrder, startsAt, endsAt } = validateFields(fields);
+  if (Object.keys(fieldErrors).length > 0 || sortOrder === null) {
     return buildErrorState(fields, fieldErrors);
   }
 
   try {
     const imageUrl = await resolveImageUrl(formData, fields);
     const db = getDb();
+    const linkedVoucher = fields.voucherId
+      ? await db.voucher.findUnique({ where: { id: fields.voucherId } })
+      : null;
+
+    if (fields.voucherId && !linkedVoucher) {
+      return buildErrorState(fields, { voucherId: "Voucher yang dipilih tidak ditemukan." });
+    }
+
+    const isLinkedToVoucher = Boolean(linkedVoucher);
 
     await db.promoBanner.create({
       data: {
-        title: fields.title,
+        title: isLinkedToVoucher ? fields.title || linkedVoucher!.title : fields.title,
         subtitle: nullableText(fields.subtitle),
         imageUrl,
-        linkUrl: nullableText(fields.ctaHref),
-        ctaLabel: nullableText(fields.ctaLabel),
+        linkUrl: isLinkedToVoucher ? null : nullableText(fields.ctaHref),
+        ctaLabel: isLinkedToVoucher ? null : nullableText(fields.ctaLabel),
         showForPublic,
         showForRetail,
-        isActive,
+        isActive: false,
         startsAt,
         endsAt,
         sortOrder,
-        voucherCode: nullableText(fields.voucherCode),
+        linkType: isLinkedToVoucher ? "VOUCHER" : "STANDALONE",
+        voucherId: isLinkedToVoucher ? fields.voucherId : null,
       },
     });
   } catch (error) {
@@ -297,7 +293,8 @@ export async function createPromoBannerAction(formData: FormData): Promise<Banne
 
   revalidatePath("/");
   revalidatePath("/admin/promo-banners");
-  redirect("/admin/promo-banners");
+  revalidatePath("/admin/promo-vouchers");
+  redirect("/admin/promo-vouchers?tab=banners");
 }
 
 export async function updatePromoBannerAction(id: string, formData: FormData): Promise<BannerFormState> {
@@ -313,8 +310,8 @@ export async function updatePromoBannerAction(id: string, formData: FormData): P
     };
   }
 
-  const { fieldErrors, showForPublic, showForRetail, isActive, sortOrder, startsAt, endsAt } = validateFields(fields);
-  if (Object.keys(fieldErrors).length > 0 || isActive === null || sortOrder === null) {
+  const { fieldErrors, showForPublic, showForRetail, sortOrder, startsAt, endsAt } = validateFields(fields);
+  if (Object.keys(fieldErrors).length > 0 || sortOrder === null) {
     return buildErrorState(fields, fieldErrors);
   }
 
@@ -335,23 +332,32 @@ export async function updatePromoBannerAction(id: string, formData: FormData): P
       };
     }
 
+    const linkedVoucher = fields.voucherId
+      ? await db.voucher.findUnique({ where: { id: fields.voucherId } })
+      : null;
+
+    if (fields.voucherId && !linkedVoucher) {
+      return buildErrorState(fields, { voucherId: "Voucher yang dipilih tidak ditemukan." });
+    }
+
+    const isLinkedToVoucher = Boolean(linkedVoucher);
     const imageUrl = await resolveImageUrl(formData, fields);
 
     await db.promoBanner.update({
       where: { id },
       data: {
-        title: fields.title,
+        title: isLinkedToVoucher ? fields.title || linkedVoucher!.title : fields.title,
         subtitle: nullableText(fields.subtitle),
         imageUrl,
-        linkUrl: nullableText(fields.ctaHref),
-        ctaLabel: nullableText(fields.ctaLabel),
+        linkUrl: isLinkedToVoucher ? null : nullableText(fields.ctaHref),
+        ctaLabel: isLinkedToVoucher ? null : nullableText(fields.ctaLabel),
         showForPublic,
         showForRetail,
-        isActive,
         startsAt,
         endsAt,
         sortOrder,
-        voucherCode: nullableText(fields.voucherCode),
+        linkType: isLinkedToVoucher ? "VOUCHER" : "STANDALONE",
+        voucherId: isLinkedToVoucher ? fields.voucherId : null,
       },
     });
 
@@ -378,7 +384,8 @@ export async function updatePromoBannerAction(id: string, formData: FormData): P
 
   revalidatePath("/");
   revalidatePath("/admin/promo-banners");
-  redirect("/admin/promo-banners");
+  revalidatePath("/admin/promo-vouchers");
+  redirect("/admin/promo-vouchers?tab=banners");
 }
 
 export async function toggleBannerAction(
@@ -408,6 +415,7 @@ export async function toggleBannerAction(
 
   revalidatePath("/");
   revalidatePath("/admin/promo-banners");
+  revalidatePath("/admin/promo-vouchers");
   return { success: true, message: isActive ? "Banner diaktifkan." : "Banner dinonaktifkan.", error: "", fieldErrors: {}, fields: emptyFields };
 }
 
@@ -443,5 +451,6 @@ export async function deletePromoBannerAction(id: string): Promise<DeleteResult>
 
   revalidatePath("/");
   revalidatePath("/admin/promo-banners");
+  revalidatePath("/admin/promo-vouchers");
   return { success: true, error: "" };
 }

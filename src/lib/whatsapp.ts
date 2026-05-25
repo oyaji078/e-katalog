@@ -5,6 +5,11 @@
 
 import type { Product, StockStatus } from "@/generated/prisma/client";
 import type { CatalogUser } from "@/lib/catalog";
+import {
+  DEFAULT_SITE_SETTINGS,
+  SITE_SETTING_SINGLETON_KEY,
+  normalizeWhatsappNumber,
+} from "@/lib/site-settings";
 
 /**
  * Get the store's WhatsApp number from environment as fallback.
@@ -13,11 +18,7 @@ import type { CatalogUser } from "@/lib/catalog";
  */
 export function getStoreWhatsappNumber(): string {
   const serverNumber = process.env.STORE_WHATSAPP_NUMBER;
-  if (serverNumber) {
-    return serverNumber;
-  }
-  // Default placeholder
-  return "6280000000000";
+  return normalizeWhatsappNumber(serverNumber ?? "") ?? DEFAULT_SITE_SETTINGS.whatsappNumber;
 }
 
 /**
@@ -123,10 +124,8 @@ export interface WhatsAppUrlOptions {
 
 export function buildWhatsappUrl(options: WhatsAppUrlOptions): string {
   const { message, whatsappNumber } = options;
-  const number = whatsappNumber || getStoreWhatsappNumber();
-
-  // Remove any non-digit characters
-  const cleanNumber = number.replace(/\D/g, "");
+  const cleanNumber =
+    normalizeWhatsappNumber(whatsappNumber ?? "") ?? getStoreWhatsappNumber();
 
   return `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`;
 }
@@ -148,13 +147,27 @@ export function buildProductUrl(
  * Must be called from server context with a Prisma client instance.
  */
 export async function resolveStoreWhatsappNumber(
-  db: { storeSetting: { findUnique: (args: { where: { key: string } }) => Promise<{ value: string } | null> } },
+  db: {
+    siteSetting?: {
+      findUnique: (args: { where: { singletonKey: string } }) => Promise<{ whatsappNumber: string } | null>;
+    };
+    storeSetting: { findUnique: (args: { where: { key: string } }) => Promise<{ value: string } | null> };
+  },
 ): Promise<string> {
   try {
+    if (db.siteSetting) {
+      const siteSetting = await db.siteSetting.findUnique({
+        where: { singletonKey: SITE_SETTING_SINGLETON_KEY },
+      });
+      const normalized = normalizeWhatsappNumber(siteSetting?.whatsappNumber ?? "");
+      if (normalized) return normalized;
+    }
+
     const setting = await db.storeSetting.findUnique({
       where: { key: "store_whatsapp_number" },
     });
-    if (setting?.value) return setting.value;
+    const normalized = normalizeWhatsappNumber(setting?.value ?? "");
+    if (normalized) return normalized;
   } catch {
     // Fall through to env fallback
   }

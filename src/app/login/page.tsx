@@ -71,12 +71,12 @@ function LoginForm() {
   }
 
   return (
-    <section className="mx-auto max-w-md rounded-2xl border border-border-gray bg-white p-6 shadow-sm">
-      <Link href="/" className="text-sm font-semibold text-primary-maroon">
+    <section className="mx-auto max-w-md rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
+      <Link href="/" className="text-sm font-semibold text-brand-primary">
         E-Katalog Komputer
       </Link>
       <h1 className="mt-6 text-2xl font-bold">Retail Login</h1>
-      <p className="mt-2 text-sm text-text-muted">
+      <p className="mt-2 text-sm text-brand-muted">
         Masuk untuk mengelola akun dan melihat akses retail jika sudah aktif.
       </p>
 
@@ -90,7 +90,7 @@ function LoginForm() {
             name="email"
             type="email"
             required
-            className="mt-2 w-full rounded-xl border border-border-gray px-3 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-2 w-full rounded-xl border border-brand-border px-3 py-3 text-sm outline-none focus:border-brand-primary"
           />
         </div>
         <div>
@@ -103,7 +103,7 @@ function LoginForm() {
             type="password"
             minLength={8}
             required
-            className="mt-2 w-full rounded-xl border border-border-gray px-3 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-2 w-full rounded-xl border border-brand-border px-3 py-3 text-sm outline-none focus:border-brand-primary"
           />
         </div>
 
@@ -112,15 +112,15 @@ function LoginForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full rounded-xl bg-primary-maroon px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
+          className="w-full rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
         >
           {isSubmitting ? "Memproses..." : "Login"}
         </button>
       </form>
 
-      <p className="mt-5 text-center text-sm text-text-muted">
+      <p className="mt-5 text-center text-sm text-brand-muted">
         Belum punya akun?{" "}
-        <Link className="font-semibold text-accent-rose" href="/register">
+        <Link className="font-semibold text-brand-accent" href="/register">
           Daftar retail
         </Link>
       </p>
@@ -132,12 +132,15 @@ function AuthHeader() {
   return (
     <header
       className="sticky top-0 z-50 shadow-sm"
-      style={{ background: "linear-gradient(135deg, #6E1A37 0%, #AE2448 100%)" }}
+      style={{
+        background:
+          "linear-gradient(135deg, var(--brand-primary-dark) 0%, var(--brand-primary) 100%)",
+      }}
     >
       <div className="mx-auto flex max-w-7xl items-center px-4 py-3 md:px-6">
         <Link href="/" className="flex-shrink-0 select-none">
           <span className="text-xl font-black tracking-tight text-white md:text-2xl">
-            E-<span style={{ color: "#D5E7B5" }}>Katalog</span>
+            E-<span className="text-brand-accent">Katalog</span>
           </span>
         </Link>
         <div className="ml-auto flex items-center gap-3 text-xs text-white/70">
@@ -152,10 +155,10 @@ function AuthHeader() {
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen bg-soft-bg text-text-dark">
+    <main className="min-h-screen bg-brand-bg text-brand-text">
       <AuthHeader />
       <div className="px-4 py-10">
-        <Suspense fallback={<div className="text-center pt-10 text-text-muted">Loading...</div>}>
+        <Suspense fallback={<div className="text-center pt-10 text-brand-muted">Loading...</div>}>
           <LoginForm />
         </Suspense>
       </div>

@@ -12,7 +12,8 @@ import Link from "next/link";
 import LogoutButton from "@/components/layout/LogoutButton";
 import { getDb } from "@/lib/db";
 import { getCurrentUser, type CurrentUser } from "@/lib/session";
-import { buildWhatsappUrl, resolveStoreWhatsappNumber } from "@/lib/whatsapp";
+import { getPublicSiteSettings, type PublicSiteSettings } from "@/lib/site-settings";
+import { buildWhatsappUrl } from "@/lib/whatsapp";
 
 const fallbackCategories = [
   { name: "Laptop", slug: "laptop" },
@@ -51,26 +52,22 @@ async function getHeaderCategories() {
   return fallbackCategories;
 }
 
-async function getWhatsappUrl() {
+function getWhatsappUrl(settings: PublicSiteSettings) {
   const message = "Halo Admin, saya ingin konsultasi produk komputer dan aksesoris dari katalog.";
 
-  try {
-    const db = getDb();
-    return buildWhatsappUrl({
-      message,
-      whatsappNumber: await resolveStoreWhatsappNumber(db),
-    });
-  } catch {
-    return buildWhatsappUrl({ message });
-  }
+  return buildWhatsappUrl({
+    message,
+    whatsappNumber: settings.whatsappNumber,
+  });
 }
 
 export default async function FigmaSiteHeader() {
-  const [user, categories, whatsappUrl] = await Promise.all([
+  const [user, categories, settings] = await Promise.all([
     getCurrentUser().catch(() => null),
     getHeaderCategories(),
-    getWhatsappUrl(),
+    getPublicSiteSettings(),
   ]);
+  const whatsappUrl = getWhatsappUrl(settings);
 
   const role = user?.role;
   const retailStatus = user?.retailStatus;
@@ -79,10 +76,13 @@ export default async function FigmaSiteHeader() {
   return (
     <header
       className="sticky top-0 z-50 shadow-sm"
-      style={{ background: "linear-gradient(135deg, #6E1A37 0%, #AE2448 100%)" }}
+      style={{
+        background:
+          "linear-gradient(135deg, var(--brand-primary-dark) 0%, var(--brand-primary) 100%)",
+      }}
     >
       <div className="mx-auto hidden max-w-7xl items-center justify-between border-b border-white/10 px-4 py-1 text-[11px] text-white/70 md:flex lg:px-6">
-        <span>Garansi toko dan dukungan WhatsApp untuk produk komputer.</span>
+        <span>{settings.tagline}</span>
         <div className="flex items-center gap-3">
           <Link href="/vouchers" className="transition-colors hover:text-white">
             Voucher
@@ -122,8 +122,18 @@ export default async function FigmaSiteHeader() {
 
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 md:gap-4 md:px-6">
         <Link href={logoHref(user)} className="flex-shrink-0 select-none">
-          <span className="text-xl font-black tracking-tight text-white md:text-2xl">
-            E-<span style={{ color: "#D5E7B5" }}>Katalog</span>
+          <span className="flex items-center gap-2">
+            {settings.logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={settings.logoUrl}
+                alt={settings.storeName}
+                className="h-9 w-9 rounded-xl bg-white object-contain p-1"
+              />
+            ) : null}
+            <span className="text-xl font-black tracking-tight text-white md:text-2xl">
+              {settings.storeName}
+            </span>
           </span>
         </Link>
 
@@ -133,12 +143,11 @@ export default async function FigmaSiteHeader() {
               type="text"
               name="q"
               placeholder="Cari laptop, monitor, printer, atau aksesoris..."
-              className="w-full rounded-full bg-white py-2.5 pl-4 pr-11 text-sm text-gray-800 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-[#D5E7B5]/60"
+              className="w-full rounded-full bg-white py-2.5 pl-4 pr-11 text-sm text-gray-800 outline-none placeholder:text-gray-400 focus:ring-2 focus:ring-brand-accent/60"
             />
             <button
               type="submit"
-              className="absolute right-1 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-white transition-opacity hover:opacity-80"
-              style={{ backgroundColor: "#6E1A37" }}
+              className="absolute right-1 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-full bg-brand-primary-dark text-white transition-opacity hover:opacity-80"
               aria-label="Cari produk"
             >
               <Search size={15} />
@@ -151,20 +160,19 @@ export default async function FigmaSiteHeader() {
             <>
               <Link
                 href="/vouchers"
-                className="relative hidden transition-colors hover:text-[#D5E7B5] md:block"
+                className="relative hidden transition-colors hover:text-brand-accent md:block"
                 aria-label="Voucher"
               >
                 <Tag size={22} />
                 <span
-                  className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full text-[10px] font-black"
-                  style={{ backgroundColor: "#72BAA9" }}
+                  className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-brand-accent text-[10px] font-black text-brand-primary-dark"
                 >
                   %
                 </span>
               </Link>
               <a
                 href={whatsappUrl}
-                className="relative transition-colors hover:text-[#D5E7B5]"
+                className="relative transition-colors hover:text-brand-accent"
                 aria-label="WhatsApp"
               >
                 <MessageCircle size={22} />
@@ -185,7 +193,7 @@ export default async function FigmaSiteHeader() {
               </Link>
               <Link
                 href="/register"
-                className="hidden items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-black text-primary-maroon transition-transform hover:scale-105 lg:flex"
+                className="hidden items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-black text-brand-primary transition-transform hover:scale-105 lg:flex"
               >
                 <UserPlus size={14} />
                 Daftar Ritel
@@ -200,14 +208,14 @@ export default async function FigmaSiteHeader() {
                 <LayoutDashboard size={14} />
                 {role === "SUPER_ADMIN" ? "Super Admin" : "Dashboard Admin"}
               </Link>
-              <LogoutButton className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-primary-maroon" />
+              <LogoutButton className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-brand-primary" />
             </>
           ) : retailStatus === "RETAIL_ACTIVE" ? (
             <>
-              <span className="hidden rounded-full bg-[#D5E7B5] px-3 py-1.5 text-xs font-black text-primary-maroon md:inline-flex">
+              <span className="hidden rounded-full bg-brand-accent px-3 py-1.5 text-xs font-black text-brand-primary md:inline-flex">
                 Harga Ritel Aktif
               </span>
-              <LogoutButton className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-primary-maroon" />
+              <LogoutButton className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-brand-primary" />
             </>
           ) : retailStatus === "PENDING_RETAIL" ? (
             <>
@@ -217,7 +225,7 @@ export default async function FigmaSiteHeader() {
               >
                 Aktivasi Token
               </Link>
-              <LogoutButton className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-primary-maroon" />
+              <LogoutButton className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-brand-primary" />
             </>
           ) : (
             <>
@@ -227,7 +235,7 @@ export default async function FigmaSiteHeader() {
               >
                 Request Token
               </Link>
-              <LogoutButton className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-primary-maroon" />
+              <LogoutButton className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-brand-primary" />
             </>
           )}
         </div>
@@ -238,7 +246,7 @@ export default async function FigmaSiteHeader() {
           <Link
             key={category.slug}
             href={`/products?category=${encodeURIComponent(category.slug)}`}
-            className="flex-shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold text-white/85 whitespace-nowrap transition-all hover:bg-[#D5E7B5] hover:text-primary-maroon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="flex-shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold text-white/85 whitespace-nowrap transition-all hover:bg-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
             {category.name}
           </Link>
@@ -249,7 +257,7 @@ export default async function FigmaSiteHeader() {
           <Link
             key={category.slug}
             href={`/products?category=${encodeURIComponent(category.slug)}`}
-            className="flex-shrink-0 rounded-full px-3 py-1 text-xs font-semibold text-white/85 transition-all hover:bg-[#D5E7B5] hover:text-primary-maroon focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="flex-shrink-0 rounded-full px-3 py-1 text-xs font-semibold text-white/85 transition-all hover:bg-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
           >
             {category.name}
           </Link>

@@ -23,11 +23,11 @@ export default async function AdminGenerateTokenPage() {
   });
 
   return (
-    <main className="text-text-dark">
+    <main className="text-brand-text">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Generate Retail Token</h1>
-          <p className="mt-2 text-sm text-text-muted">
+          <p className="mt-2 text-sm text-brand-muted">
             Buat token aktivasi hanya untuk pengguna dengan status Menunggu.
           </p>
         </div>

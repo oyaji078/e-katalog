@@ -70,6 +70,7 @@ export const ModelName = {
   WhatsappInquiryLog: 'WhatsappInquiryLog',
   FeatureFlag: 'FeatureFlag',
   StoreSetting: 'StoreSetting',
+  SiteSetting: 'SiteSetting',
   AdminActivityLog: 'AdminActivityLog'
 } as const
 
@@ -158,6 +159,7 @@ export const CategoryScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   description: 'description',
+  icon: 'icon',
   isActive: 'isActive',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
@@ -235,6 +237,8 @@ export const FlashSaleScalarFieldEnum = {
   startsAt: 'startsAt',
   endsAt: 'endsAt',
   isActive: 'isActive',
+  showForPublic: 'showForPublic',
+  showForRetail: 'showForRetail',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -246,7 +250,8 @@ export const FlashSaleProductScalarFieldEnum = {
   id: 'id',
   flashSaleId: 'flashSaleId',
   productId: 'productId',
-  flashSalePrice: 'flashSalePrice',
+  flashSalePublicPrice: 'flashSalePublicPrice',
+  flashSaleRetailPrice: 'flashSaleRetailPrice',
   flashSaleStock: 'flashSaleStock',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt'
@@ -334,7 +339,8 @@ export const PromoBannerScalarFieldEnum = {
   startsAt: 'startsAt',
   endsAt: 'endsAt',
   sortOrder: 'sortOrder',
-  voucherCode: 'voucherCode',
+  linkType: 'linkType',
+  voucherId: 'voucherId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -405,6 +411,30 @@ export const StoreSettingScalarFieldEnum = {
 } as const
 
 export type StoreSettingScalarFieldEnum = (typeof StoreSettingScalarFieldEnum)[keyof typeof StoreSettingScalarFieldEnum]
+
+
+export const SiteSettingScalarFieldEnum = {
+  id: 'id',
+  singletonKey: 'singletonKey',
+  siteName: 'siteName',
+  storeName: 'storeName',
+  tagline: 'tagline',
+  logoUrl: 'logoUrl',
+  faviconUrl: 'faviconUrl',
+  primaryColor: 'primaryColor',
+  secondaryColor: 'secondaryColor',
+  accentColor: 'accentColor',
+  whatsappNumber: 'whatsappNumber',
+  email: 'email',
+  address: 'address',
+  googleMapsUrl: 'googleMapsUrl',
+  businessHours: 'businessHours',
+  footerDescription: 'footerDescription',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteSettingScalarFieldEnum = (typeof SiteSettingScalarFieldEnum)[keyof typeof SiteSettingScalarFieldEnum]
 
 
 export const AdminActivityLogScalarFieldEnum = {
@@ -501,7 +531,8 @@ export const CategoryOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
-  description: 'description'
+  description: 'description',
+  icon: 'icon'
 } as const
 
 export type CategoryOrderByRelevanceFieldEnum = (typeof CategoryOrderByRelevanceFieldEnum)[keyof typeof CategoryOrderByRelevanceFieldEnum]
@@ -625,7 +656,7 @@ export const PromoBannerOrderByRelevanceFieldEnum = {
   imageUrl: 'imageUrl',
   linkUrl: 'linkUrl',
   ctaLabel: 'ctaLabel',
-  voucherCode: 'voucherCode'
+  voucherId: 'voucherId'
 } as const
 
 export type PromoBannerOrderByRelevanceFieldEnum = (typeof PromoBannerOrderByRelevanceFieldEnum)[keyof typeof PromoBannerOrderByRelevanceFieldEnum]
@@ -677,6 +708,28 @@ export const StoreSettingOrderByRelevanceFieldEnum = {
 } as const
 
 export type StoreSettingOrderByRelevanceFieldEnum = (typeof StoreSettingOrderByRelevanceFieldEnum)[keyof typeof StoreSettingOrderByRelevanceFieldEnum]
+
+
+export const SiteSettingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  singletonKey: 'singletonKey',
+  siteName: 'siteName',
+  storeName: 'storeName',
+  tagline: 'tagline',
+  logoUrl: 'logoUrl',
+  faviconUrl: 'faviconUrl',
+  primaryColor: 'primaryColor',
+  secondaryColor: 'secondaryColor',
+  accentColor: 'accentColor',
+  whatsappNumber: 'whatsappNumber',
+  email: 'email',
+  address: 'address',
+  googleMapsUrl: 'googleMapsUrl',
+  businessHours: 'businessHours',
+  footerDescription: 'footerDescription'
+} as const
+
+export type SiteSettingOrderByRelevanceFieldEnum = (typeof SiteSettingOrderByRelevanceFieldEnum)[keyof typeof SiteSettingOrderByRelevanceFieldEnum]
 
 
 export const AdminActivityLogOrderByRelevanceFieldEnum = {

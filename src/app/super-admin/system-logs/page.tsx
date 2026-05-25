@@ -18,16 +18,16 @@ export default async function SystemLogsPage() {
   return (
     <main>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text-dark">System Logs</h1>
-        <p className="mt-1 text-sm text-text-muted">
+        <h1 className="text-2xl font-bold text-brand-text">System Logs</h1>
+        <p className="mt-1 text-sm text-brand-muted">
           Administrative action logs. Showing the last 100 entries.
         </p>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border-gray bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-lg border border-brand-border bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border-gray bg-soft-bg text-left text-xs text-text-muted">
+            <tr className="border-b border-brand-border bg-brand-bg text-left text-xs text-brand-muted">
               <th className="px-4 py-3 font-medium">Date</th>
               <th className="px-4 py-3 font-medium">Actor</th>
               <th className="px-4 py-3 font-medium">Role</th>
@@ -39,16 +39,16 @@ export default async function SystemLogsPage() {
           <tbody>
             {logs.length > 0 ? (
               logs.map((log) => (
-                <tr key={log.id} className="border-b border-border-gray/50">
-                  <td className="whitespace-nowrap px-4 py-3 text-text-muted">
+                <tr key={log.id} className="border-b border-brand-border/50">
+                  <td className="whitespace-nowrap px-4 py-3 text-brand-muted">
                     {new Date(log.createdAt).toLocaleString("id-ID")}
                   </td>
-                  <td className="px-4 py-3 text-text-dark">{log.actor?.name ?? "-"}</td>
+                  <td className="px-4 py-3 text-brand-text">{log.actor?.name ?? "-"}</td>
                   <td className="px-4 py-3">
-                    <span className="text-xs font-semibold text-primary-maroon">{log.actorRole ?? "-"}</span>
+                    <span className="text-xs font-semibold text-brand-primary">{log.actorRole ?? "-"}</span>
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-text-dark">{log.action}</td>
-                  <td className="px-4 py-3 text-text-muted">
+                  <td className="px-4 py-3 font-mono text-xs text-brand-text">{log.action}</td>
+                  <td className="px-4 py-3 text-brand-muted">
                     {log.targetType}:{log.targetId ?? "-"}
                   </td>
                   <td className="px-4 py-3">
@@ -58,7 +58,7 @@ export default async function SystemLogsPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-text-muted">
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-brand-muted">
                   No system logs found.
                 </td>
               </tr>
@@ -72,14 +72,14 @@ export default async function SystemLogsPage() {
 
 function RiskBadge({ risk }: { risk: string }) {
   const colors: Record<string, string> = {
-    LOW: "bg-soft-teal/15 text-primary-maroon",
+    LOW: "bg-brand-secondary/15 text-brand-primary",
     MEDIUM: "bg-warning/20 text-warning",
     HIGH: "bg-danger/20 text-danger",
-    CRITICAL: "bg-accent-rose/20 text-accent-rose",
+    CRITICAL: "bg-danger/20 text-danger",
   };
   return (
     <span
-      className={`rounded-full px-2 py-0.5 text-xs font-semibold ${colors[risk] || "bg-border-gray text-text-muted"}`}
+      className={`rounded-full px-2 py-0.5 text-xs font-semibold ${colors[risk] || "bg-brand-border text-brand-muted"}`}
     >
       {risk}
     </span>

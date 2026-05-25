@@ -119,7 +119,7 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="title" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="title" className="block text-sm font-semibold text-brand-text">
             Judul Banner <span className="text-danger">*</span>
           </label>
           <input
@@ -127,26 +127,26 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
             name="title"
             defaultValue={values.title}
             required
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.title} />
         </div>
 
         <div>
-          <label htmlFor="subtitle" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="subtitle" className="block text-sm font-semibold text-brand-text">
             Subjudul
           </label>
           <input
             id="subtitle"
             name="subtitle"
             defaultValue={values.subtitle}
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.subtitle} />
         </div>
 
         <div>
-          <label htmlFor="ctaLabel" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="ctaLabel" className="block text-sm font-semibold text-brand-text">
             Teks Tombol
           </label>
           <input
@@ -154,13 +154,13 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
             name="ctaLabel"
             defaultValue={values.ctaLabel}
             placeholder="Contoh: Lihat Produk"
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.ctaLabel} />
         </div>
 
         <div>
-          <label htmlFor="ctaHref" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="ctaHref" className="block text-sm font-semibold text-brand-text">
             Link Tombol
           </label>
           <input
@@ -168,7 +168,7 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
             name="ctaHref"
             defaultValue={values.ctaHref}
             placeholder="/products atau https://example.com"
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.ctaHref} />
         </div>
@@ -186,7 +186,7 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
         </div>
 
         <div>
-          <label htmlFor="sortOrder" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="sortOrder" className="block text-sm font-semibold text-brand-text">
             Urutan Tampilan
           </label>
           <input
@@ -195,13 +195,13 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
             type="number"
             inputMode="numeric"
             defaultValue={values.sortOrder}
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.sortOrder} />
         </div>
 
         <div>
-          <label htmlFor="startsAt" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="startsAt" className="block text-sm font-semibold text-brand-text">
             Tanggal Mulai
           </label>
           <input
@@ -209,13 +209,13 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
             name="startsAt"
             type="date"
             defaultValue={values.startsAt}
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.startsAt} />
         </div>
 
         <div>
-          <label htmlFor="endsAt" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="endsAt" className="block text-sm font-semibold text-brand-text">
             Tanggal Berakhir
           </label>
           <input
@@ -223,17 +223,17 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
             name="endsAt"
             type="date"
             defaultValue={values.endsAt}
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.endsAt} />
         </div>
       </div>
 
-      <div className="rounded-lg border border-border-gray bg-soft-bg p-4">
-        <h3 className="text-sm font-bold text-text-dark">Gambar Banner</h3>
+      <div className="rounded-lg border border-brand-border bg-brand-bg p-4">
+        <h3 className="text-sm font-bold text-brand-text">Gambar Banner</h3>
         <div className="mt-3 grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)]">
           <div
-            className="flex h-32 w-full items-center justify-center overflow-hidden rounded-lg border border-dashed border-border-gray bg-white bg-cover bg-center text-xs text-text-muted"
+            className="flex h-32 w-full items-center justify-center overflow-hidden rounded-lg border border-dashed border-brand-border bg-white bg-cover bg-center text-xs text-brand-muted"
             style={previewUrl && !removeImage ? { backgroundImage: `url(${previewUrl})` } : undefined}
           >
             {!previewUrl || removeImage ? "Banner teks saja diperbolehkan" : null}
@@ -241,7 +241,7 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
 
           <div className="space-y-3">
             <div>
-              <label htmlFor="imageUrl" className="block text-sm font-semibold text-text-dark">
+              <label htmlFor="imageUrl" className="block text-sm font-semibold text-brand-text">
                 Link Gambar
               </label>
               <input
@@ -253,13 +253,13 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
                   setRemoveImage(false);
                 }}
                 placeholder="/uploads/promo-banners/banner.webp"
-                className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+                className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
               />
               <FieldError message={state.fieldErrors.imageUrl} />
             </div>
 
             <div>
-              <label htmlFor="imageFile" className="block text-sm font-semibold text-text-dark">
+              <label htmlFor="imageFile" className="block text-sm font-semibold text-brand-text">
                 Upload Gambar
               </label>
               <input
@@ -274,7 +274,7 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
                   setPreviewUrl(URL.createObjectURL(file));
                   setRemoveImage(false);
                 }}
-                className="mt-1 block w-full text-sm text-text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-primary-maroon file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-white"
+                className="mt-1 block w-full text-sm text-brand-muted file:mr-4 file:rounded-lg file:border-0 file:bg-brand-primary file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-white"
               />
             </div>
 
@@ -298,14 +298,14 @@ export default function HeroBannerFormClient({ mode, banner }: Props) {
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
         <Link
           href="/admin/hero-banners"
-          className="inline-flex justify-center rounded-lg border border-border-gray px-5 py-2.5 text-sm font-semibold text-text-muted"
+          className="inline-flex justify-center rounded-lg border border-brand-border px-5 py-2.5 text-sm font-semibold text-brand-muted"
         >
           Batal
         </Link>
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex justify-center rounded-lg bg-primary-maroon px-5 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex justify-center rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? "Menyimpan..." : mode === "create" ? "Buat Banner" : "Simpan Banner"}
         </button>

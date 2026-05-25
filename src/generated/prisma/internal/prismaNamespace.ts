@@ -403,6 +403,7 @@ export const ModelName = {
   WhatsappInquiryLog: 'WhatsappInquiryLog',
   FeatureFlag: 'FeatureFlag',
   StoreSetting: 'StoreSetting',
+  SiteSetting: 'SiteSetting',
   AdminActivityLog: 'AdminActivityLog'
 } as const
 
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "category" | "brand" | "product" | "productImage" | "flashSale" | "flashSaleProduct" | "voucher" | "productVoucher" | "voucherClaim" | "retailToken" | "promoBanner" | "heroBanner" | "whatsappInquiryLog" | "featureFlag" | "storeSetting" | "adminActivityLog"
+    modelProps: "user" | "session" | "account" | "verification" | "category" | "brand" | "product" | "productImage" | "flashSale" | "flashSaleProduct" | "voucher" | "productVoucher" | "voucherClaim" | "retailToken" | "promoBanner" | "heroBanner" | "whatsappInquiryLog" | "featureFlag" | "storeSetting" | "siteSetting" | "adminActivityLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1677,6 +1678,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SiteSetting: {
+      payload: Prisma.$SiteSettingPayload<ExtArgs>
+      fields: Prisma.SiteSettingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SiteSettingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteSettingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SiteSettingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteSettingPayload>
+        }
+        findFirst: {
+          args: Prisma.SiteSettingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteSettingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SiteSettingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteSettingPayload>
+        }
+        findMany: {
+          args: Prisma.SiteSettingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteSettingPayload>[]
+        }
+        create: {
+          args: Prisma.SiteSettingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteSettingPayload>
+        }
+        createMany: {
+          args: Prisma.SiteSettingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.SiteSettingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteSettingPayload>
+        }
+        update: {
+          args: Prisma.SiteSettingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteSettingPayload>
+        }
+        deleteMany: {
+          args: Prisma.SiteSettingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SiteSettingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.SiteSettingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SiteSettingPayload>
+        }
+        aggregate: {
+          args: Prisma.SiteSettingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSiteSetting>
+        }
+        groupBy: {
+          args: Prisma.SiteSettingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteSettingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SiteSettingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SiteSettingCountAggregateOutputType> | number
+        }
+      }
+    }
     AdminActivityLog: {
       payload: Prisma.$AdminActivityLogPayload<ExtArgs>
       fields: Prisma.AdminActivityLogFieldRefs
@@ -1851,6 +1918,7 @@ export const CategoryScalarFieldEnum = {
   name: 'name',
   slug: 'slug',
   description: 'description',
+  icon: 'icon',
   isActive: 'isActive',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
@@ -1928,6 +1996,8 @@ export const FlashSaleScalarFieldEnum = {
   startsAt: 'startsAt',
   endsAt: 'endsAt',
   isActive: 'isActive',
+  showForPublic: 'showForPublic',
+  showForRetail: 'showForRetail',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1939,7 +2009,8 @@ export const FlashSaleProductScalarFieldEnum = {
   id: 'id',
   flashSaleId: 'flashSaleId',
   productId: 'productId',
-  flashSalePrice: 'flashSalePrice',
+  flashSalePublicPrice: 'flashSalePublicPrice',
+  flashSaleRetailPrice: 'flashSaleRetailPrice',
   flashSaleStock: 'flashSaleStock',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt'
@@ -2027,7 +2098,8 @@ export const PromoBannerScalarFieldEnum = {
   startsAt: 'startsAt',
   endsAt: 'endsAt',
   sortOrder: 'sortOrder',
-  voucherCode: 'voucherCode',
+  linkType: 'linkType',
+  voucherId: 'voucherId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2098,6 +2170,30 @@ export const StoreSettingScalarFieldEnum = {
 } as const
 
 export type StoreSettingScalarFieldEnum = (typeof StoreSettingScalarFieldEnum)[keyof typeof StoreSettingScalarFieldEnum]
+
+
+export const SiteSettingScalarFieldEnum = {
+  id: 'id',
+  singletonKey: 'singletonKey',
+  siteName: 'siteName',
+  storeName: 'storeName',
+  tagline: 'tagline',
+  logoUrl: 'logoUrl',
+  faviconUrl: 'faviconUrl',
+  primaryColor: 'primaryColor',
+  secondaryColor: 'secondaryColor',
+  accentColor: 'accentColor',
+  whatsappNumber: 'whatsappNumber',
+  email: 'email',
+  address: 'address',
+  googleMapsUrl: 'googleMapsUrl',
+  businessHours: 'businessHours',
+  footerDescription: 'footerDescription',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SiteSettingScalarFieldEnum = (typeof SiteSettingScalarFieldEnum)[keyof typeof SiteSettingScalarFieldEnum]
 
 
 export const AdminActivityLogScalarFieldEnum = {
@@ -2194,7 +2290,8 @@ export const CategoryOrderByRelevanceFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
-  description: 'description'
+  description: 'description',
+  icon: 'icon'
 } as const
 
 export type CategoryOrderByRelevanceFieldEnum = (typeof CategoryOrderByRelevanceFieldEnum)[keyof typeof CategoryOrderByRelevanceFieldEnum]
@@ -2318,7 +2415,7 @@ export const PromoBannerOrderByRelevanceFieldEnum = {
   imageUrl: 'imageUrl',
   linkUrl: 'linkUrl',
   ctaLabel: 'ctaLabel',
-  voucherCode: 'voucherCode'
+  voucherId: 'voucherId'
 } as const
 
 export type PromoBannerOrderByRelevanceFieldEnum = (typeof PromoBannerOrderByRelevanceFieldEnum)[keyof typeof PromoBannerOrderByRelevanceFieldEnum]
@@ -2370,6 +2467,28 @@ export const StoreSettingOrderByRelevanceFieldEnum = {
 } as const
 
 export type StoreSettingOrderByRelevanceFieldEnum = (typeof StoreSettingOrderByRelevanceFieldEnum)[keyof typeof StoreSettingOrderByRelevanceFieldEnum]
+
+
+export const SiteSettingOrderByRelevanceFieldEnum = {
+  id: 'id',
+  singletonKey: 'singletonKey',
+  siteName: 'siteName',
+  storeName: 'storeName',
+  tagline: 'tagline',
+  logoUrl: 'logoUrl',
+  faviconUrl: 'faviconUrl',
+  primaryColor: 'primaryColor',
+  secondaryColor: 'secondaryColor',
+  accentColor: 'accentColor',
+  whatsappNumber: 'whatsappNumber',
+  email: 'email',
+  address: 'address',
+  googleMapsUrl: 'googleMapsUrl',
+  businessHours: 'businessHours',
+  footerDescription: 'footerDescription'
+} as const
+
+export type SiteSettingOrderByRelevanceFieldEnum = (typeof SiteSettingOrderByRelevanceFieldEnum)[keyof typeof SiteSettingOrderByRelevanceFieldEnum]
 
 
 export const AdminActivityLogOrderByRelevanceFieldEnum = {
@@ -2521,6 +2640,13 @@ export type EnumRetailTokenStatusFieldRefInput<$PrismaModel> = FieldRefInputType
  * Reference to a field of type 'PromoBannerAudience'
  */
 export type EnumPromoBannerAudienceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PromoBannerAudience'>
+    
+
+
+/**
+ * Reference to a field of type 'PromoBannerLinkType'
+ */
+export type EnumPromoBannerLinkTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PromoBannerLinkType'>
     
 
 
@@ -2680,6 +2806,7 @@ export type GlobalOmitConfig = {
   whatsappInquiryLog?: Prisma.WhatsappInquiryLogOmit
   featureFlag?: Prisma.FeatureFlagOmit
   storeSetting?: Prisma.StoreSettingOmit
+  siteSetting?: Prisma.SiteSettingOmit
   adminActivityLog?: Prisma.AdminActivityLogOmit
 }
 

@@ -11,7 +11,7 @@ export default async function NewFlashSalePage() {
 
   const products = await db.product.findMany({
     where: { status: "ACTIVE" },
-    select: { id: true, name: true, publicPrice: true },
+    select: { id: true, name: true, publicPrice: true, retailPrice: true },
     orderBy: { name: "asc" },
   });
 
@@ -19,6 +19,7 @@ export default async function NewFlashSalePage() {
     id: p.id,
     name: p.name,
     publicPrice: Number(p.publicPrice),
+    retailPrice: p.retailPrice ? Number(p.retailPrice) : null,
   }));
 
   return <FlashSaleFormClient products={serialized} />;

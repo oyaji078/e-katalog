@@ -28,12 +28,15 @@ export default function FigmaFooter() {
     <footer className="mx-auto mt-8 max-w-7xl overflow-hidden px-4">
       <div
         className="grid gap-6 rounded-t-2xl px-5 py-6 text-white sm:px-8 sm:py-7 sm:grid-cols-2 lg:grid-cols-[1.25fr_0.75fr_0.75fr_0.9fr]"
-        style={{ background: "linear-gradient(135deg, #6E1A37, #AE2448)" }}
+        style={{
+          background:
+            "linear-gradient(135deg, var(--brand-primary-dark), var(--brand-primary))",
+        }}
       >
         <div className="sm:col-span-2 lg:col-span-1">
           <Link href="/" className="inline-block">
             <span className="text-xl font-black sm:text-2xl">
-              E-<span style={{ color: "#D5E7B5" }}>Katalog</span>
+              E-<span className="text-brand-accent">Katalog</span>
             </span>
           </Link>
           <p className="mt-2 max-w-sm text-xs leading-6 text-white/70">
@@ -78,7 +81,7 @@ export default function FigmaFooter() {
           })}
         </FooterColumn>
       </div>
-      <div className="flex flex-col items-center justify-between gap-2 rounded-b-2xl bg-[#6E1A37]/90 px-5 py-3 text-[11px] text-white/50 sm:flex-row sm:px-8">
+      <div className="flex flex-col items-center justify-between gap-2 rounded-b-2xl bg-brand-primary-dark px-5 py-3 text-[11px] text-white/50 sm:flex-row sm:px-8">
         <span>(c) 2026 E-Katalog Komputer. All rights reserved.</span>
         <div className="flex gap-4">
           <Link href="/vouchers" className="transition-colors hover:text-white/80">
@@ -102,7 +105,7 @@ function FooterColumn({
 }) {
   return (
     <div>
-      <h2 className="mb-3 text-xs font-black uppercase tracking-wide text-[#D5E7B5]">
+      <h2 className="mb-3 text-xs font-black uppercase tracking-wide text-brand-accent">
         {title}
       </h2>
       <div className="grid gap-2">{children}</div>

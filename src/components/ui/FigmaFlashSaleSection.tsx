@@ -14,6 +14,7 @@ type FigmaFlashProduct = {
   publicPrice: string;
   retailPrice?: string;
   showRetailAsPrimary?: boolean;
+  flashSalePrice?: string;
   badge?: string;
   stockText?: string;
   productId: string;
@@ -30,14 +31,14 @@ function pad(number: number) {
 
 function FlashPlaceholder() {
   return (
-    <div className="flex size-full items-center justify-center bg-gradient-to-br from-primary-maroon/10 via-white to-soft-teal/25">
+    <div className="flex size-full items-center justify-center bg-gradient-to-br from-brand-primary/10 via-white to-brand-secondary/25">
       <div className="flex flex-col items-center gap-2">
-        <svg className="size-10 text-primary-maroon/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg className="size-10 text-brand-primary/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
           <line x1="8" y1="21" x2="16" y2="21"/>
           <line x1="12" y1="17" x2="12" y2="21"/>
         </svg>
-        <span className="rounded-full bg-white/80 px-2 py-1 text-[10px] font-bold text-primary-maroon shadow-sm">
+        <span className="rounded-full bg-white/80 px-2 py-1 text-[10px] font-bold text-brand-primary shadow-sm">
           Produk
         </span>
       </div>
@@ -77,16 +78,19 @@ export default function FigmaFlashSaleSection({ products }: FigmaFlashSaleSectio
   return (
     <section
       className="mt-2 overflow-hidden md:mx-4 md:mt-4 md:rounded-2xl"
-      style={{ background: "linear-gradient(180deg, #FEF2F4 0%, #FFF5F7 40%, #ffffff 100%)" }}
+      style={{
+        background:
+          "linear-gradient(180deg, var(--brand-soft) 0%, var(--brand-accent-soft) 42%, #ffffff 100%)",
+      }}
     >
-      <svg className="block w-full h-2 text-[#FEF2F4]" viewBox="0 0 1200 16" preserveAspectRatio="none" fill="currentColor">
+      <svg className="block w-full h-2 text-brand-soft" viewBox="0 0 1200 16" preserveAspectRatio="none" fill="currentColor">
         <path d="M0,16 C150,0 350,16 600,16 C850,16 1050,0 1200,16 L1200,0 L0,0 Z" />
       </svg>
       <div className="flex items-center justify-between px-4 pb-3 pt-3">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <Zap size={18} fill="#AE2448" stroke="none" />
-            <span className="text-base font-black md:text-lg" style={{ color: "#AE2448" }}>
+            <Zap size={18} fill="var(--brand-accent)" stroke="none" />
+            <span className="text-base font-black text-brand-primary md:text-lg">
               Flash Sale
             </span>
           </div>
@@ -94,8 +98,7 @@ export default function FigmaFlashSaleSection({ products }: FigmaFlashSaleSectio
             {[timeLeft.h, timeLeft.m, timeLeft.s].map((value, index) => (
               <span key={`${value}-${index}`} className="contents">
                 <span
-                  className="rounded px-1.5 py-0.5 font-mono text-xs font-black text-white shadow-sm"
-                  style={{ backgroundColor: "#6E1A37" }}
+                  className="rounded bg-brand-primary px-1.5 py-0.5 font-mono text-xs font-black text-white shadow-sm"
                 >
                   {pad(value)}
                 </span>
@@ -106,8 +109,7 @@ export default function FigmaFlashSaleSection({ products }: FigmaFlashSaleSectio
         </div>
         <Link
           href="/products"
-          className="flex items-center gap-0.5 text-xs font-bold transition-opacity hover:opacity-70"
-          style={{ color: "#AE2448" }}
+          className="flex items-center gap-0.5 text-xs font-bold text-brand-primary transition-opacity hover:opacity-70"
         >
           Lihat Semua <ChevronRight size={13} />
         </Link>
@@ -119,7 +121,7 @@ export default function FigmaFlashSaleSection({ products }: FigmaFlashSaleSectio
             return (
               <div
                 key={`${product.href}-${index}`}
-                className="w-40 flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-shadow duration-200 hover:shadow-lg md:w-48"
+                className="w-40 flex-shrink-0 overflow-hidden rounded-xl border border-brand-border bg-white shadow-sm transition-shadow duration-200 hover:shadow-lg md:w-48"
               >
                 <Link href={product.href} className="block">
                   <div className="relative h-36 w-full overflow-hidden bg-gray-50 md:h-40">
@@ -135,8 +137,7 @@ export default function FigmaFlashSaleSection({ products }: FigmaFlashSaleSectio
                       <FlashPlaceholder />
                     )}
                     <span
-                      className="absolute left-2 top-2 rounded px-1.5 py-0.5 text-[10px] font-black text-white shadow-sm"
-                      style={{ backgroundColor: "#AE2448" }}
+                      className="absolute left-2 top-2 rounded bg-brand-accent px-1.5 py-0.5 text-[10px] font-black text-brand-primary-dark shadow-sm"
                     >
                       {product.badge ?? "PROMO"}
                     </span>
@@ -148,9 +149,20 @@ export default function FigmaFlashSaleSection({ products }: FigmaFlashSaleSectio
                       {product.name}
                     </p>
                   </Link>
-                  {product.showRetailAsPrimary && product.retailPrice ? (
+                  {product.flashSalePrice ? (
                     <>
-                      <p className="text-sm font-black" style={{ color: "#AE2448" }}>
+                      <p className="text-sm font-black text-brand-accent">
+                        {product.flashSalePrice}
+                      </p>
+                      <p className="mt-0.5 text-[10px] text-gray-400 line-through">
+                        {product.showRetailAsPrimary && product.retailPrice
+                          ? product.retailPrice
+                          : product.publicPrice}
+                      </p>
+                    </>
+                  ) : product.showRetailAsPrimary && product.retailPrice ? (
+                    <>
+                      <p className="text-sm font-black text-brand-primary">
                         {product.retailPrice}
                       </p>
                       <p className="mt-0.5 text-[10px] text-gray-400 line-through">
@@ -158,7 +170,7 @@ export default function FigmaFlashSaleSection({ products }: FigmaFlashSaleSectio
                       </p>
                     </>
                   ) : (
-                    <p className="text-sm font-black" style={{ color: "#AE2448" }}>
+                    <p className="text-sm font-black text-brand-primary">
                       {product.publicPrice}
                     </p>
                   )}
@@ -167,7 +179,8 @@ export default function FigmaFlashSaleSection({ products }: FigmaFlashSaleSectio
                       className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${Math.min(90, 42 + index * 8)}%`,
-                        background: "linear-gradient(to right, #D5E7B5, #AE2448)",
+                        background:
+                          "linear-gradient(to right, var(--brand-accent), var(--brand-primary))",
                       }}
                     />
                   </div>
@@ -177,7 +190,7 @@ export default function FigmaFlashSaleSection({ products }: FigmaFlashSaleSectio
                   <div className="mt-2 grid grid-cols-2 gap-1.5">
                     <Link
                       href={product.href}
-                      className="rounded-full border border-primary-maroon/20 bg-white px-2 py-1.5 text-center text-[10px] font-black text-primary-maroon transition hover:bg-primary-maroon hover:text-white"
+                      className="rounded-full border border-brand-primary/20 bg-white px-2 py-1.5 text-center text-[10px] font-black text-brand-primary transition hover:bg-brand-primary hover:text-white"
                     >
                       Detail
                     </Link>
@@ -195,7 +208,7 @@ export default function FigmaFlashSaleSection({ products }: FigmaFlashSaleSectio
         </div>
       ) : (
         <div className="px-4 pb-5">
-          <div className="rounded-xl border border-dashed border-gray-200 bg-white/60 p-6 text-center">
+          <div className="rounded-xl border border-dashed border-brand-border bg-white/60 p-6 text-center">
             <Zap className="mx-auto mb-2 size-8 text-gray-300" />
             <p className="text-sm font-bold text-gray-400">Flash Sale Akan Segera Dimulai</p>
             <p className="mt-1 text-xs text-gray-300">Produk promo akan muncul di sini.</p>

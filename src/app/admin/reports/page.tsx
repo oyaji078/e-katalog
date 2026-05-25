@@ -17,8 +17,8 @@ export default async function ReportsPage() {
   return (
     <main>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text-dark">Reports</h1>
-        <p className="mt-1 text-sm text-text-muted">
+        <h1 className="text-2xl font-bold text-brand-text">Reports</h1>
+        <p className="mt-1 text-sm text-brand-muted">
           Store operational summary and statistics.
         </p>
       </div>
@@ -30,9 +30,9 @@ export default async function ReportsPage() {
         <ReportCard label="Retail Users" value={totalRetailUsers} />
       </div>
 
-      <div className="mt-6 rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-lg font-bold text-text-dark">Report Notes</h2>
-        <p className="text-sm text-text-muted">
+      <div className="mt-6 rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+        <h2 className="mb-3 text-lg font-bold text-brand-text">Report Notes</h2>
+        <p className="text-sm text-brand-muted">
           Detailed reporting and export functionality can be implemented in a future phase.
           Current metrics are sourced from live database counts.
         </p>
@@ -43,9 +43,9 @@ export default async function ReportsPage() {
 
 function ReportCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-border-gray bg-white p-4 shadow-sm">
-      <p className="text-xs font-semibold text-text-muted">{label}</p>
-      <p className="mt-1 text-3xl font-bold text-primary-maroon">{value}</p>
+    <div className="rounded-lg border border-brand-border bg-white p-4 shadow-sm">
+      <p className="text-xs font-semibold text-brand-muted">{label}</p>
+      <p className="mt-1 text-3xl font-bold text-brand-primary">{value}</p>
     </div>
   );
 }

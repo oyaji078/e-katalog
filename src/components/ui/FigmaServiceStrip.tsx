@@ -5,31 +5,31 @@ const items = [
     icon: ShieldCheck,
     label: "Garansi Toko",
     sub: "Produk bergaransi",
-    color: "#72BAA9",
+    color: "var(--brand-secondary)",
   },
   {
     icon: MessageCircle,
     label: "Cek Stok via WhatsApp",
     sub: "Konfirmasi cepat",
-    color: "#AE2448",
+    color: "var(--brand-primary)",
   },
   {
     icon: Store,
     label: "Harga Ritel Aktif",
     sub: "Token retail",
-    color: "#6E1A37",
+    color: "var(--brand-primary-dark)",
   },
   {
     icon: BadgePercent,
     label: "Voucher Katalog",
     sub: "Klaim promo",
-    color: "#72BAA9",
+    color: "var(--brand-accent)",
   },
   {
     icon: Package,
     label: "Konsultasi Produk",
     sub: "Sesuai kebutuhan",
-    color: "#AE2448",
+    color: "var(--brand-hover)",
   },
 ];
 

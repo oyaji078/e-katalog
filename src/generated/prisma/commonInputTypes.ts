@@ -474,6 +474,13 @@ export type EnumPromoBannerAudienceFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel> | $Enums.PromoBannerAudience
 }
 
+export type EnumPromoBannerLinkTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PromoBannerLinkType | Prisma.EnumPromoBannerLinkTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PromoBannerLinkType[]
+  notIn?: $Enums.PromoBannerLinkType[]
+  not?: Prisma.NestedEnumPromoBannerLinkTypeFilter<$PrismaModel> | $Enums.PromoBannerLinkType
+}
+
 export type EnumPromoBannerAudienceWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.PromoBannerAudience | Prisma.EnumPromoBannerAudienceFieldRefInput<$PrismaModel>
   in?: $Enums.PromoBannerAudience[]
@@ -482,6 +489,16 @@ export type EnumPromoBannerAudienceWithAggregatesFilter<$PrismaModel = never> = 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel>
+}
+
+export type EnumPromoBannerLinkTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PromoBannerLinkType | Prisma.EnumPromoBannerLinkTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PromoBannerLinkType[]
+  notIn?: $Enums.PromoBannerLinkType[]
+  not?: Prisma.NestedEnumPromoBannerLinkTypeWithAggregatesFilter<$PrismaModel> | $Enums.PromoBannerLinkType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPromoBannerLinkTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPromoBannerLinkTypeFilter<$PrismaModel>
 }
 
 export type EnumInquiryStatusFilter<$PrismaModel = never> = {
@@ -1002,6 +1019,13 @@ export type NestedEnumPromoBannerAudienceFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel> | $Enums.PromoBannerAudience
 }
 
+export type NestedEnumPromoBannerLinkTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.PromoBannerLinkType | Prisma.EnumPromoBannerLinkTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PromoBannerLinkType[]
+  notIn?: $Enums.PromoBannerLinkType[]
+  not?: Prisma.NestedEnumPromoBannerLinkTypeFilter<$PrismaModel> | $Enums.PromoBannerLinkType
+}
+
 export type NestedEnumPromoBannerAudienceWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.PromoBannerAudience | Prisma.EnumPromoBannerAudienceFieldRefInput<$PrismaModel>
   in?: $Enums.PromoBannerAudience[]
@@ -1010,6 +1034,16 @@ export type NestedEnumPromoBannerAudienceWithAggregatesFilter<$PrismaModel = nev
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel>
   _max?: Prisma.NestedEnumPromoBannerAudienceFilter<$PrismaModel>
+}
+
+export type NestedEnumPromoBannerLinkTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PromoBannerLinkType | Prisma.EnumPromoBannerLinkTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.PromoBannerLinkType[]
+  notIn?: $Enums.PromoBannerLinkType[]
+  not?: Prisma.NestedEnumPromoBannerLinkTypeWithAggregatesFilter<$PrismaModel> | $Enums.PromoBannerLinkType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPromoBannerLinkTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPromoBannerLinkTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumInquiryStatusFilter<$PrismaModel = never> = {

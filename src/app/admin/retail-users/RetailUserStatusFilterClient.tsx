@@ -32,7 +32,7 @@ export default function RetailUserStatusFilterClient({ value, options }: Props) 
       name="status"
       value={value}
       onChange={(event) => handleStatusChange(event.target.value)}
-      className="rounded-xl border border-border-gray bg-white px-3 py-2 text-sm outline-none focus:border-primary-maroon"
+      className="rounded-xl border border-brand-border bg-white px-3 py-2 text-sm outline-none focus:border-brand-primary"
     >
       <option value="">Semua Status</option>
       {options.map((option) => (

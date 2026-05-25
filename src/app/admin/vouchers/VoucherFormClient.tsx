@@ -1,12 +1,8 @@
 "use client";
 
 import { useActionState, useCallback, useMemo, useState } from "react";
-import type {
-  VoucherScope,
-  VoucherStatus,
-} from "@/generated/prisma/client";
+import type { VoucherScope } from "@/generated/prisma/client";
 
-import ToggleSwitch from "@/components/ui/ToggleSwitch";
 import {
   createVoucherAction,
   type VoucherFormState,
@@ -20,12 +16,10 @@ export type VoucherFormValue = {
   description: string;
   showForPublic: boolean;
   showForRetail: boolean;
-  status: VoucherStatus;
   discountValue: string;
   minimumPurchase: string;
   startsAt: string;
   endsAt: string;
-  isActive: boolean;
   usageQuota: string;
   scope: VoucherScope;
   productIds: string[];
@@ -125,15 +119,15 @@ export default function VoucherFormClient({
         {isEdit ? (
           <div>
             <label className="block text-sm font-semibold">Kode Voucher</label>
-            <p className="mt-2 rounded-md border border-border-gray bg-gray-100 px-4 py-3 text-sm text-text-muted">
+            <p className="mt-2 rounded-md border border-brand-border bg-gray-100 px-4 py-3 text-sm text-brand-muted">
               {voucher?.code ?? ""}
             </p>
           </div>
         ) : null}
 
         {/* Target Audience */}
-        <div className="rounded-lg border border-border-gray bg-soft-bg p-4">
-          <p className="mb-2 text-sm font-semibold text-text-dark">Target Tampilan</p>
+        <div className="rounded-lg border border-brand-border bg-brand-bg p-4">
+          <p className="mb-2 text-sm font-semibold text-brand-text">Target Tampilan</p>
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -160,15 +154,6 @@ export default function VoucherFormClient({
           <input type="hidden" name="showForRetail" value={showForRetail ? "1" : "0"} />
         </div>
 
-        <Field
-          label="Status"
-          name="status"
-          defaultValue={voucher?.status ?? "DRAFT"}
-          options={[
-            { value: "DRAFT", label: "Draft" },
-            { value: "ACTIVE", label: "Active" },
-          ]}
-        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -185,7 +170,7 @@ export default function VoucherFormClient({
               setDiscountDisplay(raw);
             }}
             required
-            className="mt-2 w-full rounded-md border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-2 w-full rounded-md border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
         </div>
         <div>
@@ -200,7 +185,7 @@ export default function VoucherFormClient({
               const raw = e.target.value.replace(/\./g, "");
               setMinimumDisplay(raw);
             }}
-            className="mt-2 w-full rounded-md border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-2 w-full rounded-md border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
         </div>
         <Field
@@ -241,7 +226,7 @@ export default function VoucherFormClient({
           name="scope"
           value={scope}
           onChange={(e) => setScope(e.target.value as VoucherScope)}
-          className="mt-2 w-full rounded-md border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+          className="mt-2 w-full rounded-md border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
         >
           {scopeOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -253,8 +238,8 @@ export default function VoucherFormClient({
 
       {/* Conditional selectors */}
       {scope === "PRODUCTS" ? (
-        <fieldset className="rounded-lg border border-border-gray bg-white p-4">
-          <legend className="px-1 text-sm font-bold text-primary-maroon">Pilih Produk</legend>
+        <fieldset className="rounded-lg border border-brand-border bg-white p-4">
+          <legend className="px-1 text-sm font-bold text-brand-primary">Pilih Produk</legend>
           <div className="mt-3 grid max-h-64 gap-2 overflow-auto">
             {products.map((product) => (
               <label key={product.id} className="flex items-center gap-2 text-sm">
@@ -272,8 +257,8 @@ export default function VoucherFormClient({
       ) : null}
 
       {scope === "CATEGORIES" ? (
-        <fieldset className="rounded-lg border border-border-gray bg-white p-4">
-          <legend className="px-1 text-sm font-bold text-primary-maroon">Pilih Kategori</legend>
+        <fieldset className="rounded-lg border border-brand-border bg-white p-4">
+          <legend className="px-1 text-sm font-bold text-brand-primary">Pilih Kategori</legend>
           <div className="mt-3 grid gap-2">
             {categories.map((category) => (
               <label key={category.id} className="flex items-center gap-2 text-sm">
@@ -290,17 +275,10 @@ export default function VoucherFormClient({
         </fieldset>
       ) : null}
 
-      <ToggleSwitch
-        name="isActive"
-        label="Voucher Aktif"
-        description="Nonaktifkan untuk menjeda voucher tanpa menghapusnya"
-        defaultChecked={voucher?.isActive ?? true}
-      />
-
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-md bg-primary-maroon px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
+        className="rounded-md bg-brand-primary px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
       >
         {isPending ? "Menyimpan..." : isEdit ? "Simpan Voucher" : "Buat Voucher"}
       </button>
@@ -336,7 +314,7 @@ function Field({
         <select
           name={name}
           defaultValue={defaultValue}
-          className="mt-2 w-full rounded-md border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+          className="mt-2 w-full rounded-md border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
         >
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -359,8 +337,8 @@ function Field({
         step={step}
         min={min}
         readOnly={readOnly}
-        className={`mt-2 w-full rounded-md border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon ${
-          readOnly ? "bg-gray-100 text-text-muted" : ""
+        className={`mt-2 w-full rounded-md border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary ${
+          readOnly ? "bg-gray-100 text-brand-muted" : ""
         }`}
       />
     </label>
@@ -385,7 +363,7 @@ function TextareaField({
         name={name}
         defaultValue={defaultValue}
         rows={rows}
-        className="mt-2 w-full rounded-md border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+        className="mt-2 w-full rounded-md border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
       />
     </label>
   );

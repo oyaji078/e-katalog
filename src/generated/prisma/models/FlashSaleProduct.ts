@@ -27,13 +27,15 @@ export type AggregateFlashSaleProduct = {
 }
 
 export type FlashSaleProductAvgAggregateOutputType = {
-  flashSalePrice: runtime.Decimal | null
+  flashSalePublicPrice: runtime.Decimal | null
+  flashSaleRetailPrice: runtime.Decimal | null
   flashSaleStock: number | null
   sortOrder: number | null
 }
 
 export type FlashSaleProductSumAggregateOutputType = {
-  flashSalePrice: runtime.Decimal | null
+  flashSalePublicPrice: runtime.Decimal | null
+  flashSaleRetailPrice: runtime.Decimal | null
   flashSaleStock: number | null
   sortOrder: number | null
 }
@@ -42,7 +44,8 @@ export type FlashSaleProductMinAggregateOutputType = {
   id: string | null
   flashSaleId: string | null
   productId: string | null
-  flashSalePrice: runtime.Decimal | null
+  flashSalePublicPrice: runtime.Decimal | null
+  flashSaleRetailPrice: runtime.Decimal | null
   flashSaleStock: number | null
   sortOrder: number | null
   createdAt: Date | null
@@ -52,7 +55,8 @@ export type FlashSaleProductMaxAggregateOutputType = {
   id: string | null
   flashSaleId: string | null
   productId: string | null
-  flashSalePrice: runtime.Decimal | null
+  flashSalePublicPrice: runtime.Decimal | null
+  flashSaleRetailPrice: runtime.Decimal | null
   flashSaleStock: number | null
   sortOrder: number | null
   createdAt: Date | null
@@ -62,7 +66,8 @@ export type FlashSaleProductCountAggregateOutputType = {
   id: number
   flashSaleId: number
   productId: number
-  flashSalePrice: number
+  flashSalePublicPrice: number
+  flashSaleRetailPrice: number
   flashSaleStock: number
   sortOrder: number
   createdAt: number
@@ -71,13 +76,15 @@ export type FlashSaleProductCountAggregateOutputType = {
 
 
 export type FlashSaleProductAvgAggregateInputType = {
-  flashSalePrice?: true
+  flashSalePublicPrice?: true
+  flashSaleRetailPrice?: true
   flashSaleStock?: true
   sortOrder?: true
 }
 
 export type FlashSaleProductSumAggregateInputType = {
-  flashSalePrice?: true
+  flashSalePublicPrice?: true
+  flashSaleRetailPrice?: true
   flashSaleStock?: true
   sortOrder?: true
 }
@@ -86,7 +93,8 @@ export type FlashSaleProductMinAggregateInputType = {
   id?: true
   flashSaleId?: true
   productId?: true
-  flashSalePrice?: true
+  flashSalePublicPrice?: true
+  flashSaleRetailPrice?: true
   flashSaleStock?: true
   sortOrder?: true
   createdAt?: true
@@ -96,7 +104,8 @@ export type FlashSaleProductMaxAggregateInputType = {
   id?: true
   flashSaleId?: true
   productId?: true
-  flashSalePrice?: true
+  flashSalePublicPrice?: true
+  flashSaleRetailPrice?: true
   flashSaleStock?: true
   sortOrder?: true
   createdAt?: true
@@ -106,7 +115,8 @@ export type FlashSaleProductCountAggregateInputType = {
   id?: true
   flashSaleId?: true
   productId?: true
-  flashSalePrice?: true
+  flashSalePublicPrice?: true
+  flashSaleRetailPrice?: true
   flashSaleStock?: true
   sortOrder?: true
   createdAt?: true
@@ -203,7 +213,8 @@ export type FlashSaleProductGroupByOutputType = {
   id: string
   flashSaleId: string
   productId: string
-  flashSalePrice: runtime.Decimal
+  flashSalePublicPrice: runtime.Decimal | null
+  flashSaleRetailPrice: runtime.Decimal | null
   flashSaleStock: number
   sortOrder: number
   createdAt: Date
@@ -236,7 +247,8 @@ export type FlashSaleProductWhereInput = {
   id?: Prisma.StringFilter<"FlashSaleProduct"> | string
   flashSaleId?: Prisma.StringFilter<"FlashSaleProduct"> | string
   productId?: Prisma.StringFilter<"FlashSaleProduct"> | string
-  flashSalePrice?: Prisma.DecimalFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.DecimalNullableFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.DecimalNullableFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFilter<"FlashSaleProduct"> | number
   sortOrder?: Prisma.IntFilter<"FlashSaleProduct"> | number
   createdAt?: Prisma.DateTimeFilter<"FlashSaleProduct"> | Date | string
@@ -248,7 +260,8 @@ export type FlashSaleProductOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   flashSaleId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  flashSalePrice?: Prisma.SortOrder
+  flashSalePublicPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  flashSaleRetailPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   flashSaleStock?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -265,7 +278,8 @@ export type FlashSaleProductWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FlashSaleProductWhereInput | Prisma.FlashSaleProductWhereInput[]
   flashSaleId?: Prisma.StringFilter<"FlashSaleProduct"> | string
   productId?: Prisma.StringFilter<"FlashSaleProduct"> | string
-  flashSalePrice?: Prisma.DecimalFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.DecimalNullableFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.DecimalNullableFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFilter<"FlashSaleProduct"> | number
   sortOrder?: Prisma.IntFilter<"FlashSaleProduct"> | number
   createdAt?: Prisma.DateTimeFilter<"FlashSaleProduct"> | Date | string
@@ -277,7 +291,8 @@ export type FlashSaleProductOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   flashSaleId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  flashSalePrice?: Prisma.SortOrder
+  flashSalePublicPrice?: Prisma.SortOrderInput | Prisma.SortOrder
+  flashSaleRetailPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   flashSaleStock?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -295,7 +310,8 @@ export type FlashSaleProductScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"FlashSaleProduct"> | string
   flashSaleId?: Prisma.StringWithAggregatesFilter<"FlashSaleProduct"> | string
   productId?: Prisma.StringWithAggregatesFilter<"FlashSaleProduct"> | string
-  flashSalePrice?: Prisma.DecimalWithAggregatesFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.DecimalNullableWithAggregatesFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.DecimalNullableWithAggregatesFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntWithAggregatesFilter<"FlashSaleProduct"> | number
   sortOrder?: Prisma.IntWithAggregatesFilter<"FlashSaleProduct"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FlashSaleProduct"> | Date | string
@@ -303,7 +319,8 @@ export type FlashSaleProductScalarWhereWithAggregatesInput = {
 
 export type FlashSaleProductCreateInput = {
   id?: string
-  flashSalePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: number
   sortOrder?: number
   createdAt?: Date | string
@@ -315,7 +332,8 @@ export type FlashSaleProductUncheckedCreateInput = {
   id?: string
   flashSaleId: string
   productId: string
-  flashSalePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: number
   sortOrder?: number
   createdAt?: Date | string
@@ -323,7 +341,8 @@ export type FlashSaleProductUncheckedCreateInput = {
 
 export type FlashSaleProductUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  flashSalePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -335,7 +354,8 @@ export type FlashSaleProductUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   flashSaleId?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  flashSalePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -345,7 +365,8 @@ export type FlashSaleProductCreateManyInput = {
   id?: string
   flashSaleId: string
   productId: string
-  flashSalePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: number
   sortOrder?: number
   createdAt?: Date | string
@@ -353,7 +374,8 @@ export type FlashSaleProductCreateManyInput = {
 
 export type FlashSaleProductUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  flashSalePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -363,7 +385,8 @@ export type FlashSaleProductUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   flashSaleId?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  flashSalePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -394,14 +417,16 @@ export type FlashSaleProductCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   flashSaleId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  flashSalePrice?: Prisma.SortOrder
+  flashSalePublicPrice?: Prisma.SortOrder
+  flashSaleRetailPrice?: Prisma.SortOrder
   flashSaleStock?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type FlashSaleProductAvgOrderByAggregateInput = {
-  flashSalePrice?: Prisma.SortOrder
+  flashSalePublicPrice?: Prisma.SortOrder
+  flashSaleRetailPrice?: Prisma.SortOrder
   flashSaleStock?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
 }
@@ -410,7 +435,8 @@ export type FlashSaleProductMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   flashSaleId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  flashSalePrice?: Prisma.SortOrder
+  flashSalePublicPrice?: Prisma.SortOrder
+  flashSaleRetailPrice?: Prisma.SortOrder
   flashSaleStock?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -420,14 +446,16 @@ export type FlashSaleProductMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   flashSaleId?: Prisma.SortOrder
   productId?: Prisma.SortOrder
-  flashSalePrice?: Prisma.SortOrder
+  flashSalePublicPrice?: Prisma.SortOrder
+  flashSaleRetailPrice?: Prisma.SortOrder
   flashSaleStock?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type FlashSaleProductSumOrderByAggregateInput = {
-  flashSalePrice?: Prisma.SortOrder
+  flashSalePublicPrice?: Prisma.SortOrder
+  flashSaleRetailPrice?: Prisma.SortOrder
   flashSaleStock?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
 }
@@ -518,7 +546,8 @@ export type FlashSaleProductUncheckedUpdateManyWithoutFlashSaleNestedInput = {
 
 export type FlashSaleProductCreateWithoutProductInput = {
   id?: string
-  flashSalePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: number
   sortOrder?: number
   createdAt?: Date | string
@@ -528,7 +557,8 @@ export type FlashSaleProductCreateWithoutProductInput = {
 export type FlashSaleProductUncheckedCreateWithoutProductInput = {
   id?: string
   flashSaleId: string
-  flashSalePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: number
   sortOrder?: number
   createdAt?: Date | string
@@ -567,7 +597,8 @@ export type FlashSaleProductScalarWhereInput = {
   id?: Prisma.StringFilter<"FlashSaleProduct"> | string
   flashSaleId?: Prisma.StringFilter<"FlashSaleProduct"> | string
   productId?: Prisma.StringFilter<"FlashSaleProduct"> | string
-  flashSalePrice?: Prisma.DecimalFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.DecimalNullableFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.DecimalNullableFilter<"FlashSaleProduct"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFilter<"FlashSaleProduct"> | number
   sortOrder?: Prisma.IntFilter<"FlashSaleProduct"> | number
   createdAt?: Prisma.DateTimeFilter<"FlashSaleProduct"> | Date | string
@@ -575,7 +606,8 @@ export type FlashSaleProductScalarWhereInput = {
 
 export type FlashSaleProductCreateWithoutFlashSaleInput = {
   id?: string
-  flashSalePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: number
   sortOrder?: number
   createdAt?: Date | string
@@ -585,7 +617,8 @@ export type FlashSaleProductCreateWithoutFlashSaleInput = {
 export type FlashSaleProductUncheckedCreateWithoutFlashSaleInput = {
   id?: string
   productId: string
-  flashSalePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: number
   sortOrder?: number
   createdAt?: Date | string
@@ -620,7 +653,8 @@ export type FlashSaleProductUpdateManyWithWhereWithoutFlashSaleInput = {
 export type FlashSaleProductCreateManyProductInput = {
   id?: string
   flashSaleId: string
-  flashSalePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: number
   sortOrder?: number
   createdAt?: Date | string
@@ -628,7 +662,8 @@ export type FlashSaleProductCreateManyProductInput = {
 
 export type FlashSaleProductUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  flashSalePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -638,7 +673,8 @@ export type FlashSaleProductUpdateWithoutProductInput = {
 export type FlashSaleProductUncheckedUpdateWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   flashSaleId?: Prisma.StringFieldUpdateOperationsInput | string
-  flashSalePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -647,7 +683,8 @@ export type FlashSaleProductUncheckedUpdateWithoutProductInput = {
 export type FlashSaleProductUncheckedUpdateManyWithoutProductInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   flashSaleId?: Prisma.StringFieldUpdateOperationsInput | string
-  flashSalePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -656,7 +693,8 @@ export type FlashSaleProductUncheckedUpdateManyWithoutProductInput = {
 export type FlashSaleProductCreateManyFlashSaleInput = {
   id?: string
   productId: string
-  flashSalePrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: number
   sortOrder?: number
   createdAt?: Date | string
@@ -664,7 +702,8 @@ export type FlashSaleProductCreateManyFlashSaleInput = {
 
 export type FlashSaleProductUpdateWithoutFlashSaleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  flashSalePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -674,7 +713,8 @@ export type FlashSaleProductUpdateWithoutFlashSaleInput = {
 export type FlashSaleProductUncheckedUpdateWithoutFlashSaleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  flashSalePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -683,7 +723,8 @@ export type FlashSaleProductUncheckedUpdateWithoutFlashSaleInput = {
 export type FlashSaleProductUncheckedUpdateManyWithoutFlashSaleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   productId?: Prisma.StringFieldUpdateOperationsInput | string
-  flashSalePrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  flashSalePublicPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  flashSaleRetailPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   flashSaleStock?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -695,7 +736,8 @@ export type FlashSaleProductSelect<ExtArgs extends runtime.Types.Extensions.Inte
   id?: boolean
   flashSaleId?: boolean
   productId?: boolean
-  flashSalePrice?: boolean
+  flashSalePublicPrice?: boolean
+  flashSaleRetailPrice?: boolean
   flashSaleStock?: boolean
   sortOrder?: boolean
   createdAt?: boolean
@@ -709,13 +751,14 @@ export type FlashSaleProductSelectScalar = {
   id?: boolean
   flashSaleId?: boolean
   productId?: boolean
-  flashSalePrice?: boolean
+  flashSalePublicPrice?: boolean
+  flashSaleRetailPrice?: boolean
   flashSaleStock?: boolean
   sortOrder?: boolean
   createdAt?: boolean
 }
 
-export type FlashSaleProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "flashSaleId" | "productId" | "flashSalePrice" | "flashSaleStock" | "sortOrder" | "createdAt", ExtArgs["result"]["flashSaleProduct"]>
+export type FlashSaleProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "flashSaleId" | "productId" | "flashSalePublicPrice" | "flashSaleRetailPrice" | "flashSaleStock" | "sortOrder" | "createdAt", ExtArgs["result"]["flashSaleProduct"]>
 export type FlashSaleProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   flashSale?: boolean | Prisma.FlashSaleDefaultArgs<ExtArgs>
   product?: boolean | Prisma.ProductDefaultArgs<ExtArgs>
@@ -731,7 +774,8 @@ export type $FlashSaleProductPayload<ExtArgs extends runtime.Types.Extensions.In
     id: string
     flashSaleId: string
     productId: string
-    flashSalePrice: runtime.Decimal
+    flashSalePublicPrice: runtime.Decimal | null
+    flashSaleRetailPrice: runtime.Decimal | null
     flashSaleStock: number
     sortOrder: number
     createdAt: Date
@@ -1109,7 +1153,8 @@ export interface FlashSaleProductFieldRefs {
   readonly id: Prisma.FieldRef<"FlashSaleProduct", 'String'>
   readonly flashSaleId: Prisma.FieldRef<"FlashSaleProduct", 'String'>
   readonly productId: Prisma.FieldRef<"FlashSaleProduct", 'String'>
-  readonly flashSalePrice: Prisma.FieldRef<"FlashSaleProduct", 'Decimal'>
+  readonly flashSalePublicPrice: Prisma.FieldRef<"FlashSaleProduct", 'Decimal'>
+  readonly flashSaleRetailPrice: Prisma.FieldRef<"FlashSaleProduct", 'Decimal'>
   readonly flashSaleStock: Prisma.FieldRef<"FlashSaleProduct", 'Int'>
   readonly sortOrder: Prisma.FieldRef<"FlashSaleProduct", 'Int'>
   readonly createdAt: Prisma.FieldRef<"FlashSaleProduct", 'DateTime'>

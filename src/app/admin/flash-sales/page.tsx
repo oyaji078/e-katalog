@@ -20,21 +20,21 @@ export default async function FlashSalesPage() {
     <main>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-text-dark">Flash Sale</h1>
-          <p className="mt-1 text-sm text-text-muted">Kelola produk flash sale dengan harga dan stok khusus.</p>
+          <h1 className="text-2xl font-bold text-brand-text">Flash Sale</h1>
+          <p className="mt-1 text-sm text-brand-muted">Kelola produk flash sale dengan harga dan stok khusus.</p>
         </div>
         <Link
           href="/admin/flash-sales/new"
-          className="rounded-xl bg-primary-maroon px-5 py-2.5 text-sm font-bold text-white hover:bg-primary-maroon/80"
+          className="rounded-xl bg-brand-primary px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-primary/80"
         >
           + Flash Sale Baru
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border-gray bg-white shadow-sm">
+      <div className="overflow-hidden rounded-lg border border-brand-border bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border-gray bg-soft-bg text-left text-xs text-text-muted">
+            <tr className="border-b border-brand-border bg-brand-bg text-left text-xs text-brand-muted">
               <th className="px-4 py-3 font-medium">Nama</th>
               <th className="px-4 py-3 font-medium">Mulai</th>
               <th className="px-4 py-3 font-medium">Selesai</th>
@@ -51,11 +51,11 @@ export default async function FlashSalesPage() {
               const isEnded = !fs.isActive || fs.endsAt < now;
 
               return (
-                <tr key={fs.id} className="border-b border-border-gray/50">
-                  <td className="px-4 py-3 font-medium text-text-dark">{fs.name}</td>
-                  <td className="px-4 py-3 text-text-muted">{fs.startsAt.toLocaleDateString("id-ID")}</td>
-                  <td className="px-4 py-3 text-text-muted">{fs.endsAt.toLocaleDateString("id-ID")}</td>
-                  <td className="px-4 py-3 text-text-muted">{fs._count.products} produk</td>
+                <tr key={fs.id} className="border-b border-brand-border/50">
+                  <td className="px-4 py-3 font-medium text-brand-text">{fs.name}</td>
+                  <td className="px-4 py-3 text-brand-muted">{fs.startsAt.toLocaleDateString("id-ID")}</td>
+                  <td className="px-4 py-3 text-brand-muted">{fs.endsAt.toLocaleDateString("id-ID")}</td>
+                  <td className="px-4 py-3 text-brand-muted">{fs._count.products} produk</td>
                   <td className="px-4 py-3">
                     {isLive ? (
                       <span className="rounded-full bg-success/15 px-2 py-0.5 text-xs font-semibold text-success">Aktif</span>
@@ -69,11 +69,11 @@ export default async function FlashSalesPage() {
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/admin/flash-sales/${fs.id}/edit`}
-                        className="text-xs font-semibold text-primary-maroon hover:underline"
+                        className="text-xs font-semibold text-brand-primary hover:underline"
                       >
                         Edit
                       </Link>
-                      <FlashSaleActions flashSaleId={fs.id} />
+                      <FlashSaleActions flashSaleId={fs.id} isActive={fs.isActive} />
                     </div>
                   </td>
                 </tr>
@@ -81,7 +81,7 @@ export default async function FlashSalesPage() {
             })}
             {flashSales.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-text-muted">
+                <td colSpan={6} className="px-4 py-8 text-center text-sm text-brand-muted">
                   Belum ada flash sale.
                 </td>
               </tr>

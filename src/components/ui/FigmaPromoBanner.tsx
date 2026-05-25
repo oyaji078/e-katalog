@@ -13,26 +13,26 @@ export default function FigmaPromoBanner({
   claimSlot,
 }: FigmaPromoBannerProps) {
   return (
-    <section className="overflow-hidden rounded-[1.75rem] border border-soft-teal/40 bg-gradient-to-br from-soft-teal/35 via-white to-accent-rose/10 shadow-sm">
+    <section className="overflow-hidden rounded-[1.75rem] border border-brand-secondary/40 bg-gradient-to-br from-brand-secondary/35 via-white to-brand-accent/10 shadow-sm">
       <div className="grid gap-5 p-5 lg:grid-cols-[1fr_auto] lg:items-center">
         <div className="flex min-w-0 items-start gap-4">
-          <span className="flex size-14 shrink-0 items-center justify-center rounded-3xl bg-primary-maroon text-white shadow-sm">
+          <span className="flex size-14 shrink-0 items-center justify-center rounded-3xl bg-brand-primary text-white shadow-sm">
             <BadgePercent className="size-7" />
           </span>
           <div className="min-w-0">
-            <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wide text-accent-rose">
+            <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wide text-brand-accent">
               <Sparkles className="size-4" />
               Promo voucher katalog
             </p>
-            <h2 className="mt-2 text-2xl font-black leading-tight text-primary-maroon">
+            <h2 className="mt-2 text-2xl font-black leading-tight text-brand-primary">
               {hasVoucher ? "Voucher tersedia untuk inquiry WhatsApp" : "Voucher katalog segera tersedia"}
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-brand-muted">
               {hasVoucher
                 ? "Klaim promo katalog sebelum bertanya ke admin. Detail lengkap hanya ditampilkan di halaman voucher."
                 : "Admin dapat menerbitkan voucher publik atau ritel untuk ditambahkan ke pesan WhatsApp."}
             </p>
-            <p className="mt-3 text-xs font-black uppercase tracking-wide text-primary-maroon">
+            <p className="mt-3 text-xs font-black uppercase tracking-wide text-brand-primary">
               {isClaimed ? "Voucher sudah diklaim" : "Promo terbatas, tanpa transaksi otomatis"}
             </p>
           </div>
@@ -42,7 +42,7 @@ export default function FigmaPromoBanner({
           {claimSlot}
           <Link
             href="/vouchers"
-            className="inline-flex items-center justify-center rounded-xl border border-primary-maroon/20 bg-white px-5 py-3 text-sm font-black text-primary-maroon transition hover:border-primary-maroon"
+            className="inline-flex items-center justify-center rounded-xl border border-brand-primary/20 bg-white px-5 py-3 text-sm font-black text-brand-primary transition hover:border-brand-primary"
           >
             Lihat Voucher
           </Link>

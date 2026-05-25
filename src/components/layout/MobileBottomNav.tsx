@@ -31,7 +31,7 @@ export default function MobileBottomNav({ user }: MobileBottomNavProps) {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border-gray bg-white/95 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur lg:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-brand-border bg-white/95 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur lg:hidden">
       <div className="mx-auto grid max-w-md grid-cols-5 px-2 py-2">
         {items.map((item) => {
           const Icon = item.icon;
@@ -48,14 +48,14 @@ export default function MobileBottomNav({ user }: MobileBottomNavProps) {
               href={item.href}
               className={`flex min-w-0 flex-col items-center gap-1 rounded-2xl px-2 py-1.5 text-[11px] font-black transition ${
                 isActive
-                  ? "bg-primary-maroon text-white"
-                  : "text-text-muted hover:bg-soft-bg hover:text-primary-maroon"
+                  ? "bg-brand-primary text-white"
+                  : "text-brand-muted hover:bg-brand-bg hover:text-brand-primary"
               }`}
             >
               <span className="relative">
                 <Icon className="size-5" />
                 {item.badge ? (
-                  <span className="absolute -right-2 -top-1 size-2 rounded-full bg-soft-teal" />
+                  <span className="absolute -right-2 -top-1 size-2 rounded-full bg-brand-secondary" />
                 ) : null}
               </span>
               <span className="max-w-full truncate">{item.label}</span>

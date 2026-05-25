@@ -14,7 +14,7 @@ export default function VoucherActionsClient({ voucherId, isActive }: { voucherI
     <div className="flex items-center gap-2">
       <a
         href={`/admin/vouchers/${voucherId}/edit`}
-        className="rounded-lg bg-soft-bg px-3 py-1.5 text-xs font-semibold text-primary-maroon hover:bg-primary-maroon hover:text-white"
+        className="rounded-lg bg-brand-bg px-3 py-1.5 text-xs font-semibold text-brand-primary hover:bg-brand-primary hover:text-white"
       >
         Edit
       </a>
@@ -46,7 +46,7 @@ export default function VoucherActionsClient({ voucherId, isActive }: { voucherI
       {showDelete ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowDelete(false)}>
           <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-base font-bold text-text-dark">Hapus Promo/Voucher?</h3>
+            <h3 className="text-base font-bold text-brand-text">Hapus Promo/Voucher?</h3>
             {deleteState.error ? (
               <p className="mt-3 rounded-lg bg-danger/5 p-3 text-xs text-danger">{deleteState.error}</p>
             ) : null}
@@ -56,7 +56,7 @@ export default function VoucherActionsClient({ voucherId, isActive }: { voucherI
               <div className="mt-4 flex justify-end gap-2">
                 <button
                   onClick={() => setShowDelete(false)}
-                  className="rounded-xl border border-border-gray px-4 py-2 text-xs font-semibold text-text-muted hover:bg-soft-bg"
+                  className="rounded-xl border border-brand-border px-4 py-2 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
                 >
                   Tidak
                 </button>

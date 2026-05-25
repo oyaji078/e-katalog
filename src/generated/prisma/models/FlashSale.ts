@@ -30,6 +30,8 @@ export type FlashSaleMinAggregateOutputType = {
   startsAt: Date | null
   endsAt: Date | null
   isActive: boolean | null
+  showForPublic: boolean | null
+  showForRetail: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -40,6 +42,8 @@ export type FlashSaleMaxAggregateOutputType = {
   startsAt: Date | null
   endsAt: Date | null
   isActive: boolean | null
+  showForPublic: boolean | null
+  showForRetail: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,6 +54,8 @@ export type FlashSaleCountAggregateOutputType = {
   startsAt: number
   endsAt: number
   isActive: number
+  showForPublic: number
+  showForRetail: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -62,6 +68,8 @@ export type FlashSaleMinAggregateInputType = {
   startsAt?: true
   endsAt?: true
   isActive?: true
+  showForPublic?: true
+  showForRetail?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -72,6 +80,8 @@ export type FlashSaleMaxAggregateInputType = {
   startsAt?: true
   endsAt?: true
   isActive?: true
+  showForPublic?: true
+  showForRetail?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +92,8 @@ export type FlashSaleCountAggregateInputType = {
   startsAt?: true
   endsAt?: true
   isActive?: true
+  showForPublic?: true
+  showForRetail?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -165,6 +177,8 @@ export type FlashSaleGroupByOutputType = {
   startsAt: Date
   endsAt: Date
   isActive: boolean
+  showForPublic: boolean
+  showForRetail: boolean
   createdAt: Date
   updatedAt: Date
   _count: FlashSaleCountAggregateOutputType | null
@@ -196,6 +210,8 @@ export type FlashSaleWhereInput = {
   startsAt?: Prisma.DateTimeFilter<"FlashSale"> | Date | string
   endsAt?: Prisma.DateTimeFilter<"FlashSale"> | Date | string
   isActive?: Prisma.BoolFilter<"FlashSale"> | boolean
+  showForPublic?: Prisma.BoolFilter<"FlashSale"> | boolean
+  showForRetail?: Prisma.BoolFilter<"FlashSale"> | boolean
   createdAt?: Prisma.DateTimeFilter<"FlashSale"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FlashSale"> | Date | string
   products?: Prisma.FlashSaleProductListRelationFilter
@@ -207,6 +223,8 @@ export type FlashSaleOrderByWithRelationInput = {
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  showForPublic?: Prisma.SortOrder
+  showForRetail?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   products?: Prisma.FlashSaleProductOrderByRelationAggregateInput
@@ -222,6 +240,8 @@ export type FlashSaleWhereUniqueInput = Prisma.AtLeast<{
   startsAt?: Prisma.DateTimeFilter<"FlashSale"> | Date | string
   endsAt?: Prisma.DateTimeFilter<"FlashSale"> | Date | string
   isActive?: Prisma.BoolFilter<"FlashSale"> | boolean
+  showForPublic?: Prisma.BoolFilter<"FlashSale"> | boolean
+  showForRetail?: Prisma.BoolFilter<"FlashSale"> | boolean
   createdAt?: Prisma.DateTimeFilter<"FlashSale"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FlashSale"> | Date | string
   products?: Prisma.FlashSaleProductListRelationFilter
@@ -233,6 +253,8 @@ export type FlashSaleOrderByWithAggregationInput = {
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  showForPublic?: Prisma.SortOrder
+  showForRetail?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FlashSaleCountOrderByAggregateInput
@@ -249,6 +271,8 @@ export type FlashSaleScalarWhereWithAggregatesInput = {
   startsAt?: Prisma.DateTimeWithAggregatesFilter<"FlashSale"> | Date | string
   endsAt?: Prisma.DateTimeWithAggregatesFilter<"FlashSale"> | Date | string
   isActive?: Prisma.BoolWithAggregatesFilter<"FlashSale"> | boolean
+  showForPublic?: Prisma.BoolWithAggregatesFilter<"FlashSale"> | boolean
+  showForRetail?: Prisma.BoolWithAggregatesFilter<"FlashSale"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FlashSale"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FlashSale"> | Date | string
 }
@@ -259,6 +283,8 @@ export type FlashSaleCreateInput = {
   startsAt: Date | string
   endsAt: Date | string
   isActive?: boolean
+  showForPublic?: boolean
+  showForRetail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.FlashSaleProductCreateNestedManyWithoutFlashSaleInput
@@ -270,6 +296,8 @@ export type FlashSaleUncheckedCreateInput = {
   startsAt: Date | string
   endsAt: Date | string
   isActive?: boolean
+  showForPublic?: boolean
+  showForRetail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   products?: Prisma.FlashSaleProductUncheckedCreateNestedManyWithoutFlashSaleInput
@@ -281,6 +309,8 @@ export type FlashSaleUpdateInput = {
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.FlashSaleProductUpdateManyWithoutFlashSaleNestedInput
@@ -292,6 +322,8 @@ export type FlashSaleUncheckedUpdateInput = {
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   products?: Prisma.FlashSaleProductUncheckedUpdateManyWithoutFlashSaleNestedInput
@@ -303,6 +335,8 @@ export type FlashSaleCreateManyInput = {
   startsAt: Date | string
   endsAt: Date | string
   isActive?: boolean
+  showForPublic?: boolean
+  showForRetail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -313,6 +347,8 @@ export type FlashSaleUpdateManyMutationInput = {
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -323,6 +359,8 @@ export type FlashSaleUncheckedUpdateManyInput = {
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -339,6 +377,8 @@ export type FlashSaleCountOrderByAggregateInput = {
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  showForPublic?: Prisma.SortOrder
+  showForRetail?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -349,6 +389,8 @@ export type FlashSaleMaxOrderByAggregateInput = {
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  showForPublic?: Prisma.SortOrder
+  showForRetail?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -359,6 +401,8 @@ export type FlashSaleMinOrderByAggregateInput = {
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  showForPublic?: Prisma.SortOrder
+  showForRetail?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -388,6 +432,8 @@ export type FlashSaleCreateWithoutProductsInput = {
   startsAt: Date | string
   endsAt: Date | string
   isActive?: boolean
+  showForPublic?: boolean
+  showForRetail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -398,6 +444,8 @@ export type FlashSaleUncheckedCreateWithoutProductsInput = {
   startsAt: Date | string
   endsAt: Date | string
   isActive?: boolean
+  showForPublic?: boolean
+  showForRetail?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -424,6 +472,8 @@ export type FlashSaleUpdateWithoutProductsInput = {
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -434,6 +484,8 @@ export type FlashSaleUncheckedUpdateWithoutProductsInput = {
   startsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endsAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -475,6 +527,8 @@ export type FlashSaleSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   startsAt?: boolean
   endsAt?: boolean
   isActive?: boolean
+  showForPublic?: boolean
+  showForRetail?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   products?: boolean | Prisma.FlashSale$productsArgs<ExtArgs>
@@ -489,11 +543,13 @@ export type FlashSaleSelectScalar = {
   startsAt?: boolean
   endsAt?: boolean
   isActive?: boolean
+  showForPublic?: boolean
+  showForRetail?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FlashSaleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "startsAt" | "endsAt" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["flashSale"]>
+export type FlashSaleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "startsAt" | "endsAt" | "isActive" | "showForPublic" | "showForRetail" | "createdAt" | "updatedAt", ExtArgs["result"]["flashSale"]>
 export type FlashSaleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   products?: boolean | Prisma.FlashSale$productsArgs<ExtArgs>
   _count?: boolean | Prisma.FlashSaleCountOutputTypeDefaultArgs<ExtArgs>
@@ -510,6 +566,8 @@ export type $FlashSalePayload<ExtArgs extends runtime.Types.Extensions.InternalA
     startsAt: Date
     endsAt: Date
     isActive: boolean
+    showForPublic: boolean
+    showForRetail: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["flashSale"]>
@@ -887,6 +945,8 @@ export interface FlashSaleFieldRefs {
   readonly startsAt: Prisma.FieldRef<"FlashSale", 'DateTime'>
   readonly endsAt: Prisma.FieldRef<"FlashSale", 'DateTime'>
   readonly isActive: Prisma.FieldRef<"FlashSale", 'Boolean'>
+  readonly showForPublic: Prisma.FieldRef<"FlashSale", 'Boolean'>
+  readonly showForRetail: Prisma.FieldRef<"FlashSale", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"FlashSale", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FlashSale", 'DateTime'>
 }

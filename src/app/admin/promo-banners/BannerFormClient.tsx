@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useMemo, useRef, useState } from "react";
 
-import ToggleSwitch from "@/components/ui/ToggleSwitch";
+import type { SerializedBannerVoucher } from "@/lib/banner-voucher";
 import {
   createPromoBannerAction,
   type BannerFormFields,
@@ -24,7 +24,8 @@ export type SerializedPromoBanner = {
   startsAt: string | null;
   endsAt: string | null;
   sortOrder: number;
-  voucherCode: string | null;
+  linkType: "STANDALONE" | "VOUCHER";
+  voucherId: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -32,6 +33,7 @@ export type SerializedPromoBanner = {
 type Props = {
   mode: "create" | "edit";
   banner?: SerializedPromoBanner;
+  vouchers: SerializedBannerVoucher[];
 };
 
 const emptyFields: BannerFormFields = {
@@ -40,13 +42,12 @@ const emptyFields: BannerFormFields = {
   imageUrl: "",
   ctaLabel: "",
   ctaHref: "",
-  status: "ACTIVE",
   startsAt: "",
   endsAt: "",
   sortOrder: "0",
   showForPublic: "1",
   showForRetail: "0",
-  voucherCode: "",
+  voucherId: "",
 };
 
 const initialState: BannerFormState = {
@@ -75,13 +76,12 @@ function getInitialFields(banner?: SerializedPromoBanner): BannerFormFields {
     imageUrl: banner.imageUrl ?? "",
     ctaLabel: banner.ctaLabel ?? "",
     ctaHref: banner.linkUrl ?? "",
-    status: banner.isActive ? "ACTIVE" : "INACTIVE",
     startsAt: toInputDateValue(banner.startsAt),
     endsAt: toInputDateValue(banner.endsAt),
     sortOrder: String(banner.sortOrder),
     showForPublic: banner.showForPublic ? "1" : "0",
     showForRetail: banner.showForRetail ? "1" : "0",
-    voucherCode: banner.voucherCode ?? "",
+    voucherId: banner.linkType === "VOUCHER" ? banner.voucherId ?? "" : "",
   };
 }
 
@@ -90,7 +90,7 @@ function FieldError({ message }: { message?: string }) {
   return <p className="mt-1 text-xs font-semibold text-danger">{message}</p>;
 }
 
-export default function BannerFormClient({ mode, banner }: Props) {
+export default function BannerFormClient({ mode, banner, vouchers }: Props) {
   const submitAction = async (
     _previousState: BannerFormState,
     formData: FormData,
@@ -117,6 +117,9 @@ export default function BannerFormClient({ mode, banner }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [audiencePublic, setAudiencePublic] = useState(values.showForPublic === "1");
   const [audienceRetail, setAudienceRetail] = useState(values.showForRetail === "1");
+  const [voucherId, setVoucherId] = useState(values.voucherId);
+  const linkedVoucher = vouchers.find((voucher) => voucher.id === voucherId) ?? null;
+  const isLinkedToVoucher = Boolean(voucherId);
 
   return (
     <form action={formAction} className="space-y-5">
@@ -130,74 +133,66 @@ export default function BannerFormClient({ mode, banner }: Props) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="title" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="title" className="block text-sm font-semibold text-brand-text">
             Judul Banner <span className="text-danger">*</span>
           </label>
           <input
             id="title"
             name="title"
             defaultValue={values.title}
-            required
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            required={!isLinkedToVoucher}
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.title} />
         </div>
 
         <div>
-          <label htmlFor="subtitle" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="subtitle" className="block text-sm font-semibold text-brand-text">
             Subjudul
           </label>
           <input
             id="subtitle"
             name="subtitle"
             defaultValue={values.subtitle}
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.subtitle} />
         </div>
 
-        <div>
-          <label htmlFor="ctaLabel" className="block text-sm font-semibold text-text-dark">
-            Teks Tombol
-          </label>
-          <input
-            id="ctaLabel"
-            name="ctaLabel"
-            defaultValue={values.ctaLabel}
-            placeholder="Contoh: Lihat Produk"
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
-          />
-          <FieldError message={state.fieldErrors.ctaLabel} />
-        </div>
+        {!isLinkedToVoucher ? (
+          <>
+            <div>
+              <label htmlFor="ctaLabel" className="block text-sm font-semibold text-brand-text">
+                Teks Tombol
+              </label>
+              <input
+                id="ctaLabel"
+                name="ctaLabel"
+                defaultValue={values.ctaLabel}
+                placeholder="Contoh: Lihat Produk"
+                className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
+              />
+              <FieldError message={state.fieldErrors.ctaLabel} />
+            </div>
 
-        <div>
-          <label htmlFor="ctaHref" className="block text-sm font-semibold text-text-dark">
-            Link Tombol
-          </label>
-          <input
-            id="ctaHref"
-            name="ctaHref"
-            defaultValue={values.ctaHref}
-            placeholder="/products atau https://example.com"
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
-          />
-          <FieldError message={state.fieldErrors.ctaHref} />
-        </div>
+            <div>
+              <label htmlFor="ctaHref" className="block text-sm font-semibold text-brand-text">
+                Link Tombol
+              </label>
+              <input
+                id="ctaHref"
+                name="ctaHref"
+                defaultValue={values.ctaHref}
+                placeholder="/products atau https://example.com"
+                className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
+              />
+              <FieldError message={state.fieldErrors.ctaHref} />
+            </div>
+          </>
+        ) : null}
 
-        <div>
-          <ToggleSwitch
-            name="status"
-            label="Status"
-            description="Aktifkan banner ini untuk ditampilkan di halaman utama"
-            defaultChecked={values.status === "ACTIVE"}
-            onValue="ACTIVE"
-            offValue="INACTIVE"
-          />
-          <FieldError message={state.fieldErrors.status} />
-        </div>
-
-        <div className="rounded-lg border border-border-gray bg-soft-bg p-4">
-          <p className="mb-2 text-sm font-semibold text-text-dark">Target Tampilan</p>
+        <div className="rounded-lg border border-brand-border bg-brand-bg p-4">
+          <p className="mb-2 text-sm font-semibold text-brand-text">Target Tampilan</p>
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -226,7 +221,7 @@ export default function BannerFormClient({ mode, banner }: Props) {
         </div>
 
         <div>
-          <label htmlFor="startsAt" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="startsAt" className="block text-sm font-semibold text-brand-text">
             Tanggal Mulai
           </label>
           <input
@@ -234,13 +229,13 @@ export default function BannerFormClient({ mode, banner }: Props) {
             name="startsAt"
             type="date"
             defaultValue={values.startsAt}
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.startsAt} />
         </div>
 
         <div>
-          <label htmlFor="endsAt" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="endsAt" className="block text-sm font-semibold text-brand-text">
             Tanggal Berakhir
           </label>
           <input
@@ -248,13 +243,13 @@ export default function BannerFormClient({ mode, banner }: Props) {
             name="endsAt"
             type="date"
             defaultValue={values.endsAt}
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.endsAt} />
         </div>
 
         <div>
-          <label htmlFor="sortOrder" className="block text-sm font-semibold text-text-dark">
+          <label htmlFor="sortOrder" className="block text-sm font-semibold text-brand-text">
             Urutan Tampilan
           </label>
           <input
@@ -263,39 +258,67 @@ export default function BannerFormClient({ mode, banner }: Props) {
             type="number"
             inputMode="numeric"
             defaultValue={values.sortOrder}
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
           />
           <FieldError message={state.fieldErrors.sortOrder} />
         </div>
       </div>
 
-      {/* Voucher Linking */}
-      <details className="rounded-lg border border-border-gray p-4">
-        <summary className="cursor-pointer text-sm font-semibold text-text-dark">
+      <section className="rounded-lg border border-brand-border p-4">
+        <label htmlFor="voucherId" className="block text-sm font-semibold text-brand-text">
           Hubungkan dengan Voucher
-        </summary>
-        <div className="mt-3">
-          <label htmlFor="voucherCode" className="block text-sm font-semibold text-text-dark">
-            Kode Voucher
-          </label>
-          <input
-            id="voucherCode"
-            name="voucherCode"
-            defaultValue={values.voucherCode}
-            placeholder="Masukkan kode voucher (opsional)"
-            className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
-          />
-          <p className="mt-1 text-xs text-text-muted">
-            Jika diisi, banner akan menggunakan diskon/harga dari voucher yang terhubung.
-          </p>
-        </div>
-      </details>
+        </label>
+        <select
+          id="voucherId"
+          name="voucherId"
+          value={voucherId}
+          onChange={(event) => setVoucherId(event.target.value)}
+          className="mt-2 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
+        >
+          <option value="">Tidak terhubung / Standalone</option>
+          {vouchers.map((voucher) => (
+            <option key={voucher.id} value={voucher.id}>
+              {voucher.code} - {voucher.title}
+            </option>
+          ))}
+        </select>
+        <FieldError message={state.fieldErrors.voucherId} />
 
-      <div className="rounded-lg border border-border-gray bg-soft-bg p-4">
-        <h3 className="text-sm font-bold text-text-dark">Gambar Banner</h3>
+        {linkedVoucher ? (
+          <div className={`mt-3 rounded-lg border p-3 text-sm ${
+            linkedVoucher.isLive
+              ? "border-success/20 bg-success/5 text-brand-text"
+              : "border-warning/30 bg-warning/10 text-brand-text"
+          }`}>
+            <p className="font-bold">{linkedVoucher.code}</p>
+            <div className="mt-2 grid gap-1 text-xs text-brand-muted sm:grid-cols-2">
+              <span>Diskon: {linkedVoucher.discountLabel}</span>
+              <span>Minimal harga: {linkedVoucher.minimumLabel}</span>
+              <span>Audience: {linkedVoucher.audienceLabel}</span>
+              <span>Jadwal: {linkedVoucher.scheduleLabel}</span>
+            </div>
+            {!linkedVoucher.isLive ? (
+              <p className="mt-2 text-xs font-semibold text-warning">
+                Voucher ini tidak aktif/valid. Banner tertaut tidak akan tampil publik sampai voucher aktif kembali.
+              </p>
+            ) : null}
+          </div>
+        ) : isLinkedToVoucher ? (
+          <p className="mt-2 text-xs font-semibold text-warning">
+            Voucher tertaut tidak ditemukan. Banner ini tidak akan tampil publik.
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-brand-muted">
+            Kosongkan untuk banner standalone dengan judul, CTA, audience, dan jadwal manual.
+          </p>
+        )}
+      </section>
+
+      <div className="rounded-lg border border-brand-border bg-brand-bg p-4">
+        <h3 className="text-sm font-bold text-brand-text">Gambar Banner</h3>
         <div className="mt-3 grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)]">
           <div
-            className="flex h-32 w-full items-center justify-center overflow-hidden rounded-lg border border-dashed border-border-gray bg-white bg-cover bg-center text-xs text-text-muted"
+            className="flex h-32 w-full items-center justify-center overflow-hidden rounded-lg border border-dashed border-brand-border bg-white bg-cover bg-center text-xs text-brand-muted"
             style={previewUrl && !removeImage ? { backgroundImage: `url(${previewUrl})` } : undefined}
           >
             {!previewUrl || removeImage ? "Banner teks saja diperbolehkan" : null}
@@ -303,7 +326,7 @@ export default function BannerFormClient({ mode, banner }: Props) {
 
           <div className="space-y-3">
             <div>
-              <label htmlFor="imageUrl" className="block text-sm font-semibold text-text-dark">
+              <label htmlFor="imageUrl" className="block text-sm font-semibold text-brand-text">
                 Link Gambar
               </label>
               <input
@@ -315,13 +338,13 @@ export default function BannerFormClient({ mode, banner }: Props) {
                   setRemoveImage(false);
                 }}
                 placeholder="/uploads/promo-banners/banner.webp"
-                className="mt-1 w-full rounded-lg border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+                className="mt-1 w-full rounded-lg border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
               />
               <FieldError message={state.fieldErrors.imageUrl} />
             </div>
 
             <div>
-              <label htmlFor="imageFile" className="block text-sm font-semibold text-text-dark">
+              <label htmlFor="imageFile" className="block text-sm font-semibold text-brand-text">
                 Upload Gambar
               </label>
               <input
@@ -336,7 +359,7 @@ export default function BannerFormClient({ mode, banner }: Props) {
                   setPreviewUrl(URL.createObjectURL(file));
                   setRemoveImage(false);
                 }}
-                className="mt-1 block w-full text-sm text-text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-primary-maroon file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-white"
+                className="mt-1 block w-full text-sm text-brand-muted file:mr-4 file:rounded-lg file:border-0 file:bg-brand-primary file:px-4 file:py-2.5 file:text-sm file:font-bold file:text-white"
               />
             </div>
 
@@ -360,14 +383,14 @@ export default function BannerFormClient({ mode, banner }: Props) {
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
         <Link
           href="/admin/promo-banners"
-          className="inline-flex justify-center rounded-lg border border-border-gray px-5 py-2.5 text-sm font-semibold text-text-muted"
+          className="inline-flex justify-center rounded-lg border border-brand-border px-5 py-2.5 text-sm font-semibold text-brand-muted"
         >
           Batal
         </Link>
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex justify-center rounded-lg bg-primary-maroon px-5 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex justify-center rounded-lg bg-brand-primary px-5 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? "Menyimpan..." : mode === "create" ? "Buat Banner" : "Simpan Banner"}
         </button>

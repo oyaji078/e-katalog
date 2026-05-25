@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import FigmaFooter from "@/components/layout/FigmaFooter";
 import ProductGrid from "@/components/ui/ProductGrid";
 import FigmaSiteHeader from "@/components/layout/FigmaSiteHeader";
-import { productCardSelect } from "@/lib/catalog";
+import { canSeeRetailPrice, productCardSelect } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { buildActiveFlashSaleMap, getFlashSaleDisplayForViewer } from "@/lib/flash-sale";
 import { toProductCardProps } from "@/lib/product-card-mapper";
 import { getCurrentUser } from "@/lib/session";
 
@@ -31,7 +32,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   });
   if (!category || !category.isActive) notFound();
 
-  const [products, vouchers] = await Promise.all([
+  const [products, vouchers, activeFlashSaleProducts] = await Promise.all([
     db.product.findMany({
       where: {
         categoryId: category.id,
@@ -53,32 +54,52 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       },
       orderBy: { createdAt: "desc" },
     }),
+    db.flashSaleProduct.findMany({
+      where: {
+        flashSale: {
+          isActive: true,
+          startsAt: { lte: new Date() },
+          endsAt: { gte: new Date() },
+        },
+      },
+      include: {
+        flashSale: { select: { showForPublic: true, showForRetail: true } },
+      },
+    }),
   ]);
 
-  const productCards = products.map((product) =>
-    toProductCardProps(product, {
+  const showRetailPrice = canSeeRetailPrice(user, retailPriceEnabled);
+  const flashSaleMap = buildActiveFlashSaleMap(activeFlashSaleProducts);
+  const productCards = products.map((product) => {
+    const activeFlashSale = flashSaleMap.get(product.id);
+    const flashSaleDisplay = getFlashSaleDisplayForViewer(activeFlashSale, showRetailPrice);
+
+    return toProductCardProps(product, {
       user,
       retailPriceEnabled,
       publicVoucherEnabled,
       retailVoucherEnabled,
       vouchers,
-    }),
-  );
+      hasActiveFlashSale: Boolean(activeFlashSale),
+      flashSalePrice: flashSaleDisplay?.price,
+      flashSaleStock: flashSaleDisplay?.stock,
+    });
+  });
 
   return (
-    <main className="min-h-screen bg-soft-bg text-text-dark">
+    <main className="min-h-screen bg-brand-bg text-brand-text">
       <FigmaSiteHeader />
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-        <div className="mb-6 rounded-lg border border-border-gray bg-white p-5 shadow-sm">
+        <div className="mb-6 rounded-lg border border-brand-border bg-white p-5 shadow-sm">
           <h1 className="text-2xl font-bold">{category.name}</h1>
           {category.description ? (
-            <p className="mt-2 text-sm leading-6 text-text-muted">{category.description}</p>
+            <p className="mt-2 text-sm leading-6 text-brand-muted">{category.description}</p>
           ) : null}
         </div>
         {productCards.length > 0 ? (
           <ProductGrid products={productCards} columns={4} />
         ) : (
-          <div className="rounded-lg border border-border-gray bg-white p-8 text-center text-sm text-text-muted">
+          <div className="rounded-lg border border-brand-border bg-white p-8 text-center text-sm text-brand-muted">
             Produk aktif untuk kategori ini belum tersedia.
           </div>
         )}

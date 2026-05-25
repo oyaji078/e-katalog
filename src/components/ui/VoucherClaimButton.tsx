@@ -22,8 +22,8 @@ export default function VoucherClaimButton({
   isClaimed,
   canClaim,
   disabledReason,
-  className = "inline-flex items-center justify-center gap-2 rounded-xl bg-primary-maroon px-4 py-2 text-xs font-black text-white transition hover:bg-accent-rose disabled:cursor-not-allowed disabled:opacity-60",
-  claimedClassName = "inline-flex items-center justify-center gap-2 rounded-xl bg-soft-teal/15 px-4 py-2 text-xs font-black text-primary-maroon",
+  className = "inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-2 text-xs font-black text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60",
+  claimedClassName = "inline-flex items-center justify-center gap-2 rounded-xl bg-brand-secondary/15 px-4 py-2 text-xs font-black text-brand-primary",
   label = "Klaim Voucher",
 }: VoucherClaimButtonProps) {
   const router = useRouter();
@@ -34,7 +34,7 @@ export default function VoucherClaimButton({
   if (claimed) {
     return (
       <span className={claimedClassName}>
-        <CheckCircle className="size-4 text-soft-teal" />
+        <CheckCircle className="size-4 text-brand-secondary" />
         Sudah Diklaim
       </span>
     );

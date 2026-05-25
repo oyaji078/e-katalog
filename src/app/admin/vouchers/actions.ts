@@ -1,11 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
-import type {
-  VoucherScope,
-  VoucherStatus,
-} from "@/generated/prisma/client";
+import type { VoucherScope } from "@/generated/prisma/client";
 import { getAdminSession, toUserRole } from "@/lib/admin-auth";
 import { logAdminActivity } from "@/lib/activity-log";
 import { getDb } from "@/lib/db";
@@ -55,11 +53,6 @@ function parseScope(value: FormDataEntryValue | null): VoucherScope {
   return "ALL";
 }
 
-function parseStatus(value: FormDataEntryValue | null): VoucherStatus {
-  if (value === "ACTIVE" || value === "EXPIRED" || value === "DISABLED") return value;
-  return "DRAFT";
-}
-
 function parseDate(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? null : date;
@@ -77,12 +70,10 @@ function voucherData(formData: FormData) {
     description: text(formData, "description") || null,
     showForPublic: isChecked(formData.get("showForPublic")),
     showForRetail: isChecked(formData.get("showForRetail")),
-    status: parseStatus(formData.get("status")),
     discountValue: parseMoney(formData.get("discountValue")),
     minimumPurchase: nullableMoney(formData, "minimumPurchase"),
     startsAt: parseDate(text(formData, "startsAt")),
     endsAt: parseDate(text(formData, "endsAt")),
-    isActive: formData.get("isActive") === "on",
     usageQuota: parseInteger(formData.get("usageQuota")),
     scope,
     productIds: scope === "PRODUCTS" ? selectedIds(formData, "productIds") : [],
@@ -153,13 +144,13 @@ export async function createVoucherAction(
       description: data.description,
       showForPublic: data.showForPublic,
       showForRetail: data.showForRetail,
-      status: data.status,
+      status: "DRAFT",
       discountType: "FIXED_AMOUNT",
       discountValue: data.discountValue,
       minimumPurchase: data.minimumPurchase,
       startsAt: data.startsAt!,
       endsAt: data.endsAt!,
-      isActive: data.isActive,
+      isActive: false,
       usageQuota: data.usageQuota,
       scope: data.scope,
       categories: {
@@ -189,7 +180,7 @@ export async function createVoucherAction(
   });
 
   revalidateVoucherPaths(voucher.id);
-  return ok("Voucher berhasil dibuat.", voucher.id);
+  redirect("/admin/promo-vouchers");
 }
 
 export async function updateVoucherAction(
@@ -220,13 +211,11 @@ export async function updateVoucherAction(
       description: data.description,
       showForPublic: data.showForPublic,
       showForRetail: data.showForRetail,
-      status: data.status,
       discountType: "FIXED_AMOUNT",
       discountValue: data.discountValue,
       minimumPurchase: data.minimumPurchase,
       startsAt: data.startsAt!,
       endsAt: data.endsAt!,
-      isActive: data.isActive,
       usageQuota: data.usageQuota,
       scope: data.scope,
       categories: {
@@ -258,7 +247,7 @@ export async function updateVoucherAction(
   });
 
   revalidateVoucherPaths(voucher.id);
-  return ok("Voucher updated.", voucher.id);
+  redirect("/admin/promo-vouchers");
 }
 
 export async function toggleVoucherAction(

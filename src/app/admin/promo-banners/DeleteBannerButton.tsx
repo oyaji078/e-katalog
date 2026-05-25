@@ -46,9 +46,9 @@ export default function DeleteBannerButton({ id }: { id: string }) {
       </button>
 
       {isConfirming ? (
-        <div className="absolute right-0 z-20 mt-2 w-72 rounded-lg border border-border-gray bg-white p-4 text-left shadow-xl">
-          <h3 className="text-sm font-bold text-text-dark">Hapus Banner Promo?</h3>
-          <p className="mt-2 text-xs leading-5 text-text-muted">
+        <div className="absolute right-0 z-20 mt-2 w-72 rounded-lg border border-brand-border bg-white p-4 text-left shadow-xl">
+          <h3 className="text-sm font-bold text-brand-text">Hapus Banner Promo?</h3>
+          <p className="mt-2 text-xs leading-5 text-brand-muted">
             Banner promo akan dihapus dan tidak tampil lagi di halaman public.
           </p>
 
@@ -62,7 +62,7 @@ export default function DeleteBannerButton({ id }: { id: string }) {
                 setError("");
               }}
               disabled={isLoading}
-              className="rounded-lg border border-border-gray px-3 py-1.5 text-xs font-semibold text-text-muted disabled:opacity-60"
+              className="rounded-lg border border-brand-border px-3 py-1.5 text-xs font-semibold text-brand-muted disabled:opacity-60"
             >
               Batal
             </button>

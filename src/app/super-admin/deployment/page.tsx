@@ -8,15 +8,15 @@ export default async function DeploymentPage() {
   return (
     <main>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text-dark">Deployment Center</h1>
-        <p className="mt-1 text-sm text-text-muted">
+        <h1 className="text-2xl font-bold text-brand-text">Deployment Center</h1>
+        <p className="mt-1 text-sm text-brand-muted">
           Deployment information and checklist for the e-catalog system.
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-text-dark">Deployment Info</h2>
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-brand-text">Deployment Info</h2>
           <dl className="grid gap-3 text-sm">
             <DeploymentField label="Provider" value="Hostinger Managed Node.js" />
             <DeploymentField label="Source" value="GitHub" />
@@ -26,8 +26,8 @@ export default async function DeploymentPage() {
           </dl>
         </div>
 
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-text-dark">Deployment Checklist</h2>
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-brand-text">Deployment Checklist</h2>
           <ul className="grid gap-3 text-sm">
             <ChecklistItem label="Database migration applied" done={false} />
             <ChecklistItem label="Prisma client generated" done={true} />
@@ -47,8 +47,8 @@ export default async function DeploymentPage() {
 function DeploymentField({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid grid-cols-[160px_1fr] gap-3">
-      <dt className="font-semibold text-text-dark">{label}</dt>
-      <dd className="text-text-muted">{value}</dd>
+      <dt className="font-semibold text-brand-text">{label}</dt>
+      <dd className="text-brand-muted">{value}</dd>
     </div>
   );
 }
@@ -58,12 +58,12 @@ function ChecklistItem({ label, done }: { label: string; done: boolean }) {
     <li className="flex items-center gap-3">
       <span
         className={`flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${
-          done ? "bg-success" : "bg-border-gray"
+          done ? "bg-success" : "bg-brand-border"
         }`}
       >
         {done ? "✓" : "○"}
       </span>
-      <span className={done ? "text-text-dark" : "text-text-muted"}>{label}</span>
+      <span className={done ? "text-brand-text" : "text-brand-muted"}>{label}</span>
     </li>
   );
 }

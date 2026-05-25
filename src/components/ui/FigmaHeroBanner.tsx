@@ -21,12 +21,12 @@ export default function FigmaHeroBanner({
   voucherCount,
 }: FigmaHeroBannerProps) {
   return (
-    <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary-maroon via-accent-rose to-primary-maroon text-white shadow-xl">
-      <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-[radial-gradient(circle_at_70%_35%,rgba(114,186,169,0.45),transparent_32%),radial-gradient(circle_at_45%_70%,rgba(255,255,255,0.18),transparent_28%)] lg:block" />
+    <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-brand-primary-dark via-brand-primary to-brand-secondary text-white shadow-xl">
+      <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-[radial-gradient(circle_at_70%_35%,rgba(200,169,30,0.24),transparent_32%),radial-gradient(circle_at_45%_70%,rgba(255,255,255,0.18),transparent_28%)] lg:block" />
       <div className="relative grid min-h-[360px] gap-8 p-6 md:p-8 lg:grid-cols-[1.05fr_0.95fr] lg:p-10">
         <div className="flex flex-col justify-center">
           <div className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-wide text-white ring-1 ring-white/20">
-            <Sparkles className="size-4 text-soft-teal" />
+            <Sparkles className="size-4 text-brand-secondary" />
             Marketplace katalog elektronik
           </div>
           <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight tracking-normal sm:text-5xl">
@@ -39,7 +39,7 @@ export default function FigmaHeroBanner({
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href="/products"
-              className="rounded-2xl bg-white px-5 py-3 text-sm font-black text-primary-maroon shadow-sm transition hover:bg-soft-teal"
+              className="rounded-2xl bg-white px-5 py-3 text-sm font-black text-brand-primary shadow-sm transition hover:bg-brand-soft"
             >
               Lihat Produk
             </Link>
@@ -62,20 +62,20 @@ export default function FigmaHeroBanner({
 
         <div className="relative min-h-[310px]">
           <div className="absolute inset-0 rounded-[2rem] border border-white/20 bg-white/10 backdrop-blur-sm" />
-          <div className="absolute left-6 top-6 w-56 rounded-3xl bg-white p-4 text-primary-maroon shadow-2xl sm:w-64">
+          <div className="absolute left-6 top-6 w-56 rounded-3xl bg-white p-4 text-brand-primary shadow-2xl sm:w-64">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-wide text-text-muted">
+                <p className="text-[11px] font-black uppercase tracking-wide text-brand-muted">
                   Laptop & PC
                 </p>
                 <p className="mt-1 text-2xl font-black">Siap Inquiry</p>
               </div>
-              <Laptop className="size-10 text-soft-teal" />
+              <Laptop className="size-10 text-brand-secondary" />
             </div>
-            <div className="mt-4 h-24 rounded-2xl bg-gradient-to-br from-primary-maroon/10 to-soft-teal/30" />
+            <div className="mt-4 h-24 rounded-2xl bg-gradient-to-br from-brand-primary/10 to-brand-secondary/30" />
           </div>
 
-          <div className="absolute bottom-7 right-4 w-56 rounded-3xl bg-white p-4 text-primary-maroon shadow-2xl sm:right-8 sm:w-64">
+          <div className="absolute bottom-7 right-4 w-56 rounded-3xl bg-white p-4 text-brand-primary shadow-2xl sm:right-8 sm:w-64">
             <div className="grid grid-cols-3 gap-2 text-center">
               <StatTile icon={Monitor} label="Produk" value={`${productCount}+`} />
               <StatTile icon={BadgePercent} label="Voucher" value={`${voucherCount}`} />
@@ -83,7 +83,7 @@ export default function FigmaHeroBanner({
             </div>
           </div>
 
-          <div className="absolute right-7 top-14 hidden size-24 rotate-6 items-center justify-center rounded-[1.75rem] bg-soft-teal text-primary-maroon shadow-2xl sm:flex">
+          <div className="absolute right-7 top-14 hidden size-24 rotate-6 items-center justify-center rounded-[1.75rem] bg-brand-secondary text-brand-primary shadow-2xl sm:flex">
             <Cpu className="size-12" />
           </div>
         </div>
@@ -102,10 +102,10 @@ function StatTile({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl bg-soft-bg p-2">
-      <Icon className="mx-auto size-5 text-accent-rose" />
+    <div className="rounded-2xl bg-brand-bg p-2">
+      <Icon className="mx-auto size-5 text-brand-accent" />
       <p className="mt-1 text-sm font-black">{value}</p>
-      <p className="text-[10px] font-bold text-text-muted">{label}</p>
+      <p className="text-[10px] font-bold text-brand-muted">{label}</p>
     </div>
   );
 }

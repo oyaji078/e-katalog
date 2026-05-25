@@ -11,10 +11,10 @@ export default async function AdminBrandsPage() {
 
   if (!session) {
     return (
-      <main className="min-h-screen bg-soft-bg px-4 py-10 text-text-dark">
-        <section className="mx-auto max-w-md rounded-2xl border border-border-gray bg-white p-6 shadow-sm">
+      <main className="min-h-screen bg-brand-bg px-4 py-10 text-brand-text">
+        <section className="mx-auto max-w-md rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
           <p className="text-center text-danger">Unauthorized access</p>
-          <Link href="/" className="mt-4 block text-center text-primary-maroon">
+          <Link href="/" className="mt-4 block text-center text-brand-primary">
             Go to Homepage
           </Link>
         </section>
@@ -27,11 +27,11 @@ export default async function AdminBrandsPage() {
   });
 
   return (
-    <main className="min-h-screen bg-soft-bg px-4 py-10 text-text-dark">
+    <main className="min-h-screen bg-brand-bg px-4 py-10 text-brand-text">
       <div className="mx-auto max-w-6xl">
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Brands</h1>
-          <p className="mt-2 text-sm text-text-muted">
+          <p className="mt-2 text-sm text-brand-muted">
             Manage brands shown across product cards, filters, and detail pages.
           </p>
         </div>

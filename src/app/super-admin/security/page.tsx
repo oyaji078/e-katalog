@@ -13,15 +13,15 @@ export default async function SecurityPage() {
   return (
     <main>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text-dark">Security Settings</h1>
-        <p className="mt-1 text-sm text-text-muted">
+        <h1 className="text-2xl font-bold text-brand-text">Security Settings</h1>
+        <p className="mt-1 text-sm text-brand-muted">
           Security overview and checklist. All secrets are managed server-side only.
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-text-dark">Access Control Summary</h2>
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-brand-text">Access Control Summary</h2>
           <dl className="grid gap-3 text-sm">
             <SecurityField label="Admin Users" value={String(adminCount)} />
             <SecurityField label="Super Admin Users" value={String(superAdminCount)} />
@@ -31,8 +31,8 @@ export default async function SecurityPage() {
           </dl>
         </div>
 
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-text-dark">Security Checklist</h2>
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-brand-text">Security Checklist</h2>
           <ul className="grid gap-3 text-sm">
             <ChecklistItem label="Admin routes protected server-side" done={true} />
             <ChecklistItem label="Super Admin routes require session check" done={true} />
@@ -46,9 +46,9 @@ export default async function SecurityPage() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-lg font-bold text-text-dark">Security Notes</h2>
-        <ul className="grid gap-2 text-sm text-text-muted">
+      <div className="mt-6 rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+        <h2 className="mb-3 text-lg font-bold text-brand-text">Security Notes</h2>
+        <ul className="grid gap-2 text-sm text-brand-muted">
           <li>• All database secrets (DATABASE_URL, AUTH_SECRET) are server-side environment variables only.</li>
           <li>• API routes resolve user roles server-side; client role claims are never trusted.</li>
           <li>• Admin/Super Admin sidebar hides unauthorized links, but route access is also enforced server-side.</li>
@@ -63,8 +63,8 @@ export default async function SecurityPage() {
 function SecurityField({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid grid-cols-[180px_1fr] gap-3">
-      <dt className="font-semibold text-text-dark">{label}</dt>
-      <dd className="text-text-muted">{value}</dd>
+      <dt className="font-semibold text-brand-text">{label}</dt>
+      <dd className="text-brand-muted">{value}</dd>
     </div>
   );
 }
@@ -74,12 +74,12 @@ function ChecklistItem({ label, done }: { label: string; done: boolean }) {
     <li className="flex items-center gap-3">
       <span
         className={`flex size-5 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${
-          done ? "bg-success" : "bg-border-gray"
+          done ? "bg-success" : "bg-brand-border"
         }`}
       >
         {done ? "✓" : "○"}
       </span>
-      <span className={done ? "text-text-dark" : "text-text-muted"}>{label}</span>
+      <span className={done ? "text-brand-text" : "text-brand-muted"}>{label}</span>
     </li>
   );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { requireAdminSession } from "@/lib/admin-auth";
+import { serializeBannerVoucher } from "@/lib/banner-voucher";
 import { getDb } from "@/lib/db";
 import BannerFormClient from "../../BannerFormClient";
 
@@ -12,7 +13,12 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
   await requireAdminSession(`/admin/promo-banners/${id}/edit`);
 
   const db = getDb();
-  const banner = await db.promoBanner.findUnique({ where: { id } });
+  const [banner, vouchers] = await Promise.all([
+    db.promoBanner.findUnique({ where: { id } }),
+    db.voucher.findMany({
+      orderBy: [{ endsAt: "asc" }, { createdAt: "desc" }],
+    }),
+  ]);
   if (!banner) {
     notFound();
   }
@@ -30,22 +36,23 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
     startsAt: banner.startsAt?.toISOString() ?? null,
     endsAt: banner.endsAt?.toISOString() ?? null,
     sortOrder: banner.sortOrder,
-    voucherCode: banner.voucherCode,
+    linkType: banner.linkType,
+    voucherId: banner.voucherId,
     createdAt: banner.createdAt.toISOString(),
     updatedAt: banner.updatedAt.toISOString(),
   };
 
   return (
-    <main className="min-h-screen bg-soft-bg text-text-dark">
-      <section className="mx-auto max-w-3xl rounded-lg border border-border-gray bg-white p-6 shadow-sm">
-        <div className="mb-6 flex items-center justify-between border-b border-border-gray pb-5">
+    <main className="min-h-screen bg-brand-bg text-brand-text">
+      <section className="mx-auto max-w-3xl rounded-lg border border-brand-border bg-white p-6 shadow-sm">
+        <div className="mb-6 flex items-center justify-between border-b border-brand-border pb-5">
           <div>
             <h1 className="text-2xl font-bold">Edit Banner Promo</h1>
-            <p className="mt-1 text-sm text-text-muted">Perbarui banner promo.</p>
+            <p className="mt-1 text-sm text-brand-muted">Perbarui banner promo.</p>
           </div>
-          <Link href="/admin/promo-banners" className="rounded-lg border border-primary-maroon px-4 py-2 text-sm font-semibold text-primary-maroon">Kembali</Link>
+          <Link href="/admin/promo-banners" className="rounded-lg border border-brand-primary px-4 py-2 text-sm font-semibold text-brand-primary">Kembali</Link>
         </div>
-        <BannerFormClient mode="edit" banner={serialized} />
+        <BannerFormClient mode="edit" banner={serialized} vouchers={vouchers.map(serializeBannerVoucher)} />
       </section>
     </main>
   );

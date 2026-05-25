@@ -5,9 +5,9 @@ import TrackedProductLink from "@/components/ui/TrackedProductLink";
 import WhatsAppInquiryButton from "@/components/ui/WhatsAppInquiryButton";
 
 function badgeColor(badge: string) {
-  if (badge === "FLASH SALE" || badge === "PROMO") return "#AE2448";
-  if (badge === "BARU") return "#72BAA9";
-  return "#AE2448";
+  if (badge === "FLASH SALE" || badge === "PROMO") return "var(--brand-accent)";
+  if (badge === "BARU") return "var(--brand-secondary)";
+  return "var(--brand-primary)";
 }
 
 export default function FigmaProductCard({
@@ -50,14 +50,14 @@ export default function FigmaProductCard({
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
             ) : (
-              <div className="flex size-full items-center justify-center bg-gradient-to-br from-primary-maroon/10 via-white to-soft-teal/25 p-4">
+              <div className="flex size-full items-center justify-center bg-gradient-to-br from-brand-primary/10 via-white to-brand-secondary/25 p-4">
                 <div className="flex flex-col items-center gap-2">
-                  <svg className="size-12 text-primary-maroon/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="size-12 text-brand-primary/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
                     <line x1="8" y1="21" x2="16" y2="21"/>
                     <line x1="12" y1="17" x2="12" y2="21"/>
                   </svg>
-                  <span className="rounded-xl bg-white/90 px-3 py-1.5 text-[11px] font-black text-primary-maroon shadow-sm">
+                  <span className="rounded-xl bg-white/90 px-3 py-1.5 text-[11px] font-black text-brand-primary shadow-sm">
                     {categoryName ?? "Produk"}
                   </span>
                 </div>
@@ -80,13 +80,13 @@ export default function FigmaProductCard({
 
         {showRetailAsPrimary && retailPrice ? (
           <>
-            <p className="text-sm font-black md:text-base" style={{ color: "#AE2448" }}>
+            <p className="text-sm font-black text-brand-primary md:text-base">
               {retailPrice}
             </p>
             <p className="text-[10px] text-gray-400 line-through">{publicPrice}</p>
           </>
         ) : (
-          <p className="text-sm font-black md:text-base" style={{ color: "#AE2448" }}>
+          <p className="text-sm font-black text-brand-primary md:text-base">
             {publicPrice}
           </p>
         )}
@@ -109,7 +109,7 @@ export default function FigmaProductCard({
             href={href}
             productId={productId}
             source="product-card-detail"
-            className="rounded-full bg-gray-100 px-3 py-1.5 text-center text-[10px] font-black text-primary-maroon"
+            className="rounded-full bg-gray-100 px-3 py-1.5 text-center text-[10px] font-black text-brand-primary"
           >
             Detail
           </TrackedProductLink>

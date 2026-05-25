@@ -10,7 +10,7 @@ export default function HeroBanner({
   image?: string;
 }) {
   return (
-    <section className="rounded-2xl bg-primary-maroon p-6 text-white shadow-sm">
+    <section className="rounded-2xl bg-brand-primary p-6 text-white shadow-sm">
       {image && (
         <div className="mb-4">
           <Image

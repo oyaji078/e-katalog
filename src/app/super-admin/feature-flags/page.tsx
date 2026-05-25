@@ -37,16 +37,16 @@ export default async function FeatureFlagsPage() {
   return (
     <main>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text-dark">Feature Flags</h1>
-        <p className="mt-1 text-sm text-text-muted">
+        <h1 className="text-2xl font-bold text-brand-text">Feature Flags</h1>
+        <p className="mt-1 text-sm text-brand-muted">
           Toggle system features on or off. Changes are logged.
         </p>
       </div>
 
-      <div className="rounded-lg border border-border-gray bg-white shadow-sm">
+      <div className="rounded-lg border border-brand-border bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border-gray bg-soft-bg text-left text-xs text-text-muted">
+            <tr className="border-b border-brand-border bg-brand-bg text-left text-xs text-brand-muted">
               <th className="px-4 py-3 font-medium">Flag Key</th>
               <th className="px-4 py-3 font-medium">Name</th>
               <th className="px-4 py-3 font-medium">Description</th>
@@ -56,10 +56,10 @@ export default async function FeatureFlagsPage() {
           </thead>
           <tbody>
             {allFlags.map((f) => (
-              <tr key={f.key} className="border-b border-border-gray/50">
-                <td className="px-4 py-3 font-mono text-xs text-text-muted">{f.key}</td>
-                <td className="px-4 py-3 font-medium text-text-dark">{f.name}</td>
-                <td className="px-4 py-3 text-text-muted">{f.description}</td>
+              <tr key={f.key} className="border-b border-brand-border/50">
+                <td className="px-4 py-3 font-mono text-xs text-brand-muted">{f.key}</td>
+                <td className="px-4 py-3 font-medium text-brand-text">{f.name}</td>
+                <td className="px-4 py-3 text-brand-muted">{f.description}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-semibold ${

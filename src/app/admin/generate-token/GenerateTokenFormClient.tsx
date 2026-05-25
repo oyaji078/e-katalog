@@ -35,16 +35,16 @@ export default function GenerateTokenFormClient({
   const selectedUser = eligibleUsers.find((user) => user.id === selectedUserId);
 
   return (
-    <section className="rounded-xl border border-border-gray bg-white p-6 shadow-sm">
+    <section className="rounded-xl border border-brand-border bg-white p-6 shadow-sm">
       <form action={formAction} className="space-y-5">
         <div>
-          <h2 className="font-semibold text-text-dark">Pilih Pengguna</h2>
+          <h2 className="font-semibold text-brand-text">Pilih Pengguna</h2>
 
           <select
             name="userId"
             value={selectedUserId}
             onChange={(event) => setSelectedUserId(event.target.value)}
-            className="mt-3 w-full rounded-xl border border-border-gray px-4 py-3 text-sm outline-none focus:border-primary-maroon"
+            className="mt-3 w-full rounded-xl border border-brand-border px-4 py-3 text-sm outline-none focus:border-brand-primary"
             required
           >
             <option value="">Pilih pengguna...</option>
@@ -57,32 +57,32 @@ export default function GenerateTokenFormClient({
         </div>
 
         {selectedUser ? (
-          <div className="rounded-xl bg-primary-maroon/5 p-4 text-sm">
-            <h3 className="font-semibold text-primary-maroon">
+          <div className="rounded-xl bg-brand-primary/5 p-4 text-sm">
+            <h3 className="font-semibold text-brand-primary">
               Detail Pengguna Terpilih
             </h3>
 
-            <div className="mt-2 space-y-1 text-text-muted">
+            <div className="mt-2 space-y-1 text-brand-muted">
               <p>
-                <span className="font-medium text-text-dark">Nama:</span>{" "}
+                <span className="font-medium text-brand-text">Nama:</span>{" "}
                 {selectedUser.name}
               </p>
               <p>
-                <span className="font-medium text-text-dark">Email:</span>{" "}
+                <span className="font-medium text-brand-text">Email:</span>{" "}
                 {selectedUser.email}
               </p>
               <p>
-                <span className="font-medium text-text-dark">WhatsApp:</span>{" "}
+                <span className="font-medium text-brand-text">WhatsApp:</span>{" "}
                 {selectedUser.whatsappNumber || "-"}
               </p>
               <p>
-                <span className="font-medium text-text-dark">
+                <span className="font-medium text-brand-text">
                   Toko/Instansi:
                 </span>{" "}
                 {selectedUser.storeName || "-"}
               </p>
               <p>
-                <span className="font-medium text-text-dark">Kode User:</span>{" "}
+                <span className="font-medium text-brand-text">Kode User:</span>{" "}
                 {selectedUser.userCode}
               </p>
             </div>
@@ -90,8 +90,8 @@ export default function GenerateTokenFormClient({
         ) : null}
 
         {state.error ? (
-          <div className="rounded-xl border border-accent-rose/20 bg-accent-rose/5 p-4">
-            <p className="text-sm font-semibold text-accent-rose">
+          <div className="rounded-xl border border-brand-accent/20 bg-brand-accent/5 p-4">
+            <p className="text-sm font-semibold text-brand-accent">
               {state.error}
             </p>
           </div>
@@ -107,7 +107,7 @@ export default function GenerateTokenFormClient({
               {state.token}
             </p>
 
-            <p className="mt-2 text-sm text-text-muted">
+            <p className="mt-2 text-sm text-brand-muted">
               Token ini hanya ditampilkan sekali. Salin dan kirimkan ke user
               melalui WhatsApp.
             </p>
@@ -115,13 +115,13 @@ export default function GenerateTokenFormClient({
         ) : null}
 
         {state.message && !state.error ? (
-          <p className="text-sm text-text-muted">{state.message}</p>
+          <p className="text-sm text-brand-muted">{state.message}</p>
         ) : null}
 
         <button
           type="submit"
           disabled={isPending || !selectedUserId}
-          className="w-full rounded-xl bg-primary-maroon px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
+          className="w-full rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
         >
           {isPending ? "Memproses..." : "Buat Token Aktivasi"}
         </button>

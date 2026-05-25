@@ -137,6 +137,11 @@ export type FeatureFlag = Prisma.FeatureFlagModel
  */
 export type StoreSetting = Prisma.StoreSettingModel
 /**
+ * Model SiteSetting
+ * 
+ */
+export type SiteSetting = Prisma.SiteSettingModel
+/**
  * Model AdminActivityLog
  * 
  */

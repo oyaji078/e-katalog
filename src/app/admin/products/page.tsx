@@ -17,10 +17,10 @@ export default async function AdminProductsPage({
 
   if (!session) {
     return (
-      <main className="min-h-screen bg-soft-bg px-4 py-10 text-text-dark">
-        <section className="mx-auto max-w-md rounded-2xl border border-border-gray bg-white p-6 shadow-sm">
+      <main className="min-h-screen bg-brand-bg px-4 py-10 text-brand-text">
+        <section className="mx-auto max-w-md rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
           <p className="text-center text-danger">Tidak memiliki akses</p>
-          <Link href="/" className="mt-4 block text-center text-primary-maroon">
+          <Link href="/" className="mt-4 block text-center text-brand-primary">
             Ke Halaman Utama
           </Link>
         </section>

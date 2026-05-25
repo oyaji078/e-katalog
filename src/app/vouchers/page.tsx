@@ -58,14 +58,14 @@ export default async function VouchersPage() {
   const expiredCount = displayVouchers.filter((voucher) => voucher.endsAt < now).length;
 
   return (
-    <main className="min-h-screen bg-soft-bg pb-8 text-text-dark">
+    <main className="min-h-screen bg-brand-bg pb-8 text-brand-text">
       <FigmaSiteHeader />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-        <section className="rounded-3xl bg-gradient-to-br from-primary-maroon to-accent-rose p-5 text-white shadow-sm sm:p-6">
+        <section className="rounded-3xl bg-gradient-to-br from-brand-primary to-brand-accent p-5 text-white shadow-sm sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wide text-soft-teal">
+              <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wide text-brand-secondary">
                 <TicketPercent className="size-4" />
                 Voucher katalog
               </p>
@@ -109,13 +109,13 @@ export default async function VouchersPage() {
         <section id="voucher-list" className="mt-6">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-wide text-accent-rose">
+              <p className="text-xs font-black uppercase tracking-wide text-brand-accent">
                 Daftar voucher
               </p>
-              <h2 className="mt-1 text-2xl font-black text-text-dark">Pilih Promo Katalog</h2>
+              <h2 className="mt-1 text-2xl font-black text-brand-text">Pilih Promo Katalog</h2>
             </div>
             {!canSeeRetailVouchers && retailVoucherEnabled ? (
-              <div className="rounded-2xl border border-soft-teal/30 bg-white px-4 py-3 text-xs font-bold text-primary-maroon shadow-sm">
+              <div className="rounded-2xl border border-brand-secondary/30 bg-white px-4 py-3 text-xs font-bold text-brand-primary shadow-sm">
                 Voucher ritel bisa diklaim setelah akun ritel aktif.
               </div>
             ) : null}
@@ -160,9 +160,9 @@ export default async function VouchersPage() {
               })}
             </div>
           ) : (
-            <div className="rounded-2xl border border-border-gray bg-white p-10 text-center shadow-sm">
-              <h2 className="text-lg font-black text-text-dark">Voucher belum tersedia</h2>
-              <p className="mt-2 text-sm text-text-muted">
+            <div className="rounded-2xl border border-brand-border bg-white p-10 text-center shadow-sm">
+              <h2 className="text-lg font-black text-brand-text">Voucher belum tersedia</h2>
+              <p className="mt-2 text-sm text-brand-muted">
                 Feature flag voucher mungkin nonaktif atau admin belum menerbitkan voucher.
               </p>
             </div>
@@ -186,7 +186,7 @@ function Metric({
 
   return (
     <div className="rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/20">
-      <Icon className="mx-auto size-5 text-soft-teal" />
+      <Icon className="mx-auto size-5 text-brand-secondary" />
       <p className="mt-1 text-xl font-black">{value}</p>
       <p className="text-[11px] font-bold text-white/80">{label}</p>
     </div>

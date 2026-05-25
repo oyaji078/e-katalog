@@ -16,7 +16,7 @@ export default async function EditFlashSalePage({ params }: { params: Promise<{ 
     where: { id },
     include: {
       products: {
-        include: { product: { select: { id: true, name: true, publicPrice: true } } },
+        include: { product: { select: { id: true, name: true, publicPrice: true, retailPrice: true } } },
         orderBy: { sortOrder: "asc" },
       },
     },
@@ -26,7 +26,7 @@ export default async function EditFlashSalePage({ params }: { params: Promise<{ 
 
   const allProducts = await db.product.findMany({
     where: { status: "ACTIVE" },
-    select: { id: true, name: true, publicPrice: true },
+    select: { id: true, name: true, publicPrice: true, retailPrice: true },
     orderBy: { name: "asc" },
   });
 
@@ -35,10 +35,12 @@ export default async function EditFlashSalePage({ params }: { params: Promise<{ 
     name: flashSale.name,
     startsAt: flashSale.startsAt.toISOString().slice(0, 16),
     durationDays: Math.round((flashSale.endsAt.getTime() - flashSale.startsAt.getTime()) / (1000 * 60 * 60 * 24)) || 1,
-    isActive: flashSale.isActive,
+    showForPublic: flashSale.showForPublic,
+    showForRetail: flashSale.showForRetail,
     products: flashSale.products.map((fp) => ({
       productId: fp.productId,
-      flashSalePrice: Number(fp.flashSalePrice),
+      flashSalePublicPrice: fp.flashSalePublicPrice ? Number(fp.flashSalePublicPrice) : null,
+      flashSaleRetailPrice: fp.flashSaleRetailPrice ? Number(fp.flashSaleRetailPrice) : null,
       flashSaleStock: fp.flashSaleStock,
     })),
   };
@@ -47,6 +49,7 @@ export default async function EditFlashSalePage({ params }: { params: Promise<{ 
     id: p.id,
     name: p.name,
     publicPrice: Number(p.publicPrice),
+    retailPrice: p.retailPrice ? Number(p.retailPrice) : null,
   }));
 
   return <FlashSaleFormClient flashSale={serialized} products={serializedAllProducts} />;

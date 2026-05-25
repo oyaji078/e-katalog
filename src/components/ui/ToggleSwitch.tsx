@@ -31,7 +31,7 @@ export default function ToggleSwitch({
   };
 
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border-gray bg-soft-bg px-4 py-3 transition hover:border-primary-maroon/30">
+    <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-brand-border bg-brand-bg px-4 py-3 transition hover:border-brand-primary/30">
       <div className="relative mt-0.5 flex-shrink-0">
         {onValue !== undefined && offValue !== undefined ? (
           <input type="hidden" name={name} value={checked ? onValue : offValue} />
@@ -44,12 +44,12 @@ export default function ToggleSwitch({
           onChange={handleChange}
           className="peer sr-only"
         />
-        <div className="h-5 w-9 rounded-full bg-border-gray after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary-maroon peer-checked:after:translate-x-full" />
+        <div className="h-5 w-9 rounded-full bg-brand-border after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-brand-primary peer-checked:after:translate-x-full" />
       </div>
       <div>
-        <p className="text-xs font-semibold text-text-dark">{label}</p>
+        <p className="text-xs font-semibold text-brand-text">{label}</p>
         {description ? (
-          <p className="mt-0.5 text-[10px] leading-relaxed text-text-muted">{description}</p>
+          <p className="mt-0.5 text-[10px] leading-relaxed text-brand-muted">{description}</p>
         ) : null}
       </div>
     </label>

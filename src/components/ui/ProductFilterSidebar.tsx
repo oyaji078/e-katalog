@@ -72,13 +72,13 @@ export default function ProductFilterSidebar() {
   return (
     <aside className="space-y-6">
       <div className="space-y-4">
-        <h2 className="font-semibold text-text-dark">Filter Produk</h2>
+        <h2 className="font-semibold text-brand-text">Filter Produk</h2>
         <div className="space-y-3">
           <div>
             <label className="text-sm font-semibold">Kategori</label>
             <div className="relative">
               <button
-                className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-border-gray bg-white text-sm"
+                className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-brand-border bg-white text-sm"
                 onClick={() => {
                   // In a real implementation, this would toggle a dropdown
                   alert("Category dropdown would open");
@@ -95,7 +95,7 @@ export default function ProductFilterSidebar() {
             <label className="text-sm font-semibold">Brand</label>
             <div className="relative">
               <button
-                className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-border-gray bg-white text-sm"
+                className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-brand-border bg-white text-sm"
                 onClick={() => {
                   // In a real implementation, this would toggle a dropdown
                   alert("Brand dropdown would open");
@@ -112,7 +112,7 @@ export default function ProductFilterSidebar() {
             <label className="text-sm font-semibold">Harga</label>
             <div className="relative">
               <button
-                className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-border-gray bg-white text-sm"
+                className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-brand-border bg-white text-sm"
                 onClick={() => {
                   // In a real implementation, this would toggle a dropdown
                   alert("Price range dropdown would open");
@@ -129,7 +129,7 @@ export default function ProductFilterSidebar() {
             <label className="text-sm font-semibold">Stok</label>
             <div className="relative">
               <button
-                className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-border-gray bg-white text-sm"
+                className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-brand-border bg-white text-sm"
                 onClick={() => {
                   // In a real implementation, this would toggle a dropdown
                   alert("Stock status dropdown would open");
@@ -145,14 +145,14 @@ export default function ProductFilterSidebar() {
       </div>
 
       <div className="mt-6 space-y-3">
-        <h2 className="font-semibold text-text-dark">Opsi Tambahan</h2>
+        <h2 className="font-semibold text-brand-text">Opsi Tambahan</h2>
         <div className="space-y-2">
           <label className="flex items-center space-x-2">
             <input
               type="checkbox"
               checked={filters.promo}
               onChange={(e) => setFilters(prev => ({ ...prev, promo: e.target.checked }))}
-              className="h-4 w-4 text-primary-maroon"
+              className="h-4 w-4 text-brand-primary"
             />
             <span className="text-sm">Produk Promo</span>
           </label>
@@ -161,7 +161,7 @@ export default function ProductFilterSidebar() {
               type="checkbox"
               checked={filters.voucher}
               onChange={(e) => setFilters(prev => ({ ...prev, voucher: e.target.checked }))}
-              className="h-4 w-4 text-accent-rose"
+              className="h-4 w-4 text-brand-accent"
             />
             <span className="text-sm">Memiliki Voucher</span>
           </label>
@@ -170,7 +170,7 @@ export default function ProductFilterSidebar() {
               type="checkbox"
               checked={filters.retailPrice}
               onChange={(e) => setFilters(prev => ({ ...prev, retailPrice: e.target.checked }))}
-              className="h-4 w-4 text-soft-teal"
+              className="h-4 w-4 text-brand-secondary"
             />
             <span className="text-sm">Harga Retail Tersedia</span>
           </label>
@@ -180,13 +180,13 @@ export default function ProductFilterSidebar() {
       <div className="mt-8">
         <button
           onClick={applyFilters}
-          className="w-full rounded-xl bg-primary-maroon px-4 py-3 text-sm font-bold text-white flex items-center justify-center"
+          className="w-full rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white flex items-center justify-center"
         >
           Terapkan Filter
         </button>
         <button
           onClick={resetFilters}
-          className="mt-2 w-full rounded-xl border border-primary-maroon px-4 py-3 text-sm font-semibold text-primary-maroon"
+          className="mt-2 w-full rounded-xl border border-brand-primary px-4 py-3 text-sm font-semibold text-brand-primary"
         >
           Reset Filter
         </button>

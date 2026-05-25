@@ -19,9 +19,14 @@ function text(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
+function isChecked(value: FormDataEntryValue | null): boolean {
+  return value === "on" || value === "1" || value === "true";
+}
+
 type FlashSaleProductInput = {
   productId: string;
-  flashSalePrice: number;
+  flashSalePublicPrice: number | null;
+  flashSaleRetailPrice: number | null;
   flashSaleStock: number;
   sortOrder: number;
 };
@@ -30,7 +35,8 @@ type ValidFlashSaleInput = {
   name: string;
   startDate: Date;
   endDate: Date;
-  isActive: boolean;
+  showForPublic: boolean;
+  showForRetail: boolean;
   products: FlashSaleProductInput[];
 };
 
@@ -49,6 +55,12 @@ function parseRequiredNumber(value: FormDataEntryValue | undefined, label: strin
   return { value: numberValue };
 }
 
+function validateFlashPrice(price: number, sourcePrice: number, label: string): string | null {
+  if (price <= 0) return `${label} harus lebih dari 0.`;
+  if (price >= sourcePrice) return `${label} harus lebih rendah dari harga normal.`;
+  return null;
+}
+
 async function validateFlashSaleInput(db: DbClient, formData: FormData): Promise<
   | { success: true; data: ValidFlashSaleInput }
   | { success: false; state: FlashSaleFormState }
@@ -56,10 +68,15 @@ async function validateFlashSaleInput(db: DbClient, formData: FormData): Promise
   const name = text(formData, "name");
   const startsAt = text(formData, "startsAt");
   const durationDaysRaw = text(formData, "durationDays");
-  const isActive = formData.get("isActive") === "on";
+  const showForPublic = isChecked(formData.get("showForPublic"));
+  const showForRetail = isChecked(formData.get("showForRetail"));
+  const useFlatDiscount = isChecked(formData.get("useFlatDiscount"));
 
   if (!name) return { success: false, state: failure("Nama flash sale harus diisi.") };
   if (!startsAt) return { success: false, state: failure("Tanggal mulai harus diisi.") };
+  if (!showForPublic && !showForRetail) {
+    return { success: false, state: failure("Pilih minimal satu audience flash sale.") };
+  }
 
   const startDate = new Date(startsAt);
   if (Number.isNaN(startDate.getTime())) {
@@ -72,17 +89,28 @@ async function validateFlashSaleInput(db: DbClient, formData: FormData): Promise
   }
 
   const productIds = formData.getAll("productIds").map((value) => String(value).trim()).filter(Boolean);
-  const flashSalePrices = formData.getAll("flashSalePrices");
+  const flashSalePublicPrices = formData.getAll("flashSalePublicPrices");
+  const flashSaleRetailPrices = formData.getAll("flashSaleRetailPrices");
   const flashSaleStocks = formData.getAll("flashSaleStocks");
 
   if (productIds.length === 0) {
     return { success: false, state: failure("Minimal satu produk harus dipilih.") };
   }
 
+  let flatDiscount = 0;
+  if (useFlatDiscount) {
+    const discountResult = parseRequiredNumber(formData.get("potonganRata") ?? undefined, "Potongan Pukul Rata");
+    if ("error" in discountResult) return { success: false, state: failure(discountResult.error) };
+    if (discountResult.value <= 0) {
+      return { success: false, state: failure("Potongan Pukul Rata harus lebih dari 0.") };
+    }
+    flatDiscount = discountResult.value;
+  }
+
   const uniqueProductIds = Array.from(new Set(productIds));
   const products = await db.product.findMany({
     where: { id: { in: uniqueProductIds } },
-    select: { id: true, name: true, publicPrice: true, status: true },
+    select: { id: true, name: true, publicPrice: true, retailPrice: true, status: true },
   });
   const productById = new Map(products.map((product) => [product.id, product]));
 
@@ -99,16 +127,50 @@ async function validateFlashSaleInput(db: DbClient, formData: FormData): Promise
       return { success: false, state: failure(`Produk "${product.name}" harus aktif untuk flash sale.`) };
     }
 
-    const priceResult = parseRequiredNumber(flashSalePrices[index], `Harga flash sale untuk "${product.name}"`);
-    if ("error" in priceResult) return { success: false, state: failure(priceResult.error) };
-    if (priceResult.value <= 0) {
-      return { success: false, state: failure(`Harga flash sale untuk "${product.name}" harus lebih dari 0.`) };
+    let publicPrice: number | null = null;
+    if (showForPublic) {
+      const sourcePrice = Number(product.publicPrice);
+      if (useFlatDiscount) {
+        if (flatDiscount >= sourcePrice) {
+          return { success: false, state: failure(`Potongan untuk "${product.name}" tidak boleh melebihi harga public.`) };
+        }
+        publicPrice = sourcePrice - flatDiscount;
+      } else {
+        const priceResult = parseRequiredNumber(
+          flashSalePublicPrices[index],
+          `Harga Flash Sale Public untuk "${product.name}"`,
+        );
+        if ("error" in priceResult) return { success: false, state: failure(priceResult.error) };
+        publicPrice = priceResult.value;
+      }
+
+      const publicError = validateFlashPrice(publicPrice, sourcePrice, `Harga Flash Sale Public untuk "${product.name}"`);
+      if (publicError) return { success: false, state: failure(publicError) };
     }
-    if (priceResult.value >= Number(product.publicPrice)) {
-      return {
-        success: false,
-        state: failure(`Harga flash sale untuk "${product.name}" harus lebih rendah dari harga normal.`),
-      };
+
+    let retailPrice: number | null = null;
+    if (showForRetail) {
+      if (!product.retailPrice) {
+        return { success: false, state: failure(`Produk "${product.name}" belum memiliki Harga Jual Ritel.`) };
+      }
+
+      const sourcePrice = Number(product.retailPrice);
+      if (useFlatDiscount) {
+        if (flatDiscount >= sourcePrice) {
+          return { success: false, state: failure(`Potongan untuk "${product.name}" tidak boleh melebihi harga ritel.`) };
+        }
+        retailPrice = sourcePrice - flatDiscount;
+      } else {
+        const priceResult = parseRequiredNumber(
+          flashSaleRetailPrices[index],
+          `Harga Flash Sale Ritel untuk "${product.name}"`,
+        );
+        if ("error" in priceResult) return { success: false, state: failure(priceResult.error) };
+        retailPrice = priceResult.value;
+      }
+
+      const retailError = validateFlashPrice(retailPrice, sourcePrice, `Harga Flash Sale Ritel untuk "${product.name}"`);
+      if (retailError) return { success: false, state: failure(retailError) };
     }
 
     const stockResult = parseRequiredNumber(flashSaleStocks[index], `Stok flash sale untuk "${product.name}"`);
@@ -119,7 +181,8 @@ async function validateFlashSaleInput(db: DbClient, formData: FormData): Promise
 
     productInputs.push({
       productId,
-      flashSalePrice: priceResult.value,
+      flashSalePublicPrice: publicPrice,
+      flashSaleRetailPrice: retailPrice,
       flashSaleStock: stockResult.value,
       sortOrder: index,
     });
@@ -134,7 +197,8 @@ async function validateFlashSaleInput(db: DbClient, formData: FormData): Promise
       name,
       startDate,
       endDate,
-      isActive,
+      showForPublic,
+      showForRetail,
       products: productInputs,
     },
   };
@@ -156,7 +220,9 @@ export async function createFlashSaleAction(
       name: validation.data.name,
       startsAt: validation.data.startDate,
       endsAt: validation.data.endDate,
-      isActive: validation.data.isActive,
+      isActive: false,
+      showForPublic: validation.data.showForPublic,
+      showForRetail: validation.data.showForRetail,
     },
   });
 
@@ -167,8 +233,7 @@ export async function createFlashSaleAction(
     })),
   });
 
-  revalidatePath("/admin/flash-sales");
-  revalidatePath("/");
+  revalidateFlashSalePaths();
   return { success: true, message: "Flash sale berhasil dibuat." };
 }
 
@@ -192,7 +257,8 @@ export async function updateFlashSaleAction(
       name: validation.data.name,
       startsAt: validation.data.startDate,
       endsAt: validation.data.endDate,
-      isActive: validation.data.isActive,
+      showForPublic: validation.data.showForPublic,
+      showForRetail: validation.data.showForRetail,
     },
   });
 
@@ -204,9 +270,34 @@ export async function updateFlashSaleAction(
     })),
   });
 
-  revalidatePath("/admin/flash-sales");
-  revalidatePath("/");
+  revalidateFlashSalePaths();
   return { success: true, message: "Flash sale berhasil diperbarui." };
+}
+
+export async function toggleFlashSaleAction(
+  _prevState: FlashSaleFormState,
+  formData: FormData,
+): Promise<FlashSaleFormState> {
+  const session = await getAdminSession();
+  if (!session) return failure("Tidak memiliki akses.");
+
+  const db = getDb();
+  const id = text(formData, "id");
+  if (!id) return failure("ID flash sale diperlukan.");
+
+  const action = text(formData, "action");
+  if (action !== "activate" && action !== "deactivate") return failure("Aksi tidak valid.");
+
+  await db.flashSale.update({
+    where: { id },
+    data: { isActive: action === "activate" },
+  });
+
+  revalidateFlashSalePaths();
+  return {
+    success: true,
+    message: action === "activate" ? "Flash sale diaktifkan." : "Flash sale dinonaktifkan.",
+  };
 }
 
 export async function deleteFlashSaleAction(
@@ -222,7 +313,12 @@ export async function deleteFlashSaleAction(
 
   await db.flashSale.delete({ where: { id } });
 
+  revalidateFlashSalePaths();
+  return { success: true, message: "Flash sale berhasil dihapus." };
+}
+
+function revalidateFlashSalePaths() {
   revalidatePath("/admin/flash-sales");
   revalidatePath("/");
-  return { success: true, message: "Flash sale berhasil dihapus." };
+  revalidatePath("/products");
 }

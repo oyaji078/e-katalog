@@ -8,22 +8,22 @@ export default async function RolesPage() {
   return (
     <main>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-text-dark">Roles &amp; Permissions</h1>
-        <p className="mt-1 text-sm text-text-muted">
+        <h1 className="text-2xl font-bold text-brand-text">Roles &amp; Permissions</h1>
+        <p className="mt-1 text-sm text-brand-muted">
           Role-based access control matrix for the e-catalog system.
         </p>
       </div>
 
-      <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-        <h2 className="mb-4 text-lg font-bold text-text-dark">Role Matrix</h2>
-        <p className="mb-4 text-sm text-text-muted">
+      <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+        <h2 className="mb-4 text-lg font-bold text-brand-text">Role Matrix</h2>
+        <p className="mb-4 text-sm text-brand-muted">
           The system uses enum-based RBAC with fixed roles. Dynamic permissions are not implemented.
         </p>
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border-gray text-left text-xs text-text-muted">
+              <tr className="border-b border-brand-border text-left text-xs text-brand-muted">
                 <th className="pb-3 pr-4 font-medium">Role</th>
                 <th className="pb-3 pr-4 font-medium">Access Level</th>
                 <th className="pb-3 font-medium">Description</th>
@@ -65,41 +65,41 @@ export default async function RolesPage() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-lg font-bold text-text-dark">Retail Status Rules</h2>
+      <div className="mt-6 rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+        <h2 className="mb-3 text-lg font-bold text-brand-text">Retail Status Rules</h2>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border-gray text-left text-xs text-text-muted">
+            <tr className="border-b border-brand-border text-left text-xs text-brand-muted">
               <th className="pb-3 pr-4 font-medium">Status</th>
               <th className="pb-3 pr-4 font-medium">Can See Retail Price</th>
               <th className="pb-3 font-medium">Can Generate Token</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b border-border-gray/50">
-              <td className="py-3 pr-4 font-medium text-text-dark">REGISTERED</td>
-              <td className="py-3 pr-4 text-text-muted">No</td>
-              <td className="py-3 text-text-muted">No (target only)</td>
+            <tr className="border-b border-brand-border/50">
+              <td className="py-3 pr-4 font-medium text-brand-text">REGISTERED</td>
+              <td className="py-3 pr-4 text-brand-muted">No</td>
+              <td className="py-3 text-brand-muted">No (target only)</td>
             </tr>
-            <tr className="border-b border-border-gray/50">
-              <td className="py-3 pr-4 font-medium text-text-dark">PENDING_RETAIL</td>
-              <td className="py-3 pr-4 text-text-muted">No</td>
-              <td className="py-3 text-text-muted">No (target only)</td>
+            <tr className="border-b border-brand-border/50">
+              <td className="py-3 pr-4 font-medium text-brand-text">PENDING_RETAIL</td>
+              <td className="py-3 pr-4 text-brand-muted">No</td>
+              <td className="py-3 text-brand-muted">No (target only)</td>
             </tr>
-            <tr className="border-b border-border-gray/50">
-              <td className="py-3 pr-4 font-medium text-text-dark">RETAIL_ACTIVE</td>
+            <tr className="border-b border-brand-border/50">
+              <td className="py-3 pr-4 font-medium text-brand-text">RETAIL_ACTIVE</td>
               <td className="py-3 pr-4 text-success">Yes (if flag enabled)</td>
-              <td className="py-3 text-text-muted">No</td>
+              <td className="py-3 text-brand-muted">No</td>
             </tr>
-            <tr className="border-b border-border-gray/50">
-              <td className="py-3 pr-4 font-medium text-text-dark">RETAIL_REJECTED</td>
-              <td className="py-3 pr-4 text-text-muted">No</td>
-              <td className="py-3 text-text-muted">No</td>
+            <tr className="border-b border-brand-border/50">
+              <td className="py-3 pr-4 font-medium text-brand-text">RETAIL_REJECTED</td>
+              <td className="py-3 pr-4 text-brand-muted">No</td>
+              <td className="py-3 text-brand-muted">No</td>
             </tr>
-            <tr className="border-b border-border-gray/50">
-              <td className="py-3 pr-4 font-medium text-text-dark">SUSPENDED</td>
-              <td className="py-3 pr-4 text-text-muted">No</td>
-              <td className="py-3 text-text-muted">No</td>
+            <tr className="border-b border-brand-border/50">
+              <td className="py-3 pr-4 font-medium text-brand-text">SUSPENDED</td>
+              <td className="py-3 pr-4 text-brand-muted">No</td>
+              <td className="py-3 text-brand-muted">No</td>
             </tr>
           </tbody>
         </table>
@@ -110,18 +110,18 @@ export default async function RolesPage() {
 
 function RoleRow({ role, level, description }: { role: string; level: string; description: string }) {
   const colors: Record<string, string> = {
-    SUPER_ADMIN: "text-accent-rose",
-    ADMIN: "text-primary-maroon",
-    USER: "text-text-dark",
-    RETAIL_ACTIVE: "text-soft-teal",
+    SUPER_ADMIN: "text-brand-accent",
+    ADMIN: "text-brand-primary",
+    USER: "text-brand-text",
+    RETAIL_ACTIVE: "text-brand-secondary",
     PENDING_RETAIL: "text-warning",
-    GUEST: "text-text-muted",
+    GUEST: "text-brand-muted",
   };
   return (
-    <tr className="border-b border-border-gray/50">
-      <td className={`py-3 pr-4 font-bold ${colors[role] || "text-text-dark"}`}>{role}</td>
-      <td className="py-3 pr-4 text-text-dark">{level}</td>
-      <td className="py-3 text-sm text-text-muted">{description}</td>
+    <tr className="border-b border-brand-border/50">
+      <td className={`py-3 pr-4 font-bold ${colors[role] || "text-brand-text"}`}>{role}</td>
+      <td className="py-3 pr-4 text-brand-text">{level}</td>
+      <td className="py-3 text-sm text-brand-muted">{description}</td>
     </tr>
   );
 }

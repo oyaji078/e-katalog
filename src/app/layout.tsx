@@ -6,13 +6,18 @@ import "./globals.css";
 import { auth } from "@/lib/auth";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { getCurrentUser } from "@/lib/session";
+import { buildSiteThemeStyle, getPublicSiteSettings } from "@/lib/site-settings";
 import FigmaMobileBottomNav from "@/components/ui/FigmaMobileBottomNav";
 
-export const metadata: Metadata = {
-  title: "E-Katalog Komputer",
-  description:
-    "Katalog komputer dan aksesoris elektronik dengan alur inquiry WhatsApp.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getPublicSiteSettings();
+
+  return {
+    title: settings.siteName,
+    description: settings.tagline,
+    icons: settings.faviconUrl ? { icon: settings.faviconUrl } : undefined,
+  };
+}
 
 function isAuthPage(pathname: string) {
   return (
@@ -60,25 +65,28 @@ export default async function RootLayout({
     // Fail open — allow access if maintenance check fails
   }
 
-  const user = await getCurrentUser().catch(() => null);
+  const [user, settings] = await Promise.all([
+    getCurrentUser().catch(() => null),
+    getPublicSiteSettings(),
+  ]);
   const hideBottomNav = isAuthPage(pathname);
 
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" style={buildSiteThemeStyle(settings)}>
       <body className={`min-h-full flex flex-col ${hideBottomNav ? "" : "pb-16 lg:pb-0"}`}>
         {showMaintenance ? (
-          <div className="flex min-h-screen items-center justify-center bg-soft-bg px-4">
-            <div className="max-w-md rounded-lg border border-border-gray bg-white p-8 text-center shadow-sm">
+          <div className="flex min-h-screen items-center justify-center bg-brand-bg px-4">
+            <div className="max-w-md rounded-lg border border-brand-border bg-white p-8 text-center shadow-sm">
               <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-warning/20">
                 <span className="text-3xl font-bold text-warning">!</span>
               </div>
-              <h1 className="text-2xl font-bold text-text-dark">Maintenance Mode</h1>
-              <p className="mt-3 text-sm leading-6 text-text-muted">
+              <h1 className="text-2xl font-bold text-brand-text">Maintenance Mode</h1>
+              <p className="mt-3 text-sm leading-6 text-brand-muted">
                 Situs sedang dalam pemeliharaan. Silakan kembali lagi nanti.
               </p>
               <Link
                 href="/"
-                className="mt-6 inline-block rounded-md bg-primary-maroon px-4 py-2 text-sm font-bold text-white"
+                className="mt-6 inline-block rounded-md bg-brand-primary px-4 py-2 text-sm font-bold text-white"
               >
                 Refresh
               </Link>

@@ -26,9 +26,9 @@ export type ProductCardProps = {
 };
 
 const badgeTone: Record<string, string> = {
-  BARU: "bg-soft-teal text-primary-maroon",
-  PROMO: "bg-accent-rose text-white",
-  "FLASH SALE": "bg-accent-rose text-white",
+  Baru: "bg-brand-secondary text-brand-primary",
+  Promo: "bg-brand-accent text-white",
+  "Flash Sale": "bg-brand-accent text-white",
 };
 
 export default function ProductCard({
@@ -47,12 +47,13 @@ export default function ProductCard({
   categoryName,
   productId,
   productSlug,
+  flashSalePrice,
 }: ProductCardProps) {
-  const badgeClass = badge ? badgeTone[badge] ?? "bg-primary-maroon text-white" : "";
+  const badgeClass = badge ? badgeTone[badge] ?? "bg-brand-primary text-white" : "";
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border-gray bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-primary-maroon/25 hover:shadow-lg">
-      <TrackedProductLink href={href} productId={productId} source="product-card-image" className="relative block bg-soft-bg">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-brand-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-brand-primary/25 hover:shadow-lg">
+      <TrackedProductLink href={href} productId={productId} source="product-card-image" className="relative block bg-brand-bg">
         <div className="relative aspect-[4/3] overflow-hidden">
           {image ? (
             <Image
@@ -63,8 +64,8 @@ export default function ProductCard({
               className="object-cover transition duration-300 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary-maroon/10 to-soft-teal/15">
-              <Laptop className="size-14 text-primary-maroon" />
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-primary/10 to-brand-secondary/15">
+              <Laptop className="size-14 text-brand-primary" />
             </div>
           )}
         </div>
@@ -76,13 +77,13 @@ export default function ProductCard({
           </div>
         ) : null}
         {voucherAvailable ? (
-          <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-accent-rose px-2 py-1 text-[10px] font-black text-white shadow-sm">
+          <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-brand-accent px-2 py-1 text-[10px] font-black text-white shadow-sm">
             <BadgePercent className="size-3" />
             Promo
           </span>
         ) : null}
         {showRetailAsPrimary ? (
-          <span className="absolute bottom-2 right-2 rounded-full bg-soft-teal px-2 py-1 text-[10px] font-black text-primary-maroon shadow-sm">
+          <span className="absolute bottom-2 right-2 rounded-full bg-brand-secondary px-2 py-1 text-[10px] font-black text-brand-primary shadow-sm">
             Harga Ritel
           </span>
         ) : null}
@@ -91,43 +92,56 @@ export default function ProductCard({
       <div className="flex flex-1 flex-col p-3">
         <div className="flex min-h-6 flex-wrap items-center gap-1.5">
           {brandName ? (
-            <span className="rounded-full bg-primary-maroon/10 px-2 py-1 text-[10px] font-black text-primary-maroon">
+            <span className="rounded-full bg-brand-primary/10 px-2 py-1 text-[10px] font-black text-brand-primary">
               {brandName}
             </span>
           ) : null}
           {categoryName ? (
-            <span className="rounded-full bg-soft-bg px-2 py-1 text-[10px] font-bold text-text-muted">
+            <span className="rounded-full bg-brand-bg px-2 py-1 text-[10px] font-bold text-brand-muted">
               {categoryName}
             </span>
           ) : null}
         </div>
 
         <TrackedProductLink href={href} productId={productId} source="product-card-title" className="mt-2 block">
-          <h3 className="line-clamp-2 min-h-11 text-sm font-black leading-snug text-text-dark group-hover:text-primary-maroon">
+          <h3 className="line-clamp-2 min-h-11 text-sm font-black leading-snug text-brand-text group-hover:text-brand-primary">
             {name}
           </h3>
         </TrackedProductLink>
 
-        <p className="mt-2 line-clamp-2 min-h-10 text-xs leading-5 text-text-muted">
+        <p className="mt-2 line-clamp-2 min-h-10 text-xs leading-5 text-brand-muted">
           {specification || "Spesifikasi lengkap tersedia di detail produk."}
         </p>
 
-        <div className="mt-3 min-h-16 rounded-xl bg-soft-bg p-3">
-          {showRetailAsPrimary && retailPrice ? (
+        <div className="mt-3 min-h-16 rounded-xl bg-brand-bg p-3">
+          {flashSalePrice ? (
             <>
-              <div className="flex items-center gap-1 text-[11px] font-black text-primary-maroon">
-                <Tag className="size-3.5 text-soft-teal" />
+              <div className="flex items-center gap-1 text-[11px] font-black text-brand-accent">
+                <BadgePercent className="size-3.5 text-brand-accent" />
+                Harga Flash Sale
+              </div>
+              <p className="mt-1 text-lg font-black leading-tight text-brand-accent">
+                {flashSalePrice}
+              </p>
+              <p className="text-xs font-semibold text-brand-muted line-through">
+                {showRetailAsPrimary && retailPrice ? retailPrice : publicPrice}
+              </p>
+            </>
+          ) : showRetailAsPrimary && retailPrice ? (
+            <>
+              <div className="flex items-center gap-1 text-[11px] font-black text-brand-primary">
+                <Tag className="size-3.5 text-brand-secondary" />
                 Harga Ritel
               </div>
-              <p className="mt-1 text-lg font-black leading-tight text-primary-maroon">
+              <p className="mt-1 text-lg font-black leading-tight text-brand-primary">
                 {retailPrice}
               </p>
-              <p className="text-xs font-semibold text-text-muted line-through">{publicPrice}</p>
+              <p className="text-xs font-semibold text-brand-muted line-through">{publicPrice}</p>
             </>
           ) : (
             <>
-              <p className="text-[11px] font-bold text-text-muted">Harga publik</p>
-              <p className="mt-1 text-lg font-black leading-tight text-accent-rose">
+              <p className="text-[11px] font-bold text-brand-muted">Harga publik</p>
+              <p className="mt-1 text-lg font-black leading-tight text-brand-accent">
                 {publicPrice}
               </p>
             </>
@@ -135,12 +149,12 @@ export default function ProductCard({
         </div>
 
         <div className="mt-3 flex items-center justify-between gap-2 text-xs">
-          <span className="inline-flex min-w-0 items-center gap-1 font-semibold text-text-muted">
-            <PackageCheck className="size-4 shrink-0 text-soft-teal" />
+          <span className="inline-flex min-w-0 items-center gap-1 font-semibold text-brand-muted">
+            <PackageCheck className="size-4 shrink-0 text-brand-secondary" />
             <span className="truncate">{stockText ?? "Cek stok"}</span>
           </span>
           {voucherAvailable ? (
-            <span className="shrink-0 rounded-full bg-accent-rose/10 px-2 py-1 font-black text-accent-rose">
+            <span className="shrink-0 rounded-full bg-brand-accent/10 px-2 py-1 font-black text-brand-accent">
               {voucherLabel ?? "Promo"}
             </span>
           ) : null}
@@ -158,7 +172,7 @@ export default function ProductCard({
             href={href}
             productId={productId}
             source="product-card-detail"
-            className="inline-flex items-center justify-center rounded-xl border border-primary-maroon/25 px-3 py-2.5 text-xs font-black text-primary-maroon transition hover:border-primary-maroon hover:bg-primary-maroon hover:text-white"
+            className="inline-flex items-center justify-center rounded-xl border border-brand-primary/25 px-3 py-2.5 text-xs font-black text-brand-primary transition hover:border-brand-primary hover:bg-brand-primary hover:text-white"
           >
             Detail
           </TrackedProductLink>

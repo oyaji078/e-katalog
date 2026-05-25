@@ -3,8 +3,7 @@ import {
   canSeeRetailPrice,
   canUseRetailVoucher,
   formatRupiah,
-  getApplicableVouchers,
-  getVisibleVouchers,
+  getEligibleProductVouchers,
   productBadge,
   productImage,
   safeImageSrc,
@@ -23,6 +22,7 @@ type ProductCardOptions = {
   vouchers: VoucherWithScopeRelations[];
   flashSalePrice?: number;
   flashSaleStock?: number;
+  hasActiveFlashSale?: boolean;
 };
 
 export function toProductCardProps(
@@ -31,10 +31,14 @@ export function toProductCardProps(
 ): ProductCardProps {
   const showRetail = canSeeRetailPrice(options.user, options.retailPriceEnabled);
   const canSeeRetailVoucher = canUseRetailVoucher(options.user);
-  const visibleVouchers = getVisibleVouchers(getApplicableVouchers(product, options.vouchers), {
+  const hasVisibleFlashSale = typeof options.flashSalePrice === "number";
+  const priceForMinimum = showRetail && product.retailPrice ? Number(product.retailPrice) : Number(product.publicPrice);
+  const visibleVouchers = getEligibleProductVouchers(product, options.vouchers, {
     publicVoucherEnabled: options.publicVoucherEnabled,
     retailVoucherEnabled: options.retailVoucherEnabled,
-    canSeeRetail: canSeeRetailVoucher,
+    canSeeRetailVoucher,
+    priceForMinimum,
+    hasActiveFlashSale: options.hasActiveFlashSale ?? hasVisibleFlashSale,
   });
 
   const productIdentifier = product.slug || product.id;
@@ -47,10 +51,10 @@ export function toProductCardProps(
     publicPrice: formatRupiah(product.publicPrice),
     retailPrice: showRetail && product.retailPrice ? formatRupiah(product.retailPrice) : undefined,
     showRetailAsPrimary: showRetail && !!product.retailPrice,
-    badge: options.flashSalePrice
-      ? "FLASH SALE"
+    badge: hasVisibleFlashSale
+      ? "Flash Sale"
       : visibleVouchers.length > 0
-        ? "PROMO"
+        ? "Promo"
         : productBadge(product),
     voucherAvailable: visibleVouchers.length > 0,
     voucherLabel: visibleVouchers[0] ? voucherLabel(visibleVouchers[0]) : undefined,
@@ -60,7 +64,7 @@ export function toProductCardProps(
     categoryName: product.category?.name ?? null,
     productId: product.id,
     productSlug: product.slug,
-    flashSalePrice: options.flashSalePrice ? formatRupiah(options.flashSalePrice) : undefined,
+    flashSalePrice: hasVisibleFlashSale ? formatRupiah(options.flashSalePrice) : undefined,
     flashSaleStock: options.flashSaleStock,
   };
 }

@@ -139,6 +139,14 @@ export const VoucherScope = {
 export type VoucherScope = (typeof VoucherScope)[keyof typeof VoucherScope]
 
 
+export const PromoBannerLinkType = {
+  STANDALONE: 'STANDALONE',
+  VOUCHER: 'VOUCHER'
+} as const
+
+export type PromoBannerLinkType = (typeof PromoBannerLinkType)[keyof typeof PromoBannerLinkType]
+
+
 export const PromoBannerAudience = {
   PUBLIC: 'PUBLIC',
   AUTHENTICATED: 'AUTHENTICATED',

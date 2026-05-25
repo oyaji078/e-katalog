@@ -26,12 +26,12 @@ export default async function SuperAdminDashboardPage() {
 
   return (
     <main>
-      <h1 className="mb-6 text-2xl font-bold text-text-dark">Super Admin Dashboard</h1>
+      <h1 className="mb-6 text-2xl font-bold text-brand-text">Super Admin Dashboard</h1>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="Admin Users" value={adminCount} href="/super-admin/admin-users" color="text-primary-maroon" />
-        <MetricCard label="Super Admins" value={superAdminCount} href="/super-admin/admin-users" color="text-accent-rose" />
-        <MetricCard label="Feature Flags" value={featureFlags.length} href="/super-admin/feature-flags" color="text-soft-teal" />
+        <MetricCard label="Admin Users" value={adminCount} href="/super-admin/admin-users" color="text-brand-primary" />
+        <MetricCard label="Super Admins" value={superAdminCount} href="/super-admin/admin-users" color="text-brand-accent" />
+        <MetricCard label="Feature Flags" value={featureFlags.length} href="/super-admin/feature-flags" color="text-brand-secondary" />
         <MetricCard
           label="Maintenance Mode"
           value={maintenanceOn ? "ON" : "OFF"}
@@ -41,17 +41,17 @@ export default async function SuperAdminDashboardPage() {
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-text-dark">Recent System Logs</h2>
-            <Link href="/super-admin/system-logs" className="text-sm font-semibold text-primary-maroon">
+            <h2 className="text-lg font-bold text-brand-text">Recent System Logs</h2>
+            <Link href="/super-admin/system-logs" className="text-sm font-semibold text-brand-primary">
               View all
             </Link>
           </div>
           {recentLogs.length > 0 ? (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border-gray text-left text-xs text-text-muted">
+                <tr className="border-b border-brand-border text-left text-xs text-brand-muted">
                   <th className="pb-2 font-medium">Action</th>
                   <th className="pb-2 font-medium">Role</th>
                   <th className="pb-2 font-medium">Risk</th>
@@ -60,13 +60,13 @@ export default async function SuperAdminDashboardPage() {
               </thead>
               <tbody>
                 {recentLogs.map((log) => (
-                  <tr key={log.id} className="border-b border-border-gray/50">
-                    <td className="py-2 text-text-dark">{log.action}</td>
-                    <td className="py-2 text-text-muted">{log.actorRole ?? "-"}</td>
+                  <tr key={log.id} className="border-b border-brand-border/50">
+                    <td className="py-2 text-brand-text">{log.action}</td>
+                    <td className="py-2 text-brand-muted">{log.actorRole ?? "-"}</td>
                     <td className="py-2">
                       <RiskBadge risk={log.risk} />
                     </td>
-                    <td className="py-2 text-text-muted">
+                    <td className="py-2 text-brand-muted">
                       {new Date(log.createdAt).toLocaleDateString("id-ID")}
                     </td>
                   </tr>
@@ -74,12 +74,12 @@ export default async function SuperAdminDashboardPage() {
               </tbody>
             </table>
           ) : (
-            <p className="text-sm text-text-muted">No system logs yet.</p>
+            <p className="text-sm text-brand-muted">No system logs yet.</p>
           )}
         </div>
 
-        <div className="rounded-lg border border-border-gray bg-white p-5 shadow-sm">
-          <h2 className="mb-3 text-lg font-bold text-text-dark">Quick Actions</h2>
+        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+          <h2 className="mb-3 text-lg font-bold text-brand-text">Quick Actions</h2>
           <div className="grid gap-3">
             <QuickAction href="/super-admin/feature-flags" label="Manage Feature Flags" />
             <QuickAction href="/super-admin/admin-users" label="Manage Admin Users" />
@@ -95,8 +95,8 @@ export default async function SuperAdminDashboardPage() {
 
 function MetricCard({ label, value, href, color }: { label: string; value: number | string; href: string; color: string }) {
   return (
-    <Link href={href} className="rounded-lg border border-border-gray bg-white p-4 shadow-sm transition hover:shadow-md">
-      <p className="text-xs font-semibold text-text-muted">{label}</p>
+    <Link href={href} className="rounded-lg border border-brand-border bg-white p-4 shadow-sm transition hover:shadow-md">
+      <p className="text-xs font-semibold text-brand-muted">{label}</p>
       <p className={`mt-1 text-3xl font-bold ${color}`}>{value}</p>
     </Link>
   );
@@ -104,13 +104,13 @@ function MetricCard({ label, value, href, color }: { label: string; value: numbe
 
 function RiskBadge({ risk }: { risk: string }) {
   const colors: Record<string, string> = {
-    LOW: "bg-soft-teal/15 text-primary-maroon",
+    LOW: "bg-brand-secondary/15 text-brand-primary",
     MEDIUM: "bg-warning/20 text-warning",
     HIGH: "bg-danger/20 text-danger",
-    CRITICAL: "bg-accent-rose/20 text-accent-rose",
+    CRITICAL: "bg-danger/20 text-danger",
   };
   return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${colors[risk] || "bg-border-gray text-text-muted"}`}>
+    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${colors[risk] || "bg-brand-border text-brand-muted"}`}>
       {risk}
     </span>
   );
@@ -120,7 +120,7 @@ function QuickAction({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="block rounded-md border border-border-gray px-4 py-3 text-sm font-semibold text-text-dark transition hover:border-primary-maroon hover:text-primary-maroon"
+      className="block rounded-md border border-brand-border px-4 py-3 text-sm font-semibold text-brand-text transition hover:border-brand-primary hover:text-brand-primary"
     >
       {label}
     </Link>

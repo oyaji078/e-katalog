@@ -310,30 +310,30 @@ export default function ProductFormClient({ mode, categories, brands, product }:
 
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
         <div className="space-y-5">
-          <section className="rounded-2xl border border-border-gray bg-white p-5">
-            <h2 className="mb-4 text-base font-bold text-text-dark">Informasi Produk</h2>
+          <section className="rounded-2xl border border-brand-border bg-white p-5">
+            <h2 className="mb-4 text-base font-bold text-brand-text">Informasi Produk</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-text-dark">
+                <label className="block text-sm font-semibold text-brand-text">
                   Nama Produk <span className="text-danger">*</span>
                 </label>
                 <input
                   name="name"
                   defaultValue={product?.name}
                   required
-                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                 />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-sm font-semibold text-text-dark">
+                  <label className="block text-sm font-semibold text-brand-text">
                     Kategori <span className="text-danger">*</span>
                   </label>
                   <select
                     name="categoryId"
                     defaultValue={product?.categoryId}
                     required
-                    className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                    className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                   >
                     <option value="">Pilih Kategori</option>
                     {categories.map((cat) => (
@@ -342,14 +342,14 @@ export default function ProductFormClient({ mode, categories, brands, product }:
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-text-dark">
+                  <label className="block text-sm font-semibold text-brand-text">
                     Merek <span className="text-danger">*</span>
                   </label>
                   <select
                     name="brandId"
                     defaultValue={product?.brandId}
                     required
-                    className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                    className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                   >
                     <option value="">Pilih Merek</option>
                     {brands.map((brd) => (
@@ -360,22 +360,22 @@ export default function ProductFormClient({ mode, categories, brands, product }:
               </div>
               {product ? (
                 <div>
-                  <label className="block text-sm font-semibold text-text-dark">SKU</label>
-                  <p className="mt-1 font-mono text-sm text-text-muted">{product.sku}</p>
+                  <label className="block text-sm font-semibold text-brand-text">SKU</label>
+                  <p className="mt-1 font-mono text-sm text-brand-muted">{product.sku}</p>
                 </div>
               ) : null}
             </div>
           </section>
 
-          <section className="rounded-2xl border border-border-gray bg-white p-5">
+          <section className="rounded-2xl border border-brand-border bg-white p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-base font-bold text-text-dark">Gambar Produk</h2>
-                <p className="mt-1 text-xs text-text-muted">
+                <h2 className="text-base font-bold text-brand-text">Gambar Produk</h2>
+                <p className="mt-1 text-xs text-brand-muted">
                   Unggah beberapa foto produk. Pilih satu sebagai foto utama untuk kartu produk.
                 </p>
               </div>
-              <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary-maroon px-4 py-2 text-xs font-bold text-white hover:bg-primary-maroon/80">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-brand-primary px-4 py-2 text-xs font-bold text-white hover:bg-brand-primary/80">
                 <Upload className="size-4" />
                 Upload Foto
                 <input
@@ -396,14 +396,14 @@ export default function ProductFormClient({ mode, categories, brands, product }:
                     <div
                       key={item.key}
                       className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${
-                        isPrimary ? "border-primary-maroon ring-2 ring-primary-maroon/15" : "border-border-gray"
+                        isPrimary ? "border-brand-primary ring-2 ring-brand-primary/15" : "border-brand-border"
                       }`}
                     >
                       <div
                         className="relative aspect-square bg-cover bg-center"
                         style={{ backgroundImage: `url("${item.url}")` }}
                       >
-                        <div className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-1 text-[10px] font-black text-primary-maroon shadow-sm">
+                        <div className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-1 text-[10px] font-black text-brand-primary shadow-sm">
                           Foto {index + 1}
                         </div>
                       </div>
@@ -413,8 +413,8 @@ export default function ProductFormClient({ mode, categories, brands, product }:
                           onClick={() => setPrimaryKey(item.key)}
                           className={`inline-flex items-center justify-center gap-1 rounded-xl px-3 py-2 text-xs font-black ${
                             isPrimary
-                              ? "bg-primary-maroon text-white"
-                              : "bg-soft-bg text-primary-maroon hover:bg-primary-maroon hover:text-white"
+                              ? "bg-brand-primary text-white"
+                              : "bg-brand-bg text-brand-primary hover:bg-brand-primary hover:text-white"
                           }`}
                         >
                           <Star className="size-3.5" />
@@ -434,25 +434,25 @@ export default function ProductFormClient({ mode, categories, brands, product }:
                 })}
               </div>
             ) : (
-              <div className="flex min-h-40 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border-gray bg-soft-bg p-6 text-center">
-                <ImagePlus className="size-10 text-primary-maroon/50" />
-                <p className="mt-2 text-sm font-bold text-text-dark">Belum ada foto produk</p>
-                <p className="mt-1 text-xs text-text-muted">
+              <div className="flex min-h-40 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-brand-border bg-brand-bg p-6 text-center">
+                <ImagePlus className="size-10 text-brand-primary/50" />
+                <p className="mt-2 text-sm font-bold text-brand-text">Belum ada foto produk</p>
+                <p className="mt-1 text-xs text-brand-muted">
                   Produk tanpa foto akan memakai placeholder lokal di halaman publik.
                 </p>
               </div>
             )}
 
-            <p className="mt-3 text-xs text-text-muted">
+            <p className="mt-3 text-xs text-brand-muted">
               Format: JPG, PNG, atau WebP. Ukuran maksimal 5 MB per foto.
             </p>
           </section>
 
-          <section className="rounded-2xl border border-border-gray bg-white p-5">
-            <h2 className="mb-4 text-base font-bold text-text-dark">Deskripsi Produk</h2>
+          <section className="rounded-2xl border border-brand-border bg-white p-5">
+            <h2 className="mb-4 text-base font-bold text-brand-text">Deskripsi Produk</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-text-dark">
+                <label className="block text-sm font-semibold text-brand-text">
                   Deskripsi <span className="text-danger">*</span>
                 </label>
                 <textarea
@@ -460,25 +460,25 @@ export default function ProductFormClient({ mode, categories, brands, product }:
                   defaultValue={product?.description}
                   required
                   rows={5}
-                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-text-dark">Informasi Garansi</label>
+                <label className="block text-sm font-semibold text-brand-text">Informasi Garansi</label>
                 <input
                   name="warrantyInfo"
                   defaultValue={product?.warrantyInfo ?? ""}
-                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                   placeholder="Contoh: Garansi toko 1 tahun"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-text-dark">Spesifikasi Produk</label>
+                <label className="block text-sm font-semibold text-brand-text">Spesifikasi Produk</label>
                 <textarea
                   name="specifications"
                   defaultValue={formatSpecifications(product?.specifications)}
                   rows={4}
-                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 font-mono text-xs outline-none focus:border-primary-maroon"
+                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 font-mono text-xs outline-none focus:border-brand-primary"
                   placeholder={'Contoh:\\nProcessor: Intel Core i5\\nRAM: 16 GB\\nStorage: 512 GB SSD'}
                 />
               </div>
@@ -487,75 +487,75 @@ export default function ProductFormClient({ mode, categories, brands, product }:
         </div>
 
         <div className="space-y-5">
-          <section className="rounded-2xl border border-border-gray bg-white p-5">
-            <h2 className="mb-4 text-base font-bold text-text-dark">Harga &amp; Margin</h2>
+          <section className="rounded-2xl border border-brand-border bg-white p-5">
+            <h2 className="mb-4 text-base font-bold text-brand-text">Harga &amp; Margin</h2>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-text-dark">Harga Barang *</label>
+                <label className="block text-xs font-semibold text-brand-text">Harga Barang *</label>
                 <input
                   type="text"
                   inputMode="numeric"
                   value={formatPrice(String(hargaBarang))}
                   onChange={handlePriceInput(setHargaBarang)}
                   onFocus={(e) => { const raw = e.target.value.replace(/\./g, ""); setHargaBarang(raw); }}
-                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                   placeholder="0"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-text-dark">Margin Publik *</label>
+                <label className="block text-xs font-semibold text-brand-text">Margin Publik *</label>
                 <input
                   type="text"
                   inputMode="numeric"
                   value={formatPrice(String(marginPublic))}
                   onChange={handlePriceInput(setMarginPublic)}
                   onFocus={(e) => { const raw = e.target.value.replace(/\./g, ""); setMarginPublic(raw); }}
-                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                   placeholder="0"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-text-dark">Margin Ritel *</label>
+                <label className="block text-xs font-semibold text-brand-text">Margin Ritel *</label>
                 <input
                   type="text"
                   inputMode="numeric"
                   value={formatPrice(String(marginRitel))}
                   onChange={handlePriceInput(setMarginRitel)}
                   onFocus={(e) => { const raw = e.target.value.replace(/\./g, ""); setMarginRitel(raw); }}
-                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                   placeholder="0"
                 />
               </div>
-              <div className="rounded-xl border border-accent-rose/20 bg-accent-rose/5 p-3">
-                <p className="text-[10px] font-semibold text-text-muted">Estimasi Harga Jual Publik</p>
-                <p className="text-lg font-black text-accent-rose">Rp {formatIndonesianNumber(previewPublic)}</p>
+              <div className="rounded-xl border border-brand-accent/20 bg-brand-accent/5 p-3">
+                <p className="text-[10px] font-semibold text-brand-muted">Estimasi Harga Jual Publik</p>
+                <p className="text-lg font-black text-brand-accent">Rp {formatIndonesianNumber(previewPublic)}</p>
               </div>
-              <div className="rounded-xl border border-soft-teal/20 bg-soft-teal/5 p-3">
-                <p className="text-[10px] font-semibold text-text-muted">Estimasi Harga Jual Ritel</p>
-                <p className="text-lg font-black text-soft-teal">Rp {formatIndonesianNumber(previewRitel)}</p>
+              <div className="rounded-xl border border-brand-secondary/20 bg-brand-secondary/5 p-3">
+                <p className="text-[10px] font-semibold text-brand-muted">Estimasi Harga Jual Ritel</p>
+                <p className="text-lg font-black text-brand-secondary">Rp {formatIndonesianNumber(previewRitel)}</p>
               </div>
             </div>
           </section>
 
-          <section className="rounded-2xl border border-border-gray bg-white p-5">
-            <h2 className="mb-4 text-base font-bold text-text-dark">Stok &amp; Status</h2>
+          <section className="rounded-2xl border border-brand-border bg-white p-5">
+            <h2 className="mb-4 text-base font-bold text-brand-text">Stok &amp; Status</h2>
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-text-dark">Stok</label>
+                <label className="block text-xs font-semibold text-brand-text">Stok</label>
                 <input
                   name="stockQuantity"
                   type="number"
                   min="0"
                   defaultValue={product?.stockQuantity ?? 0}
-                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-text-dark">Status Stok</label>
+                <label className="block text-xs font-semibold text-brand-text">Status Stok</label>
                 <select
                   name="stockStatus"
                   defaultValue={product?.stockStatus ?? "READY"}
-                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                 >
                   {stockOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -563,11 +563,11 @@ export default function ProductFormClient({ mode, categories, brands, product }:
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-text-dark">Status Produk</label>
+                <label className="block text-xs font-semibold text-brand-text">Status Produk</label>
                 <select
                   name="status"
                   defaultValue={product?.status ?? "DRAFT"}
-                  className="mt-1 w-full rounded-xl border border-border-gray bg-soft-bg px-4 py-2.5 text-sm outline-none focus:border-primary-maroon"
+                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                 >
                   {statusOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -579,17 +579,17 @@ export default function ProductFormClient({ mode, categories, brands, product }:
         </div>
       </div>
 
-      <div className="sticky bottom-0 flex items-center justify-end gap-3 rounded-2xl border border-border-gray bg-white p-4 shadow-lg">
+      <div className="sticky bottom-0 flex items-center justify-end gap-3 rounded-2xl border border-brand-border bg-white p-4 shadow-lg">
         <Link
           href="/admin/products"
-          className="rounded-xl border border-border-gray px-5 py-2.5 text-sm font-semibold text-text-muted hover:bg-soft-bg"
+          className="rounded-xl border border-brand-border px-5 py-2.5 text-sm font-semibold text-brand-muted hover:bg-brand-bg"
         >
           Batal
         </Link>
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-xl bg-primary-maroon px-6 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-xl bg-brand-primary px-6 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? "Menyimpan..." : "Simpan Produk"}
         </button>
@@ -603,8 +603,8 @@ export default function ProductFormClient({ mode, categories, brands, product }:
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h3 className="text-lg font-bold text-text-dark">Produk berhasil disimpan</h3>
-            <p className="mt-2 text-sm text-text-muted">Mengalihkan ke daftar produk...</p>
+            <h3 className="text-lg font-bold text-brand-text">Produk berhasil disimpan</h3>
+            <p className="mt-2 text-sm text-brand-muted">Mengalihkan ke daftar produk...</p>
           </div>
         </div>
       ) : null}

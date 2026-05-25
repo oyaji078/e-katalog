@@ -32,7 +32,7 @@ export default function ActivationForm() {
           type="password"
           placeholder="Masukkan token aktivasi"
           required
-          className="mt-2 w-full rounded-xl border border-border-gray px-3 py-3 text-sm outline-none focus:border-primary-maroon"
+          className="mt-2 w-full rounded-xl border border-brand-border px-3 py-3 text-sm outline-none focus:border-brand-primary"
         />
       </div>
 
@@ -43,7 +43,7 @@ export default function ActivationForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-xl bg-primary-maroon px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
+        className="w-full rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
       >
         {isPending ? "Memverifikasi..." : "Aktifkan Retail"}
       </button>

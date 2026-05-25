@@ -25,11 +25,6 @@ export type ProductWithCatalogRelations = Product & {
   brand?: { name: string } | null;
 };
 
-export type VoucherWithScopeRelations = Voucher & {
-  categories?: Array<{ id: string }>;
-  products?: Array<{ productId: string }>;
-};
-
 /**
  * Minimal field selection for public product cards.
  * Deliberately excludes admin-only/internal fields (costPrice, margin*),
@@ -89,6 +84,39 @@ export const productDetailSelect = {
 
 export type ProductDetailData = Prisma.ProductGetPayload<{ select: typeof productDetailSelect }>;
 
+export const voucherWithScopeSelect = {
+  id: true,
+  code: true,
+  title: true,
+  description: true,
+  audience: true,
+  showForPublic: true,
+  showForRetail: true,
+  status: true,
+  discountType: true,
+  discountValue: true,
+  minimumPurchase: true,
+  startsAt: true,
+  endsAt: true,
+  isActive: true,
+  usageQuota: true,
+  scope: true,
+  createdAt: true,
+  updatedAt: true,
+  categoryId: true,
+  categories: { select: { id: true } },
+  products: { select: { productId: true } },
+} satisfies Prisma.VoucherSelect;
+
+export type VoucherWithScopeRelations = Prisma.VoucherGetPayload<{
+  select: typeof voucherWithScopeSelect;
+}>;
+
+type VoucherVisibilityFields = Pick<
+  Voucher,
+  "isActive" | "status" | "startsAt" | "endsAt" | "showForPublic" | "showForRetail"
+>;
+
 export function formatRupiah(value: unknown) {
   const numberValue = Number(value ?? 0);
   return `Rp ${numberValue.toLocaleString("id-ID")}`;
@@ -105,8 +133,8 @@ export function canUseRetailVoucher(user: CatalogUser) {
   return user?.retailStatus === "RETAIL_ACTIVE";
 }
 
-export function getVisibleVouchers(
-  vouchers: Voucher[],
+export function getVisibleVouchers<T extends VoucherVisibilityFields>(
+  vouchers: T[],
   options: {
     publicVoucherEnabled: boolean;
     retailVoucherEnabled: boolean;
@@ -215,7 +243,7 @@ export function safeImageSrc(value: string | null | undefined): string | null {
 }
 
 export function productBadge(product: Pick<Product, "stockStatus"> & { createdAt?: Date | string }) {
-  if (product.createdAt && isNewArrival(product.createdAt)) return "BARU";
+  if (product.createdAt && isNewArrival(product.createdAt)) return "Baru";
   return undefined;
 }
 
@@ -246,5 +274,31 @@ export function getApplicableVouchers(
     }
 
     return false;
+  });
+}
+
+export function getEligibleProductVouchers(
+  product: Pick<Product, "id" | "categoryId" | "publicPrice" | "retailPrice">,
+  vouchers: VoucherWithScopeRelations[],
+  options: {
+    publicVoucherEnabled: boolean;
+    retailVoucherEnabled: boolean;
+    canSeeRetailVoucher: boolean;
+    priceForMinimum: number;
+    hasActiveFlashSale: boolean;
+  },
+) {
+  if (options.hasActiveFlashSale) return [];
+
+  const scopedVouchers = getApplicableVouchers(product, vouchers);
+  const visibleVouchers = getVisibleVouchers(scopedVouchers, {
+    publicVoucherEnabled: options.publicVoucherEnabled,
+    retailVoucherEnabled: options.retailVoucherEnabled,
+    canSeeRetail: options.canSeeRetailVoucher,
+  });
+
+  return visibleVouchers.filter((voucher) => {
+    if (!voucher.minimumPurchase) return true;
+    return options.priceForMinimum >= Number(voucher.minimumPurchase);
   });
 }

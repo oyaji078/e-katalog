@@ -48,7 +48,8 @@ export type PromoBannerMinAggregateOutputType = {
   startsAt: Date | null
   endsAt: Date | null
   sortOrder: number | null
-  voucherCode: string | null
+  linkType: $Enums.PromoBannerLinkType | null
+  voucherId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -67,7 +68,8 @@ export type PromoBannerMaxAggregateOutputType = {
   startsAt: Date | null
   endsAt: Date | null
   sortOrder: number | null
-  voucherCode: string | null
+  linkType: $Enums.PromoBannerLinkType | null
+  voucherId: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -86,7 +88,8 @@ export type PromoBannerCountAggregateOutputType = {
   startsAt: number
   endsAt: number
   sortOrder: number
-  voucherCode: number
+  linkType: number
+  voucherId: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -115,7 +118,8 @@ export type PromoBannerMinAggregateInputType = {
   startsAt?: true
   endsAt?: true
   sortOrder?: true
-  voucherCode?: true
+  linkType?: true
+  voucherId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -134,7 +138,8 @@ export type PromoBannerMaxAggregateInputType = {
   startsAt?: true
   endsAt?: true
   sortOrder?: true
-  voucherCode?: true
+  linkType?: true
+  voucherId?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -153,7 +158,8 @@ export type PromoBannerCountAggregateInputType = {
   startsAt?: true
   endsAt?: true
   sortOrder?: true
-  voucherCode?: true
+  linkType?: true
+  voucherId?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -259,7 +265,8 @@ export type PromoBannerGroupByOutputType = {
   startsAt: Date | null
   endsAt: Date | null
   sortOrder: number
-  voucherCode: string | null
+  linkType: $Enums.PromoBannerLinkType
+  voucherId: string | null
   createdAt: Date
   updatedAt: Date
   _count: PromoBannerCountAggregateOutputType | null
@@ -301,9 +308,11 @@ export type PromoBannerWhereInput = {
   startsAt?: Prisma.DateTimeNullableFilter<"PromoBanner"> | Date | string | null
   endsAt?: Prisma.DateTimeNullableFilter<"PromoBanner"> | Date | string | null
   sortOrder?: Prisma.IntFilter<"PromoBanner"> | number
-  voucherCode?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
+  linkType?: Prisma.EnumPromoBannerLinkTypeFilter<"PromoBanner"> | $Enums.PromoBannerLinkType
+  voucherId?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PromoBanner"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PromoBanner"> | Date | string
+  voucher?: Prisma.XOR<Prisma.VoucherNullableScalarRelationFilter, Prisma.VoucherWhereInput> | null
 }
 
 export type PromoBannerOrderByWithRelationInput = {
@@ -320,9 +329,11 @@ export type PromoBannerOrderByWithRelationInput = {
   startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
-  voucherCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  linkType?: Prisma.SortOrder
+  voucherId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  voucher?: Prisma.VoucherOrderByWithRelationInput
   _relevance?: Prisma.PromoBannerOrderByRelevanceInput
 }
 
@@ -343,9 +354,11 @@ export type PromoBannerWhereUniqueInput = Prisma.AtLeast<{
   startsAt?: Prisma.DateTimeNullableFilter<"PromoBanner"> | Date | string | null
   endsAt?: Prisma.DateTimeNullableFilter<"PromoBanner"> | Date | string | null
   sortOrder?: Prisma.IntFilter<"PromoBanner"> | number
-  voucherCode?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
+  linkType?: Prisma.EnumPromoBannerLinkTypeFilter<"PromoBanner"> | $Enums.PromoBannerLinkType
+  voucherId?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PromoBanner"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PromoBanner"> | Date | string
+  voucher?: Prisma.XOR<Prisma.VoucherNullableScalarRelationFilter, Prisma.VoucherWhereInput> | null
 }, "id">
 
 export type PromoBannerOrderByWithAggregationInput = {
@@ -362,7 +375,8 @@ export type PromoBannerOrderByWithAggregationInput = {
   startsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endsAt?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
-  voucherCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  linkType?: Prisma.SortOrder
+  voucherId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PromoBannerCountOrderByAggregateInput
@@ -389,7 +403,8 @@ export type PromoBannerScalarWhereWithAggregatesInput = {
   startsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PromoBanner"> | Date | string | null
   endsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PromoBanner"> | Date | string | null
   sortOrder?: Prisma.IntWithAggregatesFilter<"PromoBanner"> | number
-  voucherCode?: Prisma.StringNullableWithAggregatesFilter<"PromoBanner"> | string | null
+  linkType?: Prisma.EnumPromoBannerLinkTypeWithAggregatesFilter<"PromoBanner"> | $Enums.PromoBannerLinkType
+  voucherId?: Prisma.StringNullableWithAggregatesFilter<"PromoBanner"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PromoBanner"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PromoBanner"> | Date | string
 }
@@ -408,9 +423,10 @@ export type PromoBannerCreateInput = {
   startsAt?: Date | string | null
   endsAt?: Date | string | null
   sortOrder?: number
-  voucherCode?: string | null
+  linkType?: $Enums.PromoBannerLinkType
   createdAt?: Date | string
   updatedAt?: Date | string
+  voucher?: Prisma.VoucherCreateNestedOneWithoutPromoBannersInput
 }
 
 export type PromoBannerUncheckedCreateInput = {
@@ -427,7 +443,8 @@ export type PromoBannerUncheckedCreateInput = {
   startsAt?: Date | string | null
   endsAt?: Date | string | null
   sortOrder?: number
-  voucherCode?: string | null
+  linkType?: $Enums.PromoBannerLinkType
+  voucherId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -446,9 +463,10 @@ export type PromoBannerUpdateInput = {
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkType?: Prisma.EnumPromoBannerLinkTypeFieldUpdateOperationsInput | $Enums.PromoBannerLinkType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  voucher?: Prisma.VoucherUpdateOneWithoutPromoBannersNestedInput
 }
 
 export type PromoBannerUncheckedUpdateInput = {
@@ -465,7 +483,8 @@ export type PromoBannerUncheckedUpdateInput = {
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkType?: Prisma.EnumPromoBannerLinkTypeFieldUpdateOperationsInput | $Enums.PromoBannerLinkType
+  voucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -484,7 +503,8 @@ export type PromoBannerCreateManyInput = {
   startsAt?: Date | string | null
   endsAt?: Date | string | null
   sortOrder?: number
-  voucherCode?: string | null
+  linkType?: $Enums.PromoBannerLinkType
+  voucherId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -503,7 +523,7 @@ export type PromoBannerUpdateManyMutationInput = {
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkType?: Prisma.EnumPromoBannerLinkTypeFieldUpdateOperationsInput | $Enums.PromoBannerLinkType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -522,9 +542,20 @@ export type PromoBannerUncheckedUpdateManyInput = {
   startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkType?: Prisma.EnumPromoBannerLinkTypeFieldUpdateOperationsInput | $Enums.PromoBannerLinkType
+  voucherId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PromoBannerListRelationFilter = {
+  every?: Prisma.PromoBannerWhereInput
+  some?: Prisma.PromoBannerWhereInput
+  none?: Prisma.PromoBannerWhereInput
+}
+
+export type PromoBannerOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type PromoBannerOrderByRelevanceInput = {
@@ -547,7 +578,8 @@ export type PromoBannerCountOrderByAggregateInput = {
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
-  voucherCode?: Prisma.SortOrder
+  linkType?: Prisma.SortOrder
+  voucherId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -570,7 +602,8 @@ export type PromoBannerMaxOrderByAggregateInput = {
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
-  voucherCode?: Prisma.SortOrder
+  linkType?: Prisma.SortOrder
+  voucherId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -589,7 +622,8 @@ export type PromoBannerMinOrderByAggregateInput = {
   startsAt?: Prisma.SortOrder
   endsAt?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
-  voucherCode?: Prisma.SortOrder
+  linkType?: Prisma.SortOrder
+  voucherId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -598,8 +632,217 @@ export type PromoBannerSumOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
 }
 
+export type PromoBannerCreateNestedManyWithoutVoucherInput = {
+  create?: Prisma.XOR<Prisma.PromoBannerCreateWithoutVoucherInput, Prisma.PromoBannerUncheckedCreateWithoutVoucherInput> | Prisma.PromoBannerCreateWithoutVoucherInput[] | Prisma.PromoBannerUncheckedCreateWithoutVoucherInput[]
+  connectOrCreate?: Prisma.PromoBannerCreateOrConnectWithoutVoucherInput | Prisma.PromoBannerCreateOrConnectWithoutVoucherInput[]
+  createMany?: Prisma.PromoBannerCreateManyVoucherInputEnvelope
+  connect?: Prisma.PromoBannerWhereUniqueInput | Prisma.PromoBannerWhereUniqueInput[]
+}
+
+export type PromoBannerUncheckedCreateNestedManyWithoutVoucherInput = {
+  create?: Prisma.XOR<Prisma.PromoBannerCreateWithoutVoucherInput, Prisma.PromoBannerUncheckedCreateWithoutVoucherInput> | Prisma.PromoBannerCreateWithoutVoucherInput[] | Prisma.PromoBannerUncheckedCreateWithoutVoucherInput[]
+  connectOrCreate?: Prisma.PromoBannerCreateOrConnectWithoutVoucherInput | Prisma.PromoBannerCreateOrConnectWithoutVoucherInput[]
+  createMany?: Prisma.PromoBannerCreateManyVoucherInputEnvelope
+  connect?: Prisma.PromoBannerWhereUniqueInput | Prisma.PromoBannerWhereUniqueInput[]
+}
+
+export type PromoBannerUpdateManyWithoutVoucherNestedInput = {
+  create?: Prisma.XOR<Prisma.PromoBannerCreateWithoutVoucherInput, Prisma.PromoBannerUncheckedCreateWithoutVoucherInput> | Prisma.PromoBannerCreateWithoutVoucherInput[] | Prisma.PromoBannerUncheckedCreateWithoutVoucherInput[]
+  connectOrCreate?: Prisma.PromoBannerCreateOrConnectWithoutVoucherInput | Prisma.PromoBannerCreateOrConnectWithoutVoucherInput[]
+  upsert?: Prisma.PromoBannerUpsertWithWhereUniqueWithoutVoucherInput | Prisma.PromoBannerUpsertWithWhereUniqueWithoutVoucherInput[]
+  createMany?: Prisma.PromoBannerCreateManyVoucherInputEnvelope
+  set?: Prisma.PromoBannerWhereUniqueInput | Prisma.PromoBannerWhereUniqueInput[]
+  disconnect?: Prisma.PromoBannerWhereUniqueInput | Prisma.PromoBannerWhereUniqueInput[]
+  delete?: Prisma.PromoBannerWhereUniqueInput | Prisma.PromoBannerWhereUniqueInput[]
+  connect?: Prisma.PromoBannerWhereUniqueInput | Prisma.PromoBannerWhereUniqueInput[]
+  update?: Prisma.PromoBannerUpdateWithWhereUniqueWithoutVoucherInput | Prisma.PromoBannerUpdateWithWhereUniqueWithoutVoucherInput[]
+  updateMany?: Prisma.PromoBannerUpdateManyWithWhereWithoutVoucherInput | Prisma.PromoBannerUpdateManyWithWhereWithoutVoucherInput[]
+  deleteMany?: Prisma.PromoBannerScalarWhereInput | Prisma.PromoBannerScalarWhereInput[]
+}
+
+export type PromoBannerUncheckedUpdateManyWithoutVoucherNestedInput = {
+  create?: Prisma.XOR<Prisma.PromoBannerCreateWithoutVoucherInput, Prisma.PromoBannerUncheckedCreateWithoutVoucherInput> | Prisma.PromoBannerCreateWithoutVoucherInput[] | Prisma.PromoBannerUncheckedCreateWithoutVoucherInput[]
+  connectOrCreate?: Prisma.PromoBannerCreateOrConnectWithoutVoucherInput | Prisma.PromoBannerCreateOrConnectWithoutVoucherInput[]
+  upsert?: Prisma.PromoBannerUpsertWithWhereUniqueWithoutVoucherInput | Prisma.PromoBannerUpsertWithWhereUniqueWithoutVoucherInput[]
+  createMany?: Prisma.PromoBannerCreateManyVoucherInputEnvelope
+  set?: Prisma.PromoBannerWhereUniqueInput | Prisma.PromoBannerWhereUniqueInput[]
+  disconnect?: Prisma.PromoBannerWhereUniqueInput | Prisma.PromoBannerWhereUniqueInput[]
+  delete?: Prisma.PromoBannerWhereUniqueInput | Prisma.PromoBannerWhereUniqueInput[]
+  connect?: Prisma.PromoBannerWhereUniqueInput | Prisma.PromoBannerWhereUniqueInput[]
+  update?: Prisma.PromoBannerUpdateWithWhereUniqueWithoutVoucherInput | Prisma.PromoBannerUpdateWithWhereUniqueWithoutVoucherInput[]
+  updateMany?: Prisma.PromoBannerUpdateManyWithWhereWithoutVoucherInput | Prisma.PromoBannerUpdateManyWithWhereWithoutVoucherInput[]
+  deleteMany?: Prisma.PromoBannerScalarWhereInput | Prisma.PromoBannerScalarWhereInput[]
+}
+
 export type EnumPromoBannerAudienceFieldUpdateOperationsInput = {
   set?: $Enums.PromoBannerAudience
+}
+
+export type EnumPromoBannerLinkTypeFieldUpdateOperationsInput = {
+  set?: $Enums.PromoBannerLinkType
+}
+
+export type PromoBannerCreateWithoutVoucherInput = {
+  id?: string
+  title: string
+  subtitle?: string | null
+  imageUrl?: string | null
+  linkUrl?: string | null
+  ctaLabel?: string | null
+  audience?: $Enums.PromoBannerAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
+  isActive?: boolean
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  sortOrder?: number
+  linkType?: $Enums.PromoBannerLinkType
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PromoBannerUncheckedCreateWithoutVoucherInput = {
+  id?: string
+  title: string
+  subtitle?: string | null
+  imageUrl?: string | null
+  linkUrl?: string | null
+  ctaLabel?: string | null
+  audience?: $Enums.PromoBannerAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
+  isActive?: boolean
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  sortOrder?: number
+  linkType?: $Enums.PromoBannerLinkType
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PromoBannerCreateOrConnectWithoutVoucherInput = {
+  where: Prisma.PromoBannerWhereUniqueInput
+  create: Prisma.XOR<Prisma.PromoBannerCreateWithoutVoucherInput, Prisma.PromoBannerUncheckedCreateWithoutVoucherInput>
+}
+
+export type PromoBannerCreateManyVoucherInputEnvelope = {
+  data: Prisma.PromoBannerCreateManyVoucherInput | Prisma.PromoBannerCreateManyVoucherInput[]
+  skipDuplicates?: boolean
+}
+
+export type PromoBannerUpsertWithWhereUniqueWithoutVoucherInput = {
+  where: Prisma.PromoBannerWhereUniqueInput
+  update: Prisma.XOR<Prisma.PromoBannerUpdateWithoutVoucherInput, Prisma.PromoBannerUncheckedUpdateWithoutVoucherInput>
+  create: Prisma.XOR<Prisma.PromoBannerCreateWithoutVoucherInput, Prisma.PromoBannerUncheckedCreateWithoutVoucherInput>
+}
+
+export type PromoBannerUpdateWithWhereUniqueWithoutVoucherInput = {
+  where: Prisma.PromoBannerWhereUniqueInput
+  data: Prisma.XOR<Prisma.PromoBannerUpdateWithoutVoucherInput, Prisma.PromoBannerUncheckedUpdateWithoutVoucherInput>
+}
+
+export type PromoBannerUpdateManyWithWhereWithoutVoucherInput = {
+  where: Prisma.PromoBannerScalarWhereInput
+  data: Prisma.XOR<Prisma.PromoBannerUpdateManyMutationInput, Prisma.PromoBannerUncheckedUpdateManyWithoutVoucherInput>
+}
+
+export type PromoBannerScalarWhereInput = {
+  AND?: Prisma.PromoBannerScalarWhereInput | Prisma.PromoBannerScalarWhereInput[]
+  OR?: Prisma.PromoBannerScalarWhereInput[]
+  NOT?: Prisma.PromoBannerScalarWhereInput | Prisma.PromoBannerScalarWhereInput[]
+  id?: Prisma.StringFilter<"PromoBanner"> | string
+  title?: Prisma.StringFilter<"PromoBanner"> | string
+  subtitle?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
+  imageUrl?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
+  linkUrl?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
+  ctaLabel?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
+  audience?: Prisma.EnumPromoBannerAudienceFilter<"PromoBanner"> | $Enums.PromoBannerAudience
+  showForPublic?: Prisma.BoolFilter<"PromoBanner"> | boolean
+  showForRetail?: Prisma.BoolFilter<"PromoBanner"> | boolean
+  isActive?: Prisma.BoolFilter<"PromoBanner"> | boolean
+  startsAt?: Prisma.DateTimeNullableFilter<"PromoBanner"> | Date | string | null
+  endsAt?: Prisma.DateTimeNullableFilter<"PromoBanner"> | Date | string | null
+  sortOrder?: Prisma.IntFilter<"PromoBanner"> | number
+  linkType?: Prisma.EnumPromoBannerLinkTypeFilter<"PromoBanner"> | $Enums.PromoBannerLinkType
+  voucherId?: Prisma.StringNullableFilter<"PromoBanner"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"PromoBanner"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"PromoBanner"> | Date | string
+}
+
+export type PromoBannerCreateManyVoucherInput = {
+  id?: string
+  title: string
+  subtitle?: string | null
+  imageUrl?: string | null
+  linkUrl?: string | null
+  ctaLabel?: string | null
+  audience?: $Enums.PromoBannerAudience
+  showForPublic?: boolean
+  showForRetail?: boolean
+  isActive?: boolean
+  startsAt?: Date | string | null
+  endsAt?: Date | string | null
+  sortOrder?: number
+  linkType?: $Enums.PromoBannerLinkType
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PromoBannerUpdateWithoutVoucherInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audience?: Prisma.EnumPromoBannerAudienceFieldUpdateOperationsInput | $Enums.PromoBannerAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  linkType?: Prisma.EnumPromoBannerLinkTypeFieldUpdateOperationsInput | $Enums.PromoBannerLinkType
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PromoBannerUncheckedUpdateWithoutVoucherInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audience?: Prisma.EnumPromoBannerAudienceFieldUpdateOperationsInput | $Enums.PromoBannerAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  linkType?: Prisma.EnumPromoBannerLinkTypeFieldUpdateOperationsInput | $Enums.PromoBannerLinkType
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PromoBannerUncheckedUpdateManyWithoutVoucherInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  subtitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ctaLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  audience?: Prisma.EnumPromoBannerAudienceFieldUpdateOperationsInput | $Enums.PromoBannerAudience
+  showForPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  showForRetail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  startsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  linkType?: Prisma.EnumPromoBannerLinkTypeFieldUpdateOperationsInput | $Enums.PromoBannerLinkType
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -618,9 +861,11 @@ export type PromoBannerSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   startsAt?: boolean
   endsAt?: boolean
   sortOrder?: boolean
-  voucherCode?: boolean
+  linkType?: boolean
+  voucherId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  voucher?: boolean | Prisma.PromoBanner$voucherArgs<ExtArgs>
 }, ExtArgs["result"]["promoBanner"]>
 
 
@@ -639,16 +884,22 @@ export type PromoBannerSelectScalar = {
   startsAt?: boolean
   endsAt?: boolean
   sortOrder?: boolean
-  voucherCode?: boolean
+  linkType?: boolean
+  voucherId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PromoBannerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "subtitle" | "imageUrl" | "linkUrl" | "ctaLabel" | "audience" | "showForPublic" | "showForRetail" | "isActive" | "startsAt" | "endsAt" | "sortOrder" | "voucherCode" | "createdAt" | "updatedAt", ExtArgs["result"]["promoBanner"]>
+export type PromoBannerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "subtitle" | "imageUrl" | "linkUrl" | "ctaLabel" | "audience" | "showForPublic" | "showForRetail" | "isActive" | "startsAt" | "endsAt" | "sortOrder" | "linkType" | "voucherId" | "createdAt" | "updatedAt", ExtArgs["result"]["promoBanner"]>
+export type PromoBannerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  voucher?: boolean | Prisma.PromoBanner$voucherArgs<ExtArgs>
+}
 
 export type $PromoBannerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PromoBanner"
-  objects: {}
+  objects: {
+    voucher: Prisma.$VoucherPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     title: string
@@ -663,7 +914,8 @@ export type $PromoBannerPayload<ExtArgs extends runtime.Types.Extensions.Interna
     startsAt: Date | null
     endsAt: Date | null
     sortOrder: number
-    voucherCode: string | null
+    linkType: $Enums.PromoBannerLinkType
+    voucherId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["promoBanner"]>
@@ -1006,6 +1258,7 @@ readonly fields: PromoBannerFieldRefs;
  */
 export interface Prisma__PromoBannerClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  voucher<T extends Prisma.PromoBanner$voucherArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PromoBanner$voucherArgs<ExtArgs>>): Prisma.Prisma__VoucherClient<runtime.Types.Result.GetResult<Prisma.$VoucherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1048,7 +1301,8 @@ export interface PromoBannerFieldRefs {
   readonly startsAt: Prisma.FieldRef<"PromoBanner", 'DateTime'>
   readonly endsAt: Prisma.FieldRef<"PromoBanner", 'DateTime'>
   readonly sortOrder: Prisma.FieldRef<"PromoBanner", 'Int'>
-  readonly voucherCode: Prisma.FieldRef<"PromoBanner", 'String'>
+  readonly linkType: Prisma.FieldRef<"PromoBanner", 'PromoBannerLinkType'>
+  readonly voucherId: Prisma.FieldRef<"PromoBanner", 'String'>
   readonly createdAt: Prisma.FieldRef<"PromoBanner", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PromoBanner", 'DateTime'>
 }
@@ -1068,6 +1322,10 @@ export type PromoBannerFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.PromoBannerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoBannerInclude<ExtArgs> | null
+  /**
    * Filter, which PromoBanner to fetch.
    */
   where: Prisma.PromoBannerWhereUniqueInput
@@ -1086,6 +1344,10 @@ export type PromoBannerFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Exten
    */
   omit?: Prisma.PromoBannerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoBannerInclude<ExtArgs> | null
+  /**
    * Filter, which PromoBanner to fetch.
    */
   where: Prisma.PromoBannerWhereUniqueInput
@@ -1103,6 +1365,10 @@ export type PromoBannerFindFirstArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the PromoBanner
    */
   omit?: Prisma.PromoBannerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoBannerInclude<ExtArgs> | null
   /**
    * Filter, which PromoBanner to fetch.
    */
@@ -1152,6 +1418,10 @@ export type PromoBannerFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extens
    */
   omit?: Prisma.PromoBannerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoBannerInclude<ExtArgs> | null
+  /**
    * Filter, which PromoBanner to fetch.
    */
   where?: Prisma.PromoBannerWhereInput
@@ -1199,6 +1469,10 @@ export type PromoBannerFindManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the PromoBanner
    */
   omit?: Prisma.PromoBannerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoBannerInclude<ExtArgs> | null
   /**
    * Filter, which PromoBanners to fetch.
    */
@@ -1248,6 +1522,10 @@ export type PromoBannerCreateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.PromoBannerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoBannerInclude<ExtArgs> | null
+  /**
    * The data needed to create a PromoBanner.
    */
   data: Prisma.XOR<Prisma.PromoBannerCreateInput, Prisma.PromoBannerUncheckedCreateInput>
@@ -1276,6 +1554,10 @@ export type PromoBannerUpdateArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the PromoBanner
    */
   omit?: Prisma.PromoBannerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoBannerInclude<ExtArgs> | null
   /**
    * The data needed to update a PromoBanner.
    */
@@ -1317,6 +1599,10 @@ export type PromoBannerUpsertArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.PromoBannerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoBannerInclude<ExtArgs> | null
+  /**
    * The filter to search for the PromoBanner to update in case it exists.
    */
   where: Prisma.PromoBannerWhereUniqueInput
@@ -1343,6 +1629,10 @@ export type PromoBannerDeleteArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.PromoBannerOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoBannerInclude<ExtArgs> | null
+  /**
    * Filter which PromoBanner to delete.
    */
   where: Prisma.PromoBannerWhereUniqueInput
@@ -1363,6 +1653,25 @@ export type PromoBannerDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
+ * PromoBanner.voucher
+ */
+export type PromoBanner$voucherArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Voucher
+   */
+  select?: Prisma.VoucherSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Voucher
+   */
+  omit?: Prisma.VoucherOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VoucherInclude<ExtArgs> | null
+  where?: Prisma.VoucherWhereInput
+}
+
+/**
  * PromoBanner without action
  */
 export type PromoBannerDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1374,4 +1683,8 @@ export type PromoBannerDefaultArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the PromoBanner
    */
   omit?: Prisma.PromoBannerOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PromoBannerInclude<ExtArgs> | null
 }

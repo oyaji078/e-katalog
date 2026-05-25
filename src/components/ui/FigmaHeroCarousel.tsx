@@ -80,13 +80,14 @@ export default function FigmaHeroCarousel({ banners }: FigmaHeroCarouselProps) {
               </div>
             ) : (
               <div
-                className="size-full bg-gradient-to-br from-primary-maroon/20 via-primary-maroon/10 to-soft-teal/20"
+                className="size-full bg-gradient-to-br from-brand-primary/20 via-brand-primary/10 to-brand-secondary/20"
               />
             )}
             <div
               className="absolute inset-0"
               style={{
-                background: "linear-gradient(to right, #6E1A37f0 20%, #AE244888 60%, transparent 100%)",
+                background:
+                  "linear-gradient(to right, color-mix(in srgb, var(--brand-primary-dark) 94%, transparent) 20%, color-mix(in srgb, var(--brand-primary) 55%, transparent) 60%, transparent 100%)",
               }}
             />
             <div className="absolute inset-0 shadow-inner pointer-events-none" />
@@ -102,8 +103,7 @@ export default function FigmaHeroCarousel({ banners }: FigmaHeroCarouselProps) {
               {banner.ctaLabel && banner.linkUrl ? (
                 <Link
                   href={isAbsoluteUrl(banner.linkUrl) ? banner.linkUrl : banner.linkUrl}
-                  className="inline-flex rounded-full px-4 py-2 text-[11px] font-black shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 md:text-sm"
-                  style={{ backgroundColor: "#D5E7B5", color: "#6E1A37" }}
+                  className="inline-flex rounded-full bg-brand-accent px-4 py-2 text-[11px] font-black text-brand-primary-dark shadow-lg transition-all hover:scale-105 hover:bg-brand-accent-hover hover:shadow-xl active:scale-95 md:text-sm"
                 >
                   {banner.ctaLabel}
                 </Link>
@@ -126,7 +126,10 @@ export default function FigmaHeroCarousel({ banners }: FigmaHeroCarouselProps) {
                 style={{
                   width: activeBanner === index ? 22 : 6,
                   height: 6,
-                  backgroundColor: activeBanner === index ? "#D5E7B5" : "rgba(255,255,255,0.5)",
+                  backgroundColor:
+                    activeBanner === index
+                      ? "var(--brand-accent)"
+                      : "rgba(255,255,255,0.5)",
                 }}
               />
             ))}

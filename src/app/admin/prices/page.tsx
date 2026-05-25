@@ -10,10 +10,10 @@ export default async function AdminPricesPage() {
 
   if (!session) {
     return (
-      <main className="min-h-screen bg-soft-bg px-4 py-10 text-text-dark">
-        <section className="mx-auto max-w-md rounded-lg border border-border-gray bg-white p-6 shadow-sm">
+      <main className="min-h-screen bg-brand-bg px-4 py-10 text-brand-text">
+        <section className="mx-auto max-w-md rounded-lg border border-brand-border bg-white p-6 shadow-sm">
           <p className="text-center text-danger">Tidak memiliki akses</p>
-          <Link href="/" className="mt-4 block text-center text-primary-maroon">
+          <Link href="/" className="mt-4 block text-center text-brand-primary">
             Ke Halaman Utama
           </Link>
         </section>
@@ -30,7 +30,7 @@ export default async function AdminPricesPage() {
   ]);
 
   return (
-    <main className="min-h-screen bg-soft-bg px-4 py-10 text-text-dark">
+    <main className="min-h-screen bg-brand-bg px-4 py-10 text-brand-text">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6">
           <div className="mb-4 rounded-xl border border-warning/20 bg-warning/5 p-4 text-sm text-warning">
@@ -38,16 +38,16 @@ export default async function AdminPricesPage() {
             <Link href="/admin/products" className="font-bold underline">Produk</Link>.
           </div>
           <h1 className="text-2xl font-bold">Harga &amp; Margin</h1>
-          <p className="mt-2 text-sm text-text-muted">
+          <p className="mt-2 text-sm text-brand-muted">
             Tabel harga produk. Edit harga dan margin di halaman{" "}
-            <Link href="/admin/products" className="font-semibold text-primary-maroon">Produk</Link>.
+            <Link href="/admin/products" className="font-semibold text-brand-primary">Produk</Link>.
           </p>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-border-gray bg-white shadow-sm">
+        <div className="overflow-hidden rounded-lg border border-brand-border bg-white shadow-sm">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-border-gray text-sm">
-              <thead className="bg-primary-maroon/5 text-xs uppercase tracking-wide text-primary-maroon">
+            <table className="min-w-full divide-y divide-brand-border text-sm">
+              <thead className="bg-brand-primary/5 text-xs uppercase tracking-wide text-brand-primary">
                 <tr>
                   <th className="px-4 py-3 text-left">Produk</th>
                   <th className="px-4 py-3 text-left">SKU</th>
@@ -59,29 +59,29 @@ export default async function AdminPricesPage() {
                   <th className="px-4 py-3 text-left">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-gray">
+              <tbody className="divide-y divide-brand-border">
                 {products.map((product) => (
                   <tr key={product.id}>
                     <td className="px-4 py-3">
-                      <p className="font-semibold text-text-dark">{product.name}</p>
-                      <p className="text-xs text-text-muted">
+                      <p className="font-semibold text-brand-text">{product.name}</p>
+                      <p className="text-xs text-brand-muted">
                         {product.category?.name ?? "-"} / {product.brand?.name ?? "-"}
                       </p>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-text-muted">{product.sku}</td>
-                    <td className="px-4 py-3 font-mono text-danger">
+                    <td className="px-4 py-3 font-mono text-xs text-brand-muted">{product.sku}</td>
+                    <td className="px-4 py-3 font-mono text-brand-muted">
                       Rp {Number(product.costPrice).toLocaleString("id-ID")}
                     </td>
-                    <td className="px-4 py-3 font-mono text-text-muted">
+                    <td className="px-4 py-3 font-mono text-brand-muted">
                       Rp {Number(product.publicMarginValue).toLocaleString("id-ID")}
                     </td>
-                    <td className="px-4 py-3 font-mono font-semibold text-accent-rose">
+                    <td className="px-4 py-3 font-mono font-semibold text-brand-primary">
                       Rp {Number(product.publicPrice).toLocaleString("id-ID")}
                     </td>
-                    <td className="px-4 py-3 font-mono text-text-muted">
+                    <td className="px-4 py-3 font-mono text-brand-muted">
                       Rp {Number(product.retailMarginValue).toLocaleString("id-ID")}
                     </td>
-                    <td className="px-4 py-3 font-mono font-semibold text-soft-teal">
+                    <td className="px-4 py-3 font-mono font-semibold text-brand-secondary">
                       {product.retailPrice
                         ? `Rp ${Number(product.retailPrice).toLocaleString("id-ID")}`
                         : "-"}
@@ -89,7 +89,7 @@ export default async function AdminPricesPage() {
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/products/${product.id}/edit`}
-                        className="text-xs font-bold text-primary-maroon"
+                        className="text-xs font-bold text-brand-primary"
                       >
                         Edit
                       </Link>
@@ -98,7 +98,7 @@ export default async function AdminPricesPage() {
                 ))}
                 {products.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-4 py-10 text-center text-sm text-text-muted">
+                    <td colSpan={8} className="px-4 py-10 text-center text-sm text-brand-muted">
                       Belum ada produk.
                     </td>
                   </tr>
