@@ -192,19 +192,33 @@ export default function FigmaProductCard({
         ) : null}
 
         <div className="mt-auto min-w-0 pt-1">
-          <p className="truncate text-lg font-bold text-[var(--color-text)]">{visiblePrice}</p>
           {isFlashSale ? (
-            <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5">
-              <span className="truncate text-xs text-[var(--color-text-light)] line-through">{basePrice}</span>
-              {saving ? (
-                <span className="text-xs font-semibold text-[var(--color-success)]">{saving}</span>
-              ) : null}
-            </div>
+            <>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--color-accent)]">
+                Harga promo
+              </p>
+              <p className="truncate text-lg font-bold text-[var(--color-text)]">{visiblePrice}</p>
+              <div className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5">
+                <span className="truncate text-xs text-[var(--color-text-light)] line-through">{basePrice}</span>
+                {saving ? (
+                  <span className="text-xs font-semibold text-[var(--color-success)]">{saving}</span>
+                ) : null}
+              </div>
+            </>
           ) : showRetailAsPrimary && retailPrice ? (
-            <p className="mt-0.5 text-xs font-medium text-[var(--color-success)]">Harga retail</p>
-          ) : retailPrice ? (
-            <p className="mt-0.5 text-xs text-[var(--color-success)]">Retail: {retailPrice}</p>
-          ) : null}
+            <>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--color-success)]">
+                Harga retail
+              </p>
+              <p className="truncate text-lg font-bold text-[var(--color-success)]">{retailPrice}</p>
+              <p className="mt-0.5 text-xs text-[var(--color-text-light)]">
+                <span className="line-through">{publicPrice}</span>
+                <span className="ml-1">harga umum</span>
+              </p>
+            </>
+          ) : (
+            <p className="truncate text-lg font-bold text-[var(--color-text)]">{visiblePrice}</p>
+          )}
         </div>
 
         <div className="mt-2">

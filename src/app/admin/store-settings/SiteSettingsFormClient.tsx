@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useRef, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 
+import { useToast } from "@/components/ui/Toast";
 import {
   DEFAULT_SITE_SETTINGS,
   type PublicSiteSettings,
@@ -269,11 +270,29 @@ function Section({
 }
 
 export default function SiteSettingsFormClient({ settings }: Props) {
+  const toast = useToast();
   const initialFields = useMemo(() => toFields(settings), [settings]);
   const [state, formAction, isPending] = useActionState(
     updateWebIdentityAction,
     initialWebIdentityState,
   );
+
+  // Surface every save result as a floating toast. `state` is a brand-new object
+  // on each action result, so this effect re-runs once per save. We skip only the
+  // very first render (the initial, empty state) via a ref so no toast fires on mount.
+  const hasRenderedRef = useRef(false);
+  useEffect(() => {
+    if (!hasRenderedRef.current) {
+      hasRenderedRef.current = true;
+      return;
+    }
+    if (state.success) {
+      toast.success("Tersimpan", state.message || "Pengaturan web berhasil disimpan.");
+    } else if (state.error) {
+      toast.error("Gagal menyimpan", state.error);
+    }
+  }, [state, toast]);
+
   const values = state.error || state.success ? state.fields : initialFields;
   const fieldErrors = state?.fieldErrors ?? {};
   const [primaryColor, setPrimaryColor] = useState(values.primaryColor);

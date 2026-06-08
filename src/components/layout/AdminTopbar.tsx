@@ -19,7 +19,6 @@ const titleMap: Array<[RegExp, string]> = [
   [/^\/admin\/products/, "Produk"],
   [/^\/admin\/categories/, "Kategori"],
   [/^\/admin\/brands/, "Merek"],
-  [/^\/admin\/prices/, "Harga"],
   [/^\/admin\/vouchers/, "Voucher"],
   [/^\/admin\/promo-banners/, "Promo Banner"],
   [/^\/admin\/flash-sale/, "Flash Sale"],

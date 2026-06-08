@@ -193,7 +193,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </select>
             <button
               type="submit"
-              className="rounded-xl bg-[var(--color-accent)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-accent)] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--color-accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] active:translate-y-px disabled:cursor-not-allowed disabled:bg-[var(--color-border-strong)] disabled:text-white"
             >
               Terapkan
             </button>
@@ -427,7 +427,7 @@ async function ProductResults({
           </p>
           <Link
             href="/products"
-            className="mt-5 inline-flex rounded-xl bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--color-accent-hover)]"
+            className="mt-5 inline-flex min-h-10 items-center justify-center rounded-xl bg-[var(--color-accent)] px-4 py-2 text-sm font-bold text-white hover:bg-[var(--color-accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
           >
             Reset filter
           </Link>
@@ -545,7 +545,7 @@ function FilterPanel({
 
         <button
           type="submit"
-          className="rounded-xl bg-[var(--color-accent)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--color-accent-hover)]"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-accent)] px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[var(--color-accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] active:translate-y-px disabled:cursor-not-allowed disabled:bg-[var(--color-border-strong)] disabled:text-white"
         >
           Terapkan Filter
         </button>

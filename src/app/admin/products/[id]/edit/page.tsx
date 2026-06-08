@@ -6,6 +6,12 @@ import ProductFormClient from "../../ProductFormClient";
 
 export const dynamic = "force-dynamic";
 
+function voucherDiscountLabel(voucher: { discountType: string; discountValue: unknown }) {
+  const value = Number(voucher.discountValue);
+  if (voucher.discountType === "PERCENTAGE") return `${value.toLocaleString("id-ID")}%`;
+  return `Rp ${value.toLocaleString("id-ID")}`;
+}
+
 export default async function AdminEditProductPage({
   params,
 }: {
@@ -56,6 +62,35 @@ export default async function AdminEditProductPage({
     );
   }
 
+  const voucherEligibility = await db.voucher.findMany({
+    where: {
+      OR: [
+        { scope: "ALL" },
+        { categories: { some: { id: product.categoryId } } },
+        { products: { some: { productId: product.id } } },
+      ],
+    },
+    select: {
+      id: true,
+      code: true,
+      title: true,
+      scope: true,
+      status: true,
+      isActive: true,
+      showForPublic: true,
+      showForRetail: true,
+      startsAt: true,
+      endsAt: true,
+      minimumPurchase: true,
+      discountType: true,
+      discountValue: true,
+      categories: { select: { name: true }, orderBy: { name: "asc" } },
+      products: { select: { productId: true } },
+    },
+    orderBy: [{ status: "asc" }, { endsAt: "asc" }, { createdAt: "desc" }],
+    take: 12,
+  });
+
   const serializedProduct = {
     ...product,
     costPrice: product.costPrice?.toString() ?? "",
@@ -96,6 +131,22 @@ export default async function AdminEditProductPage({
           mode="edit"
           categories={categories}
           brands={brands}
+          voucherEligibility={voucherEligibility.map((voucher) => ({
+            id: voucher.id,
+            code: voucher.code,
+            title: voucher.title,
+            scope: voucher.scope,
+            status: voucher.status,
+            isActive: voucher.isActive,
+            showForPublic: voucher.showForPublic,
+            showForRetail: voucher.showForRetail,
+            startsAt: voucher.startsAt.toISOString(),
+            endsAt: voucher.endsAt.toISOString(),
+            minimumPurchase: voucher.minimumPurchase?.toString() ?? null,
+            discountLabel: voucherDiscountLabel(voucher),
+            categoryNames: voucher.categories.map((category) => category.name),
+            productIds: voucher.products.map((item) => item.productId),
+          }))}
           product={serializedProduct}
         />
       </section>

@@ -23,5 +23,8 @@ export default defineConfig({
     url: BASE_URL,
     timeout: 120_000,
     reuseExistingServer: true,
+    env: {
+      RATE_LIMIT_DISABLED: "1",
+    },
   },
 });

@@ -51,7 +51,6 @@ const adminMenus: NavGroup[] = [
       { href: "/admin/products", label: "Produk", icon: Package },
       { href: "/admin/categories", label: "Kategori", icon: Tags },
       { href: "/admin/brands", label: "Merek", icon: Bookmark },
-      { href: "/admin/prices", label: "Harga", icon: BarChart3 },
     ],
   },
   {

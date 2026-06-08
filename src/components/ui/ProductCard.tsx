@@ -70,7 +70,6 @@ export default function ProductCard({
   productSlug,
   isFirst,
 }: ProductCardProps) {
-  const basePrice = showRetailAsPrimary && retailPrice ? retailPrice : publicPrice;
   const badgeStyles = getBadgeStyles(badge);
   const stockStyles = getStockStyles(stockStatus);
   const showStockChip = stockStatus && stockStatus !== 'READY';
@@ -139,17 +138,20 @@ export default function ProductCard({
 
         {/* Price */}
         <div className="mt-1">
-          <p className="text-base font-bold text-[var(--color-accent)]">
-            {basePrice}
-          </p>
-          {retailPrice && showRetailAsPrimary && publicPrice && (
-            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-              Public: <span className="font-semibold">{publicPrice}</span>
-            </p>
-          )}
-          {retailPrice && !showRetailAsPrimary && (
-            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-              Retail: <span className="font-semibold text-[var(--color-success)]">{retailPrice}</span>
+          {retailPrice && showRetailAsPrimary ? (
+            <>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--color-success)]">
+                Harga retail
+              </p>
+              <p className="text-base font-bold text-[var(--color-success)]">{retailPrice}</p>
+              <p className="mt-0.5 text-xs text-[var(--color-text-muted)]">
+                <span className="line-through">{publicPrice}</span>
+                <span className="ml-1">harga umum</span>
+              </p>
+            </>
+          ) : (
+            <p className="text-base font-bold text-[var(--color-accent)]">
+              {publicPrice}
             </p>
           )}
         </div>
@@ -157,7 +159,7 @@ export default function ProductCard({
         {/* Voucher available badge */}
         {voucherAvailable && (
           <div className="text-[11px] text-purple-700 flex items-center gap-1">
-            🎟 Voucher tersedia
+            Voucher tersedia
           </div>
         )}
 

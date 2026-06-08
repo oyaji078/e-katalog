@@ -405,26 +405,39 @@ export async function updateWebIdentityAction(
   };
 }
 
-export async function updateStoreSetting(key: string, value: string) {
+// Not exported: a "use server" module may only export async functions, and the
+// client checks `result.success` structurally without importing this type.
+type UpdateStoreSettingResult =
+  | { success: true }
+  | { success: false; error: string };
+
+export async function updateStoreSetting(
+  key: string,
+  value: string,
+): Promise<UpdateStoreSettingResult> {
   await requireAdmin();
   const session = await getAdminSession();
   const db = getDb();
 
-  await db.storeSetting.upsert({
-    where: { key },
-    update: { value },
-    create: { key, value },
-  });
+  try {
+    await db.storeSetting.upsert({
+      where: { key },
+      update: { value },
+      create: { key, value },
+    });
 
-  await logAdminActivity({
-    actorId: session?.user.id ?? null,
-    actorRole: toUserRole(session?.user.role ?? null),
-    action: "Store setting updated",
-    targetType: "StoreSetting",
-    targetId: key,
-    risk: "MEDIUM",
-    metadata: { key },
-  });
+    await logAdminActivity({
+      actorId: session?.user.id ?? null,
+      actorRole: toUserRole(session?.user.role ?? null),
+      action: "Store setting updated",
+      targetType: "StoreSetting",
+      targetId: key,
+      risk: "MEDIUM",
+      metadata: { key },
+    });
+  } catch {
+    return { success: false, error: "Pengaturan gagal disimpan. Silakan coba lagi." };
+  }
 
   revalidatePath("/admin/store-settings");
   updateTag(SITE_SETTINGS_CACHE_TAG);

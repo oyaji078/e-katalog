@@ -180,13 +180,13 @@ export default function ProductFilterSidebar() {
       <div className="mt-8">
         <button
           onClick={applyFilters}
-          className="w-full rounded-xl bg-brand-accent px-4 py-3 text-sm font-bold text-brand-on-accent flex items-center justify-center hover:bg-brand-accent-hover"
+          className="flex min-h-11 w-full items-center justify-center rounded-xl bg-brand-accent px-4 py-3 text-sm font-bold text-brand-on-accent shadow-sm transition hover:bg-brand-accent-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent disabled:cursor-not-allowed disabled:bg-brand-light disabled:text-white"
         >
           Terapkan Filter
         </button>
         <button
           onClick={resetFilters}
-          className="mt-2 w-full rounded-xl border border-brand-dark px-4 py-3 text-sm font-semibold text-brand-on-dark hover:border-brand-accent hover:text-brand-accent"
+          className="mt-2 flex min-h-11 w-full items-center justify-center rounded-xl border border-brand-dark bg-white px-4 py-3 text-sm font-semibold text-brand-on-light transition hover:border-brand-accent hover:text-brand-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-accent"
         >
           Reset Filter
         </button>

@@ -16,10 +16,28 @@ type ProductImageRecord = {
 
 type BrandOption = { id: string; name: string; isActive: boolean; logoUrl?: string | null };
 
+type ProductVoucherEligibility = {
+  id: string;
+  code: string;
+  title: string;
+  scope: string;
+  status: string;
+  isActive: boolean;
+  showForPublic: boolean;
+  showForRetail: boolean;
+  startsAt: string;
+  endsAt: string;
+  minimumPurchase: string | null;
+  discountLabel: string;
+  categoryNames: string[];
+  productIds: string[];
+};
+
 type ProductFormClientProps = {
   mode: "create" | "edit";
   categories: { id: string; name: string }[];
   brands: BrandOption[];
+  voucherEligibility?: ProductVoucherEligibility[];
   product?: {
     id: string;
     name: string;
@@ -110,7 +128,42 @@ function formatSpecifications(value: unknown) {
   return JSON.stringify(value, null, 2);
 }
 
-export default function ProductFormClient({ mode, categories, brands, product }: ProductFormClientProps) {
+function scopeLabel(scope: string) {
+  if (scope === "PRODUCTS") return "Produk tertentu";
+  if (scope === "CATEGORIES") return "Kategori";
+  return "Semua produk";
+}
+
+function audienceLabel(voucher: ProductVoucherEligibility) {
+  if (voucher.showForPublic && voucher.showForRetail) return "Publik & ritel";
+  if (voucher.showForRetail) return "Ritel";
+  return "Publik";
+}
+
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function voucherState(voucher: ProductVoucherEligibility) {
+  const now = Date.now();
+  const starts = new Date(voucher.startsAt).getTime();
+  const ends = new Date(voucher.endsAt).getTime();
+  const live = voucher.isActive && voucher.status === "ACTIVE" && starts <= now && ends >= now;
+
+  return live
+    ? { label: "Aktif", className: "bg-success/15 text-success" }
+    : { label: "Tidak aktif", className: "bg-[rgba(13,11,97,0.08)] text-brand-muted-on-light" };
+}
+
+export default function ProductFormClient({
+  mode,
+  categories,
+  brands,
+  voucherEligibility = [],
+  product,
+}: ProductFormClientProps) {
   const action = mode === "create" ? createProductAction : updateProductAction;
   const [state, formAction, isPending] = useActionState(action, initialState);
 
@@ -493,7 +546,7 @@ export default function ProductFormClient({ mode, categories, brands, product }:
             )}
 
             <p className="mt-3 text-xs text-brand-muted">
-              Format: JPG, PNG, atau WebP. Ukuran maksimal 5 MB per foto.
+              Format: JPG, PNG, atau WebP. Ukuran maksimal 3 MB per foto.
             </p>
           </section>
 
@@ -654,6 +707,60 @@ export default function ProductFormClient({ mode, categories, brands, product }:
                 <p className="text-lg font-black text-brand-secondary">Rp {formatIndonesianNumber(previewRitel)}</p>
               </div>
             </div>
+          </section>
+
+          <section className="rounded-2xl border border-brand-border bg-white p-5">
+            <h2 className="text-base font-bold text-brand-text">Eligibility Voucher</h2>
+            <p className="mt-1 text-xs leading-5 text-brand-muted">
+              Voucher yang berlaku untuk produk ini berdasarkan scope semua produk, kategori, atau produk tertentu.
+            </p>
+
+            {mode === "create" ? (
+              <div className="mt-4 rounded-xl border border-brand-border bg-brand-bg p-3 text-xs leading-5 text-brand-muted">
+                Eligibility voucher akan tampil setelah produk disimpan.
+              </div>
+            ) : voucherEligibility.length > 0 ? (
+              <div className="mt-4 space-y-2">
+                {voucherEligibility.map((voucher) => {
+                  const state = voucherState(voucher);
+                  return (
+                    <div key={voucher.id} className="rounded-xl border border-brand-border bg-brand-bg p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate font-mono text-xs font-black text-brand-primary">{voucher.code}</p>
+                          <p className="mt-0.5 line-clamp-2 text-xs font-semibold text-brand-text">{voucher.title}</p>
+                        </div>
+                        <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${state.className}`}>
+                          {state.label}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-semibold text-brand-muted">
+                        <span className="rounded-full bg-white px-2 py-1">{scopeLabel(voucher.scope)}</span>
+                        <span className="rounded-full bg-white px-2 py-1">{audienceLabel(voucher)}</span>
+                        <span className="rounded-full bg-white px-2 py-1">{voucher.discountLabel}</span>
+                      </div>
+                      {voucher.categoryNames.length > 0 ? (
+                        <p className="mt-2 text-[11px] text-brand-muted">
+                          Kategori: {voucher.categoryNames.join(", ")}
+                        </p>
+                      ) : null}
+                      <p className="mt-2 text-[11px] text-brand-muted">
+                        Periode: {formatDate(voucher.startsAt)} - {formatDate(voucher.endsAt)}
+                      </p>
+                      {voucher.minimumPurchase ? (
+                        <p className="mt-1 text-[11px] text-brand-muted">
+                          Minimum belanja Rp {formatIndonesianNumber(voucher.minimumPurchase)}
+                        </p>
+                      ) : null}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="mt-4 rounded-xl border border-brand-border bg-brand-bg p-3 text-xs leading-5 text-brand-muted">
+                Belum ada voucher yang terhubung ke produk, kategori, atau semua produk.
+              </div>
+            )}
           </section>
 
           <section className="rounded-2xl border border-brand-border bg-white p-5">

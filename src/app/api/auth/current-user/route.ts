@@ -6,7 +6,10 @@ export async function GET() {
   const user = await getCurrentUser();
 
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401, headers: { "Cache-Control": "no-store" } },
+    );
   }
 
   return NextResponse.json({
@@ -15,5 +18,5 @@ export async function GET() {
     email: user.email,
     role: user.role,
     retailStatus: user.retailStatus,
-  });
+  }, { headers: { "Cache-Control": "no-store" } });
 }

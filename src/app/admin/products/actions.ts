@@ -6,6 +6,11 @@ import type { ProductStatus, StockStatus } from "@/generated/prisma/client";
 import { getAdminSession, toUserRole } from "@/lib/admin-auth";
 import { logAdminActivity } from "@/lib/activity-log";
 import { getDb } from "@/lib/db";
+import {
+  normalizeProductPricingMode,
+  resolveProductPricingFromForm,
+  type ProductPricingMode,
+} from "@/lib/pricing";
 import { generateUniqueProductSku } from "@/lib/sku";
 import { createProductSlug } from "@/lib/slug";
 import { deleteProductImage, isLocalUploadPath, saveProductImage } from "@/lib/upload/storage";
@@ -39,12 +44,6 @@ function text(formData: FormData, key: string) {
 function nullableText(formData: FormData, key: string) {
   const value = text(formData, key);
   return value ? value : null;
-}
-
-function parseMoney(value: string): number {
-  const cleaned = value.replace(/[Rr][Pp]\s*/g, "").replace(/\./g, "").replace(/,/g, ".").replace(/[^0-9.-]/g, "");
-  const parsed = Number(cleaned);
-  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function parseProductStatus(value: FormDataEntryValue | null): ProductStatus {
@@ -254,44 +253,17 @@ export async function createProductAction(
   const stockQuantity = Number(text(formData, "stockQuantity") || "0");
   const stockStatus = parseStockStatus(formData.get("stockStatus"));
   const status = parseProductStatus(formData.get("status"));
-  const pricingMode = text(formData, "pricingMode") || "ONE_PRICE";
+  const pricingResult = resolveProductPricingFromForm(formData);
+  if (pricingResult.error || !pricingResult.pricing) {
+    return failure(pricingResult.error ?? "Pengaturan harga tidak valid.");
+  }
+  const pricing = pricingResult.pricing;
   const specifications = parseSpecifications(text(formData, "specifications"));
 
   if (!name) return failure("Nama produk harus diisi.");
   if (!categoryId) return failure("Kategori harus dipilih.");
   if (!brandId) return failure("Merek harus dipilih.");
   if (!description) return failure("Deskripsi produk harus diisi.");
-
-  let costPrice = 0;
-  let publicMarginValue = 0;
-  let retailMarginValue = 0;
-  let publicPrice = 0;
-  let retailPrice = 0;
-
-  if (pricingMode === "ONE_PRICE") {
-    const hargaJual = parseMoney(text(formData, "hargaJual"));
-    if (hargaJual <= 0) return failure("Harga jual harus lebih dari 0.");
-    publicPrice = hargaJual;
-    retailPrice = hargaJual;
-  } else if (pricingMode === "MANUAL_DUAL_PRICE") {
-    const hargaPublik = parseMoney(text(formData, "hargaPublik"));
-    const hargaRitel = parseMoney(text(formData, "hargaRitel"));
-    if (hargaPublik <= 0) return failure("Harga publik harus lebih dari 0.");
-    if (hargaRitel <= 0) return failure("Harga ritel harus lebih dari 0.");
-    publicPrice = hargaPublik;
-    retailPrice = hargaRitel;
-  } else {
-    costPrice = parseMoney(text(formData, "hargaBarang"));
-    publicMarginValue = parseMoney(text(formData, "marginPublic"));
-    retailMarginValue = parseMoney(text(formData, "marginRitel"));
-    if (costPrice < 0) return failure("Harga barang tidak boleh negatif.");
-    if (publicMarginValue < 0) return failure("Margin publik tidak boleh negatif.");
-    if (retailMarginValue < 0) return failure("Margin ritel tidak boleh negatif.");
-    publicPrice = costPrice + publicMarginValue;
-    retailPrice = costPrice + retailMarginValue;
-    if (publicPrice <= 0) return failure("Harga publik (harga barang + margin publik) harus lebih dari 0.");
-    if (retailPrice <= 0) return failure("Harga ritel (harga barang + margin ritel) harus lebih dari 0.");
-  }
 
   // Generate SKU with retry
   const category = await db.category.findUnique({ where: { id: categoryId }, select: { name: true } });
@@ -323,7 +295,7 @@ export async function createProductAction(
     return failure(errorMessage(error));
   }
 
-  let product: { id: string; sku: string; name: string };
+  let product: { id: string; sku: string; slug: string | null; name: string };
   try {
     const gallery = buildCreateGallery(formData, savedImageUrls);
     product = await db.product.create({
@@ -335,14 +307,14 @@ export async function createProductAction(
         warrantyInfo,
         specifications,
         primaryImageUrl: gallery.primaryImageUrl,
-        pricingMode,
-        costPrice,
-        publicMarginType: "FIXED_AMOUNT",
-        publicMarginValue,
-        retailMarginType: "FIXED_AMOUNT",
-        retailMarginValue,
-        publicPrice,
-        retailPrice,
+        pricingMode: pricing.pricingMode,
+        costPrice: pricing.costPrice,
+        publicMarginType: pricing.publicMarginType,
+        publicMarginValue: pricing.publicMarginValue,
+        retailMarginType: pricing.retailMarginType,
+        retailMarginValue: pricing.retailMarginValue,
+        publicPrice: pricing.publicPrice,
+        retailPrice: pricing.retailPrice,
         stockQuantity: Number.isFinite(stockQuantity) ? stockQuantity : 0,
         stockStatus,
         status,
@@ -358,7 +330,7 @@ export async function createProductAction(
             }
           : undefined,
       },
-      select: { id: true, sku: true, name: true },
+      select: { id: true, sku: true, slug: true, name: true },
     });
   } catch {
     cleanupProductImages(savedImageUrls);
@@ -375,7 +347,7 @@ export async function createProductAction(
     metadata: { sku: product.sku, name: product.name },
   });
 
-  revalidateProductPaths(product.id);
+  revalidateProductPaths(product);
   return ok("Produk berhasil disimpan.", product.id);
 }
 
@@ -404,53 +376,27 @@ export async function updateProductAction(
   const stockQuantity = Number(text(formData, "stockQuantity") || "0");
   const stockStatus = parseStockStatus(formData.get("stockStatus"));
   const status = parseProductStatus(formData.get("status"));
-  let pricingMode = text(formData, "pricingMode");
-  if (!pricingMode) {
+  let fallbackPricingMode: ProductPricingMode = normalizeProductPricingMode(existingProduct.pricingMode);
+  if (!text(formData, "pricingMode")) {
     const hargaJualField = text(formData, "hargaJual");
     const hargaPublikField = text(formData, "hargaPublik");
     if (hargaJualField || !hargaPublikField) {
-      pricingMode = existingProduct.pricingMode || "ONE_PRICE";
+      fallbackPricingMode = normalizeProductPricingMode(existingProduct.pricingMode);
     } else {
-      pricingMode = "MANUAL_DUAL_PRICE";
+      fallbackPricingMode = "MANUAL_DUAL_PRICE";
     }
   }
+  const pricingResult = resolveProductPricingFromForm(formData, fallbackPricingMode);
+  if (pricingResult.error || !pricingResult.pricing) {
+    return failure(pricingResult.error ?? "Pengaturan harga tidak valid.");
+  }
+  const pricing = pricingResult.pricing;
   const specifications = parseSpecifications(text(formData, "specifications"));
 
   if (!name) return failure("Nama produk harus diisi.");
   if (!categoryId) return failure("Kategori harus dipilih.");
   if (!brandId) return failure("Merek harus dipilih.");
   if (!description) return failure("Deskripsi produk harus diisi.");
-
-  let costPrice = 0;
-  let publicMarginValue = 0;
-  let retailMarginValue = 0;
-  let publicPrice = 0;
-  let retailPrice = 0;
-
-  if (pricingMode === "ONE_PRICE") {
-    const hargaJual = parseMoney(text(formData, "hargaJual"));
-    if (hargaJual <= 0) return failure("Harga jual harus lebih dari 0.");
-    publicPrice = hargaJual;
-    retailPrice = hargaJual;
-  } else if (pricingMode === "MANUAL_DUAL_PRICE") {
-    const hargaPublik = parseMoney(text(formData, "hargaPublik"));
-    const hargaRitel = parseMoney(text(formData, "hargaRitel"));
-    if (hargaPublik <= 0) return failure("Harga publik harus lebih dari 0.");
-    if (hargaRitel <= 0) return failure("Harga ritel harus lebih dari 0.");
-    publicPrice = hargaPublik;
-    retailPrice = hargaRitel;
-  } else {
-    costPrice = parseMoney(text(formData, "hargaBarang"));
-    publicMarginValue = parseMoney(text(formData, "marginPublic"));
-    retailMarginValue = parseMoney(text(formData, "marginRitel"));
-    if (costPrice < 0) return failure("Harga barang tidak boleh negatif.");
-    if (publicMarginValue < 0) return failure("Margin publik tidak boleh negatif.");
-    if (retailMarginValue < 0) return failure("Margin ritel tidak boleh negatif.");
-    publicPrice = costPrice + publicMarginValue;
-    retailPrice = costPrice + retailMarginValue;
-    if (publicPrice <= 0) return failure("Harga publik (harga barang + margin publik) harus lebih dari 0.");
-    if (retailPrice <= 0) return failure("Harga ritel (harga barang + margin ritel) harus lebih dari 0.");
-  }
 
   let slug = existingProduct.slug;
   if (name !== existingProduct.name) {
@@ -487,14 +433,14 @@ export async function updateProductAction(
           warrantyInfo,
           specifications,
           primaryImageUrl: gallery.primaryImageUrl,
-          pricingMode,
-          costPrice,
-          publicMarginType: "FIXED_AMOUNT",
-          publicMarginValue,
-          retailMarginType: "FIXED_AMOUNT",
-          retailMarginValue,
-          publicPrice,
-          retailPrice,
+          pricingMode: pricing.pricingMode,
+          costPrice: pricing.costPrice,
+          publicMarginType: pricing.publicMarginType,
+          publicMarginValue: pricing.publicMarginValue,
+          retailMarginType: pricing.retailMarginType,
+          retailMarginValue: pricing.retailMarginValue,
+          publicPrice: pricing.publicPrice,
+          retailPrice: pricing.retailPrice,
           stockQuantity: Number.isFinite(stockQuantity) ? stockQuantity : 0,
           stockStatus,
           status,
@@ -531,7 +477,7 @@ export async function updateProductAction(
     metadata: { sku: existingProduct.sku, name },
   });
 
-  revalidateProductPaths(productId);
+  revalidateProductPaths(existingProduct);
   return ok("Produk berhasil disimpan.", productId);
 }
 
@@ -572,13 +518,15 @@ export async function deleteProductAction(productId: string): Promise<{ success:
     metadata: { sku: product.sku, name: product.name },
   });
 
-  revalidateProductPaths(productId);
+  revalidateProductPaths(product);
   return { success: true, error: "" };
 }
 
-function revalidateProductPaths(productId: string) {
+function revalidateProductPaths(product: { id: string; sku?: string | null; slug?: string | null }) {
   revalidatePath("/");
   revalidatePath("/products");
-  revalidatePath(`/products/${productId}`);
+  revalidatePath(`/products/${product.id}`);
+  if (product.slug) revalidatePath(`/products/${product.slug}`);
+  if (product.sku) revalidatePath(`/products/${product.sku}`);
   revalidatePath("/admin/products");
 }

@@ -7,14 +7,20 @@ async function loginViaUi(page: Page, email: string, password: string) {
   await page.goto("/login", { waitUntil: "load" });
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="password"]', password);
+  const redirectAfterLogin = page
+    .waitForURL((url) => url.pathname !== "/login", { timeout: 8000 })
+    .catch(() => null);
   await page.click('button[type="submit"]');
   // LoginForm: signIn.email -> fetch /api/auth/current-user -> window.location redirect.
-  await page.waitForTimeout(2500);
+  await redirectAfterLogin;
+  await page.waitForLoadState("domcontentloaded").catch(() => undefined);
+  return new URL(page.url()).pathname !== "/login";
 }
 
 test.describe("auth flow", () => {
   test("login then logout clears the session (current-user 401)", async ({ page }) => {
-    await loginViaUi(page, RETAIL_USER.email, RETAIL_USER.password);
+    const loggedIn = await loginViaUi(page, RETAIL_USER.email, RETAIL_USER.password);
+    test.skip(!loggedIn, "Demo retail user not available; skipping");
 
     const before = await page.request.get("/api/auth/current-user");
     test.skip(before.status() === 401, "Demo retail user not seeded; skipping");
@@ -40,7 +46,8 @@ test.describe("auth flow", () => {
   });
 
   test("regular user cannot reach /admin", async ({ page }) => {
-    await loginViaUi(page, RETAIL_USER.email, RETAIL_USER.password);
+    const loggedIn = await loginViaUi(page, RETAIL_USER.email, RETAIL_USER.password);
+    test.skip(!loggedIn, "Demo retail user not available; skipping");
 
     const probe = await page.request.get("/api/auth/current-user");
     test.skip(probe.status() === 401, "Demo retail user not seeded; skipping");

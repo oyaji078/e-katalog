@@ -78,8 +78,9 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const { id } = await params;
+export default async function ProductDetailPage({ params, searchParams }: ProductDetailPageProps) {
+  const [{ id }, rawSearchParams] = await Promise.all([params, searchParams]);
+  const returnUrl = safeReturnUrl(firstParam(rawSearchParams.returnUrl), "/products");
   const db = getDb();
   const now = new Date();
   const [user, retailPriceEnabled, publicVoucherEnabled, retailVoucherEnabled, flashSaleEnabled] =
@@ -240,7 +241,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             Beranda
           </Link>
           <span>/</span>
-          <Link href="/products" className="transition-colors hover:text-[var(--color-accent)]">
+          <Link href={returnUrl} className="transition-colors hover:text-[var(--color-accent)]">
             Katalog
           </Link>
           <span>/</span>
@@ -278,13 +279,26 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               {flashSaleDisplay ? (
                 <>
                   <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent)]">
-                    Harga Flash Sale
+                    {showRetail && product.retailPrice ? "Harga Flash Sale Retail" : "Harga Flash Sale"}
                   </p>
                   <p className="mt-1 text-2xl font-bold text-[var(--color-accent)]">
                     {formatRupiah(flashSaleDisplay.price)}
                   </p>
                   <p className="mt-1 text-xs text-[var(--color-text-muted)] line-through">
-                    {formatRupiah(showRetail && product.retailPrice ? product.retailPrice : product.publicPrice)}
+                    {formatRupiah(product.publicPrice)}
+                  </p>
+                </>
+              ) : showRetail && product.retailPrice ? (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-success)]">
+                    Harga Retail
+                  </p>
+                  <p className="mt-1 text-2xl font-bold text-[var(--color-success)]">
+                    {formatRupiah(product.retailPrice)}
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--color-text-muted)]">
+                    Harga umum{" "}
+                    <span className="font-medium line-through">{formatRupiah(product.publicPrice)}</span>
                   </p>
                 </>
               ) : (
@@ -292,11 +306,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                   <p className="text-2xl font-bold text-[var(--color-accent)]">
                     {formatRupiah(product.publicPrice)}
                   </p>
-                  {showRetail && product.retailPrice ? (
-                    <p className="mt-1 text-sm font-semibold text-[var(--color-success)]">
-                      Harga Retail: {formatRupiah(product.retailPrice)}
-                    </p>
-                  ) : !showRetail && product.retailPrice ? (
+                  {!showRetail && product.retailPrice ? (
                     <p className="mt-1 text-xs text-[var(--color-text-muted)]">
                       Harga retail tersedia untuk{" "}
                       <Link href="/register" className="font-medium text-[var(--color-accent)] hover:underline">
@@ -431,6 +441,17 @@ function StockChip({ status }: { status: string }) {
       {chip.label}
     </span>
   );
+}
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
+function safeReturnUrl(value: string, fallback: string) {
+  if (!value.startsWith("/") || value.startsWith("//")) return fallback;
+  if (value.includes("http://") || value.includes("https://")) return fallback;
+  if (!value.startsWith("/products")) return fallback;
+  return value;
 }
 
 function uniqueImages(images: Array<string | null | undefined>) {

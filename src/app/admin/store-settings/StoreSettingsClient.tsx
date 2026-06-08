@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { useToast } from "@/components/ui/Toast";
 import { updateStoreSetting } from "./actions";
 
 type Setting = {
@@ -13,6 +14,7 @@ type Setting = {
 };
 
 export default function StoreSettingsClient({ settings }: { settings: Setting[] }) {
+  const toast = useToast();
   const [editing, setEditing] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, string>>(
     Object.fromEntries(settings.map((setting) => [setting.key, setting.value])),
@@ -21,9 +23,19 @@ export default function StoreSettingsClient({ settings }: { settings: Setting[] 
 
   async function handleSave(key: string) {
     setSaving(true);
-    await updateStoreSetting(key, values[key] ?? "");
-    setSaving(false);
-    setEditing(null);
+    try {
+      const result = await updateStoreSetting(key, values[key] ?? "");
+      if (!result.success) {
+        toast.error("Gagal menyimpan", result.error);
+        return;
+      }
+      toast.success("Tersimpan", `Pengaturan "${key}" berhasil disimpan.`);
+      setEditing(null);
+    } catch {
+      toast.error("Gagal menyimpan", "Terjadi kesalahan. Silakan coba lagi.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (

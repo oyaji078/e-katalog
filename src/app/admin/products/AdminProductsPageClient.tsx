@@ -14,13 +14,16 @@ type AdminProductRow = {
   slug: string | null;
   primaryImageUrl: string | null;
   costPrice: string;
+  publicMarginValue: string;
   publicPrice: string;
+  retailMarginValue: string;
   retailPrice: string | null;
   stockQuantity: number;
   stockStatus: string;
   status: string;
   category?: { name: string } | null;
   brand?: { name: string } | null;
+  voucherCount: number;
 };
 
 type Props = {
@@ -117,14 +120,31 @@ function Row({ product }: { product: AdminProductRow }) {
             <span className="font-mono text-brand-muted-on-light">{formatPrice(product.costPrice)}</span>
           </div>
           <div>
-            <span className="text-[10px] text-brand-muted-on-light">Public </span>
+            <span className="text-[10px] text-brand-muted-on-light">Margin umum </span>
+            <span className="font-mono text-brand-muted-on-light">{formatPrice(product.publicMarginValue)}</span>
+          </div>
+          <div>
+            <span className="text-[10px] text-brand-muted-on-light">Harga umum </span>
             <span className="font-mono font-semibold text-brand-on-light">{formatPrice(product.publicPrice)}</span>
           </div>
           <div>
-            <span className="text-[10px] text-brand-muted-on-light">Ritel </span>
+            <span className="text-[10px] text-brand-muted-on-light">Margin ritel </span>
+            <span className="font-mono text-brand-muted-on-light">{formatPrice(product.retailMarginValue)}</span>
+          </div>
+          <div>
+            <span className="text-[10px] text-brand-muted-on-light">Harga ritel </span>
             <span className="font-mono font-semibold text-[#111827]">{formatPrice(product.retailPrice)}</span>
           </div>
         </div>
+      </td>
+      <td className="px-3 py-3 text-xs text-brand-muted-on-light">
+        {product.voucherCount > 0 ? (
+          <span className="rounded-full bg-brand-accent/15 px-2 py-1 font-semibold text-brand-primary">
+            {product.voucherCount} voucher
+          </span>
+        ) : (
+          <span>-</span>
+        )}
       </td>
       <td className="px-3 py-3">
         <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${st.className}`}>
@@ -335,6 +355,7 @@ export default function AdminProductsPageClient({ products, pagination, filters,
               <th className="px-3 py-3">Merek</th>
               <th className="px-3 py-3">Stok</th>
               <th className="px-3 py-3">Harga</th>
+              <th className="px-3 py-3">Voucher</th>
               <th className="px-3 py-3">Status</th>
               <th className="px-3 py-3">Aksi</th>
             </tr>
@@ -345,7 +366,7 @@ export default function AdminProductsPageClient({ products, pagination, filters,
             ))}
             {products.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-sm text-brand-muted-on-light">
+                <td colSpan={9} className="px-4 py-10 text-center text-sm text-brand-muted-on-light">
                   {hasFilters ? "Tidak ada produk yang cocok dengan filter." : "Belum ada produk. Klik \"Tambah Produk\" untuk mulai."}
                 </td>
               </tr>
@@ -413,12 +434,28 @@ export default function AdminProductsPageClient({ products, pagination, filters,
                   <p className="font-mono font-semibold text-brand-muted-on-light">{formatPrice(product.costPrice)}</p>
                 </div>
                 <div>
-                  <span className="text-brand-muted-on-light">Public</span>
+                  <span className="text-brand-muted-on-light">Umum</span>
                   <p className="font-mono font-semibold text-brand-on-light">{formatPrice(product.publicPrice)}</p>
                 </div>
                 <div>
                   <span className="text-brand-muted-on-light">Ritel</span>
                   <p className="font-mono font-semibold text-[#111827]">{formatPrice(product.retailPrice)}</p>
+                </div>
+              </div>
+              <div className="mt-2 grid grid-cols-3 gap-2 rounded-lg bg-[rgba(13,11,97,0.04)] p-2 text-xs">
+                <div>
+                  <span className="text-brand-muted-on-light">Margin umum</span>
+                  <p className="font-mono font-semibold text-brand-muted-on-light">{formatPrice(product.publicMarginValue)}</p>
+                </div>
+                <div>
+                  <span className="text-brand-muted-on-light">Margin ritel</span>
+                  <p className="font-mono font-semibold text-brand-muted-on-light">{formatPrice(product.retailMarginValue)}</p>
+                </div>
+                <div>
+                  <span className="text-brand-muted-on-light">Voucher</span>
+                  <p className="font-semibold text-brand-on-light">
+                    {product.voucherCount > 0 ? `${product.voucherCount} voucher` : "-"}
+                  </p>
                 </div>
               </div>
               <div className="mt-2 flex items-center justify-between">
