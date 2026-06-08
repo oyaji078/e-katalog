@@ -184,6 +184,10 @@ function validateFields(fields: HeroBannerFormFields): {
     fieldErrors.endsAt = "Tanggal Berakhir harus setelah Tanggal Mulai.";
   }
 
+  if (isActive === true && endsAt && endsAt < new Date()) {
+    fieldErrors.endsAt = "Banner sudah melewati tanggal akhir. Perbarui tanggal sebelum mengaktifkan.";
+  }
+
   if (!isSafeCtaHref(fields.ctaHref)) {
     fieldErrors.ctaHref =
       "Link Tombol hanya boleh memakai path internal yang diawali / atau URL https://.";

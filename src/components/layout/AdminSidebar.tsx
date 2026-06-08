@@ -68,7 +68,6 @@ const adminMenus: NavGroup[] = [
     label: "Pengguna & Laporan",
     items: [
       { href: "/admin/retail-users", label: "Pengguna Ritel", icon: Users },
-      { href: "/admin/generate-token", label: "Token", icon: Shield },
       { href: "/admin/inquiries", label: "Inquiry", icon: BarChart3 },
       { href: "/admin/reports", label: "Laporan", icon: FileText },
     ],

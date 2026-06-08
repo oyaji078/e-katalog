@@ -303,6 +303,18 @@ export async function getTopProducts(
   since: Date,
   limit = 5,
 ): Promise<Array<{ productId: string; productName: string | null; count: number }>> {
+  return getTopProductsBetween(type, since, new Date(), limit);
+}
+
+/**
+ * Get top products by event type within a bounded date range.
+ */
+export async function getTopProductsBetween(
+  type: AnalyticsEventType,
+  start: Date,
+  end: Date,
+  limit = 5,
+): Promise<Array<{ productId: string; productName: string | null; count: number }>> {
   try {
     const db = getDb();
     const events = await db.analyticsEvent.groupBy({
@@ -310,7 +322,7 @@ export async function getTopProducts(
       where: {
         type,
         productId: { not: null },
-        createdAt: { gte: since },
+        createdAt: { gte: start, lt: end },
       },
       _count: { id: true },
       orderBy: { _count: { id: "desc" } },

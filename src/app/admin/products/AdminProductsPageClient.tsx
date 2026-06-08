@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Plus, Search, SlidersHorizontal, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,6 +31,20 @@ type Props = {
     totalCount: number;
     totalPages: number;
   };
+  filters: {
+    search: string;
+    category: string;
+    brand: string;
+    status: string;
+    stock: string;
+    flag: string;
+    minPrice: string;
+    maxPrice: string;
+    createdFrom: string;
+    createdTo: string;
+  };
+  categories: Array<{ id: string; name: string }>;
+  brands: Array<{ id: string; name: string }>;
 };
 
 function statusLabel(status: string) {
@@ -48,6 +62,15 @@ function formatPrice(val: string | null | undefined) {
 
 function localProductImage(value: string | null) {
   return value?.startsWith("/uploads/products/") ? value : null;
+}
+
+function pageHref(page: number, filters: Props["filters"]) {
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value) params.set(key, value);
+  });
+  params.set("page", String(page));
+  return `/admin/products?${params.toString()}`;
 }
 
 function Row({ product }: { product: AdminProductRow }) {
@@ -123,9 +146,10 @@ function Row({ product }: { product: AdminProductRow }) {
   );
 }
 
-export default function AdminProductsPageClient({ products, pagination }: Props) {
+export default function AdminProductsPageClient({ products, pagination, filters, categories, brands }: Props) {
   const firstItem = pagination.totalCount === 0 ? 0 : (pagination.page - 1) * pagination.pageSize + 1;
   const lastItem = Math.min(pagination.page * pagination.pageSize, pagination.totalCount);
+  const hasFilters = Object.values(filters).some(Boolean);
 
   return (
     <main className="min-h-screen bg-brand-bg text-brand-text">
@@ -144,6 +168,162 @@ export default function AdminProductsPageClient({ products, pagination }: Props)
           Tambah Produk
         </Link>
       </div>
+
+      <form
+        action="/admin/products"
+        method="get"
+        className="mb-4 rounded-xl border border-brand-light bg-brand-soft-white p-4 text-brand-on-light shadow-sm"
+      >
+        <div className="mb-3 flex items-center gap-2">
+          <SlidersHorizontal size={16} className="text-brand-muted-on-light" />
+          <h2 className="text-sm font-bold">Cari dan filter produk</h2>
+        </div>
+        <div className="grid gap-3 lg:grid-cols-12">
+          <label className="lg:col-span-4">
+            <span className="mb-1 block text-xs font-semibold text-brand-muted-on-light">Nama / kode produk</span>
+            <div className="flex items-center rounded-lg border border-brand-light bg-white px-3">
+              <Search size={16} className="text-brand-muted-on-light" />
+              <input
+                name="search"
+                defaultValue={filters.search}
+                placeholder="Cari nama, SKU, kategori, merek"
+                className="min-h-10 flex-1 bg-transparent px-2 text-sm outline-none placeholder:text-brand-muted-on-light"
+              />
+            </div>
+          </label>
+          <label className="lg:col-span-2">
+            <span className="mb-1 block text-xs font-semibold text-brand-muted-on-light">Kategori</span>
+            <select
+              name="category"
+              defaultValue={filters.category}
+              className="min-h-10 w-full rounded-lg border border-brand-light bg-white px-3 text-sm outline-none"
+            >
+              <option value="">Semua kategori</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="lg:col-span-2">
+            <span className="mb-1 block text-xs font-semibold text-brand-muted-on-light">Merek</span>
+            <select
+              name="brand"
+              defaultValue={filters.brand}
+              className="min-h-10 w-full rounded-lg border border-brand-light bg-white px-3 text-sm outline-none"
+            >
+              <option value="">Semua merek</option>
+              {brands.map((brand) => (
+                <option key={brand.id} value={brand.id}>
+                  {brand.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="lg:col-span-2">
+            <span className="mb-1 block text-xs font-semibold text-brand-muted-on-light">Status</span>
+            <select
+              name="status"
+              defaultValue={filters.status}
+              className="min-h-10 w-full rounded-lg border border-brand-light bg-white px-3 text-sm outline-none"
+            >
+              <option value="">Semua status</option>
+              <option value="ACTIVE">Aktif</option>
+              <option value="DRAFT">Draft</option>
+              <option value="ARCHIVED">Arsip</option>
+            </select>
+          </label>
+          <label className="lg:col-span-2">
+            <span className="mb-1 block text-xs font-semibold text-brand-muted-on-light">Stok</span>
+            <select
+              name="stock"
+              defaultValue={filters.stock}
+              className="min-h-10 w-full rounded-lg border border-brand-light bg-white px-3 text-sm outline-none"
+            >
+              <option value="">Semua stok</option>
+              <option value="READY">Ready</option>
+              <option value="LOW_STOCK">Menipis</option>
+              <option value="OUT_OF_STOCK">Habis</option>
+              <option value="PREORDER">Preorder</option>
+            </select>
+          </label>
+          <label className="lg:col-span-2">
+            <span className="mb-1 block text-xs font-semibold text-brand-muted-on-light">Sorotan</span>
+            <select
+              name="flag"
+              defaultValue={filters.flag}
+              className="min-h-10 w-full rounded-lg border border-brand-light bg-white px-3 text-sm outline-none"
+            >
+              <option value="">Semua produk</option>
+              <option value="active">Aktif publik</option>
+              <option value="featured">Featured</option>
+              <option value="recommended">Rekomendasi</option>
+            </select>
+          </label>
+          <label className="lg:col-span-2">
+            <span className="mb-1 block text-xs font-semibold text-brand-muted-on-light">Harga min</span>
+            <input
+              type="number"
+              min="0"
+              name="minPrice"
+              defaultValue={filters.minPrice}
+              className="min-h-10 w-full rounded-lg border border-brand-light bg-white px-3 text-sm outline-none"
+            />
+          </label>
+          <label className="lg:col-span-2">
+            <span className="mb-1 block text-xs font-semibold text-brand-muted-on-light">Harga max</span>
+            <input
+              type="number"
+              min="0"
+              name="maxPrice"
+              defaultValue={filters.maxPrice}
+              className="min-h-10 w-full rounded-lg border border-brand-light bg-white px-3 text-sm outline-none"
+            />
+          </label>
+          <label className="lg:col-span-2">
+            <span className="mb-1 block text-xs font-semibold text-brand-muted-on-light">Dibuat dari</span>
+            <input
+              type="date"
+              name="createdFrom"
+              defaultValue={filters.createdFrom}
+              className="min-h-10 w-full rounded-lg border border-brand-light bg-white px-3 text-sm outline-none"
+            />
+          </label>
+          <label className="lg:col-span-2">
+            <span className="mb-1 block text-xs font-semibold text-brand-muted-on-light">Dibuat sampai</span>
+            <input
+              type="date"
+              name="createdTo"
+              defaultValue={filters.createdTo}
+              className="min-h-10 w-full rounded-lg border border-brand-light bg-white px-3 text-sm outline-none"
+            />
+          </label>
+        </div>
+        <div className="mt-4 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-brand-muted-on-light">
+            Menampilkan {firstItem}-{lastItem} dari {pagination.totalCount} produk
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {hasFilters ? (
+              <Link
+                href="/admin/products"
+                className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-brand-light px-4 text-xs font-bold text-brand-on-light hover:border-brand-accent"
+              >
+                <X size={14} />
+                Reset
+              </Link>
+            ) : null}
+            <button
+              type="submit"
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-brand-primary px-4 text-xs font-bold text-brand-on-dark hover:bg-brand-primary-hover"
+            >
+              <Search size={14} />
+              Terapkan Filter
+            </button>
+          </div>
+        </div>
+      </form>
 
       <div className="hidden overflow-x-auto rounded-xl border border-brand-light bg-brand-soft-white text-brand-on-light shadow-sm md:block">
         <table className="w-full text-sm">
@@ -166,7 +346,7 @@ export default function AdminProductsPageClient({ products, pagination }: Props)
             {products.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-4 py-10 text-center text-sm text-brand-muted-on-light">
-                  Belum ada produk. Klik &quot;Tambah Produk&quot; untuk mulai.
+                  {hasFilters ? "Tidak ada produk yang cocok dengan filter." : "Belum ada produk. Klik \"Tambah Produk\" untuk mulai."}
                 </td>
               </tr>
             ) : null}
@@ -182,7 +362,7 @@ export default function AdminProductsPageClient({ products, pagination }: Props)
           <div className="flex gap-2">
             {pagination.page > 1 ? (
               <Link
-                href={`/admin/products?page=${pagination.page - 1}`}
+                href={pageHref(pagination.page - 1, filters)}
                 className="rounded-lg border border-brand-light bg-brand-soft-white px-3 py-1.5 text-xs font-semibold text-brand-on-light hover:border-brand-accent"
               >
                 Sebelumnya
@@ -190,7 +370,7 @@ export default function AdminProductsPageClient({ products, pagination }: Props)
             ) : null}
             {pagination.page < pagination.totalPages ? (
               <Link
-                href={`/admin/products?page=${pagination.page + 1}`}
+                href={pageHref(pagination.page + 1, filters)}
                 className="rounded-lg border border-brand-light bg-brand-soft-white px-3 py-1.5 text-xs font-semibold text-brand-on-light hover:border-brand-accent"
               >
                 Selanjutnya

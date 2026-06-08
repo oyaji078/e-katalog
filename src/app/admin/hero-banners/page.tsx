@@ -28,10 +28,30 @@ function scheduleLabel(startsAt: Date | null, endsAt: Date | null) {
   return "Tanpa jadwal";
 }
 
+function heroBannerStatus(
+  banner: { isActive: boolean; startsAt: Date | null; endsAt: Date | null },
+  now: Date,
+) {
+  if (!banner.isActive) {
+    return { label: "Tidak Aktif", className: "bg-brand-border/60 text-brand-muted" };
+  }
+
+  if (banner.endsAt && banner.endsAt < now) {
+    return { label: "Kedaluwarsa", className: "bg-danger/15 text-danger" };
+  }
+
+  if (banner.startsAt && banner.startsAt > now) {
+    return { label: "Terjadwal", className: "bg-warning/15 text-warning" };
+  }
+
+  return { label: "Aktif", className: "bg-success/15 text-success" };
+}
+
 export default async function HeroBannersPage() {
   await requireAdminSession("/admin/hero-banners");
 
   const db = getDb();
+  const now = new Date();
   const banners = await db.heroBanner.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }] });
 
   return (
@@ -67,6 +87,7 @@ export default async function HeroBannersPage() {
               banner.imageUrl && isRenderablePromoBannerImageUrl(banner.imageUrl)
                 ? banner.imageUrl
                 : null;
+            const status = heroBannerStatus(banner, now);
 
             return (
               <article
@@ -101,14 +122,8 @@ export default async function HeroBannersPage() {
 
                 <div>
                   <span className="md:hidden text-xs font-bold text-brand-muted">Status: </span>
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                      banner.isActive
-                        ? "bg-success/15 text-success"
-                        : "bg-brand-border/60 text-brand-muted"
-                    }`}
-                  >
-                    {banner.isActive ? "Aktif" : "Tidak Aktif"}
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${status.className}`}>
+                    {status.label}
                   </span>
                 </div>
 

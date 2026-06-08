@@ -17,18 +17,30 @@ const inter = Inter({
   weight: ["300", "400", "500", "600", "700", "800"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
-  title: {
-    default: "Rama Computer - Katalog Komputer & Aksesoris",
-    template: "%s | Rama Computer",
-  },
-  description: "Katalog komputer, laptop, aksesoris, dan elektronik. Cek harga dan stok via WhatsApp.",
-  openGraph: {
-    siteName: "Rama Computer",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getPublicSiteSettings();
+  const siteName = settings.storeName || "Rama Computer";
+  const iconUrl = settings.faviconUrl || settings.logoUrl || "/favicon.ico";
+
+  return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
+    title: {
+      default: `${siteName} - Katalog Komputer & Aksesoris`,
+      template: `%s | ${siteName}`,
+    },
+    description: "Katalog komputer, laptop, aksesoris, dan elektronik. Cek harga dan stok via WhatsApp.",
+    icons: {
+      icon: [{ url: iconUrl }],
+      shortcut: [{ url: iconUrl }],
+      apple: [{ url: iconUrl }],
+    },
+    openGraph: {
+      siteName,
+      type: "website",
+      images: settings.logoUrl ? [{ url: settings.logoUrl }] : undefined,
+    },
+  };
+}
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +48,7 @@ function isAuthPage(pathname: string) {
   return (
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
+    pathname.startsWith("/retail/register") ||
     pathname.startsWith("/admin") ||
     pathname.startsWith("/super-admin") ||
     pathname.startsWith("/api/auth")

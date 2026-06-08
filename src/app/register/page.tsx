@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { LocateFixed } from "lucide-react";
 
 import {
   checkRegistrationEnabled,
@@ -15,6 +16,9 @@ export default function RegisterPage() {
   const [result, setResult] = useState<{ email: string; name: string; whatsappNumber: string; storeName: string; userCode?: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [registrationDisabled, setRegistrationDisabled] = useState(false);
+  const [address, setAddress] = useState("");
+  const [locationStatus, setLocationStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [locationMessage, setLocationMessage] = useState("");
 
   useEffect(() => {
     checkRegistrationEnabled().then((enabled) => {
@@ -44,7 +48,38 @@ export default function RegisterPage() {
     }
 
     setResult({ email, name, whatsappNumber, storeName, userCode: state.userCode });
+    setAddress("");
     form.reset();
+  }
+
+  function handleUseCurrentLocation() {
+    setLocationMessage("");
+
+    if (!navigator.geolocation) {
+      setLocationStatus("error");
+      setLocationMessage("Browser tidak mendukung ambil lokasi.");
+      return;
+    }
+
+    setLocationStatus("loading");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude.toFixed(6);
+        const longitude = position.coords.longitude.toFixed(6);
+        const coordinateText = `Lokasi: ${latitude}, ${longitude}`;
+        setAddress((current) => {
+          const cleaned = current.trim();
+          return cleaned ? `${cleaned} | ${coordinateText}` : coordinateText;
+        });
+        setLocationStatus("success");
+        setLocationMessage("Lokasi berhasil ditambahkan.");
+      },
+      () => {
+        setLocationStatus("error");
+        setLocationMessage("Tidak dapat mengambil lokasi. Periksa izin lokasi browser.");
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 },
+    );
   }
 
   return (
@@ -190,16 +225,35 @@ export default function RegisterPage() {
               className="mt-2 w-full rounded-xl border border-brand-border-light bg-slate-50 px-4 py-3 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-brand-primary focus:bg-white"
             />
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-slate-700" htmlFor="address">
-              Alamat
-            </label>
-            <input
+          <div className="sm:col-span-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <label className="block text-sm font-semibold text-slate-700" htmlFor="address">
+                Alamat
+              </label>
+              <button
+                type="button"
+                onClick={handleUseCurrentLocation}
+                disabled={locationStatus === "loading"}
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-brand-primary px-3 text-sm font-bold text-brand-primary transition hover:bg-brand-primary hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <LocateFixed size={16} />
+                {locationStatus === "loading" ? "Mengambil lokasi..." : "Ambil Lokasi Saat Ini"}
+              </button>
+            </div>
+            <textarea
               id="address"
               name="address"
               autoComplete="street-address"
-              className="mt-2 w-full rounded-xl border border-brand-border-light bg-slate-50 px-4 py-3 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-brand-primary focus:bg-white"
+              value={address}
+              onChange={(event) => setAddress(event.target.value)}
+              rows={3}
+              className="mt-2 w-full resize-none rounded-xl border border-brand-border-light bg-slate-50 px-4 py-3 text-base text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-brand-primary focus:bg-white"
             />
+            {locationMessage ? (
+              <p className={`mt-2 text-xs font-semibold ${locationStatus === "error" ? "text-danger" : "text-success"}`}>
+                {locationMessage}
+              </p>
+            ) : null}
           </div>
 
           {error ? <p className="text-sm text-danger sm:col-span-2">{error}</p> : null}

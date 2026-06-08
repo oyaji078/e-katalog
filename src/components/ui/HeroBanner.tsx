@@ -9,16 +9,6 @@ const GRID_OVERLAY = {
   pointerEvents: "none" as const,
 };
 
-const GLOW_OVERLAY = {
-  position: "absolute" as const,
-  top: -100,
-  right: -100,
-  width: 400,
-  height: 400,
-  background: "radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%)",
-  pointerEvents: "none" as const,
-};
-
 export default function HeroBanner({
   title,
   subtitle,
@@ -30,7 +20,7 @@ export default function HeroBanner({
 }) {
   return (
     <div
-      className="relative flex min-h-[300px] w-full items-end overflow-hidden sm:min-h-[420px]"
+      className="relative flex min-h-[58svh] w-full items-end overflow-hidden sm:min-h-[68svh] lg:min-h-[78svh]"
       style={{ background: "var(--color-brand-hero)" }}
     >
       {/* Background image */}
@@ -42,7 +32,7 @@ export default function HeroBanner({
           src={image}
           alt={title}
           className="object-cover"
-          style={{ opacity: 0.45 }}
+          style={{ opacity: 0.74 }}
         />
       )}
 
@@ -51,17 +41,16 @@ export default function HeroBanner({
         className="absolute inset-0"
         style={{
           background: image
-            ? "linear-gradient(135deg, rgba(10,14,26,0.95) 0%, rgba(10,14,26,0.7) 50%, rgba(10,14,26,0.4) 100%)"
+            ? "linear-gradient(135deg, rgba(10,14,26,0.78) 0%, rgba(10,14,26,0.48) 52%, rgba(10,14,26,0.22) 100%)"
             : "linear-gradient(to top, #0A0E1A 0%, rgba(10,14,26,0.6) 55%, transparent 100%)",
         }}
       />
 
-      {/* Texture + glow (fallback aesthetic, harmless over image too) */}
+      {/* Texture fallback when no image is configured. */}
       {!image && <div style={GRID_OVERLAY} />}
-      <div style={GLOW_OVERLAY} />
 
       {/* Content */}
-      <div className="relative z-10 max-w-2xl px-8 pb-10 pt-8 sm:px-12 lg:px-16">
+      <div className="relative z-10 max-w-3xl px-6 pb-12 pt-8 sm:px-12 sm:pb-16 lg:px-16 lg:pb-20">
         {subtitle && (
           <span
             className="mb-3 inline-block rounded-md px-3 py-1 text-xs font-semibold uppercase tracking-wide"
@@ -70,15 +59,7 @@ export default function HeroBanner({
             {subtitle}
           </span>
         )}
-        <h1
-          className="text-white"
-          style={{
-            fontSize: "clamp(28px, 4vw, 48px)",
-            fontWeight: 800,
-            lineHeight: 1.15,
-            letterSpacing: "-0.02em",
-          }}
-        >
+        <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-5xl">
           {title}
         </h1>
       </div>

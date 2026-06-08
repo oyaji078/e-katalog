@@ -17,6 +17,7 @@ import OperationalSummary, { type OperationalSummaryItem } from "@/components/da
 import RecentActivityList, { type RecentActivityItem } from "@/components/dashboard/RecentActivityList";
 import { getDb } from "@/lib/db";
 import { requireSuperAdmin } from "@/lib/access-control";
+import { resolveDashboardRange } from "@/lib/dashboard-range";
 import {
   getAuthHealth,
   getDatabaseHealth,
@@ -40,6 +41,16 @@ const statusClass: Record<HealthStatus, string> = {
   ERROR: "bg-danger/10 text-danger",
 };
 
+type RawActivityTrendRow = {
+  bucket: string | Date;
+  count: number | bigint | string;
+};
+
+type ActivityTrendPoint = {
+  label: string;
+  count: number;
+};
+
 function activityTone(risk: string): RecentActivityItem["tone"] {
   if (risk === "HIGH" || risk === "CRITICAL") return "red";
   if (risk === "MEDIUM") return "gold";
@@ -56,10 +67,16 @@ function quickActions() {
   ];
 }
 
-export default async function SuperAdminDashboardPage() {
+export default async function SuperAdminDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ range?: string; start?: string; end?: string }>;
+}) {
   await requireSuperAdmin();
   const db = getDb();
   const now = new Date();
+  const params = (await searchParams) ?? {};
+  const range = resolveDashboardRange(params, now);
 
   const [
     database,
@@ -67,6 +84,9 @@ export default async function SuperAdminDashboardPage() {
     totalAdmin,
     activeAdmin,
     totalUsers,
+    activityInRange,
+    highRiskActivityInRange,
+    rawActivityTrend,
     featureFlags,
     recentLogs,
   ] = await Promise.all([
@@ -80,6 +100,16 @@ export default async function SuperAdminDashboardPage() {
       },
     }),
     db.user.count(),
+    db.adminActivityLog.count({
+      where: { createdAt: { gte: range.start, lt: range.end } },
+    }),
+    db.adminActivityLog.count({
+      where: {
+        createdAt: { gte: range.start, lt: range.end },
+        risk: { in: ["HIGH", "CRITICAL"] },
+      },
+    }),
+    getActivityTrend(db, range.start, range.end, range.interval),
     db.featureFlag.findMany({
       orderBy: [{ enabled: "desc" }, { updatedAt: "desc" }],
       select: { id: true, key: true, name: true, description: true, enabled: true, scope: true, updatedAt: true },
@@ -111,6 +141,10 @@ export default async function SuperAdminDashboardPage() {
     /role|delete|password|security|admin/i.test(log.action),
   );
   const deploymentRows = getDeploymentRows();
+  const activityTrend = rawActivityTrend.map((row) => ({
+    label: labelForBucket(row.bucket, range.interval),
+    count: countNumber(row.count),
+  }));
 
   const adminActivity: RecentActivityItem[] = recentLogs.map((log) => ({
     id: log.id,
@@ -162,11 +196,18 @@ export default async function SuperAdminDashboardPage() {
   return (
     <main className="min-w-0 space-y-5">
       <section className="min-w-0 rounded-lg border border-[#D7DEE8] bg-white p-4 text-[#111827] shadow-sm">
-        <div className="flex min-w-0 flex-col gap-2">
-          <h1 className="truncate text-2xl font-black text-[#111827]">Super Admin Dashboard</h1>
-          <p className="text-sm font-medium text-[#5B6472]">
-            Monitoring sistem, keamanan, fitur, dan operasional admin
-          </p>
+        <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0">
+            <h1 className="truncate text-2xl font-black text-[#111827]">Super Admin Dashboard</h1>
+            <p className="mt-2 text-sm font-medium text-[#5B6472]">
+              Monitoring sistem, keamanan, fitur, dan operasional admin
+            </p>
+          </div>
+          <SuperAdminRangeForm
+            rangeKey={range.key}
+            startInput={range.startInput}
+            endInput={range.endInput}
+          />
         </div>
       </section>
 
@@ -201,6 +242,21 @@ export default async function SuperAdminDashboardPage() {
           trend="User + admin"
         />
         <KpiCard
+          label="Aktivitas Periode"
+          value={activityInRange}
+          href="/super-admin/system-logs"
+          icon={<Gauge className="size-5" />}
+          trend={range.label}
+        />
+        <KpiCard
+          label="Risiko Tinggi"
+          value={highRiskActivityInRange}
+          href="/super-admin/security"
+          icon={<LockKeyhole className="size-5" />}
+          trend="High + critical"
+          trendTone={highRiskActivityInRange > 0 ? "down" : "up"}
+        />
+        <KpiCard
           label="Status Database"
           value={database.status}
           href="/super-admin/system"
@@ -225,6 +281,8 @@ export default async function SuperAdminDashboardPage() {
         <QuickActions />
       </section>
 
+      <ActivityTrendChart points={activityTrend} label={range.label} />
+
       <section className="grid min-w-0 gap-5 xl:grid-cols-2">
         <OperationalSummary title="Feature Flags Summary" items={featureSummary} />
         <RecentActivityList title="Admin Activity" items={adminActivity} emptyText="Belum ada aktivitas admin." />
@@ -236,6 +294,127 @@ export default async function SuperAdminDashboardPage() {
         <FeatureFlagList flags={criticalFlags.slice(0, 6)} />
       </section>
     </main>
+  );
+}
+
+async function getActivityTrend(
+  db: ReturnType<typeof getDb>,
+  start: Date,
+  end: Date,
+  interval: "day" | "month",
+) {
+  if (interval === "month") {
+    return db.$queryRaw<RawActivityTrendRow[]>`
+      SELECT DATE_FORMAT(createdAt, '%Y-%m') AS bucket, COUNT(*) AS count
+      FROM \`AdminActivityLog\`
+      WHERE createdAt >= ${start}
+        AND createdAt < ${end}
+      GROUP BY bucket
+      ORDER BY bucket ASC
+    `;
+  }
+
+  return db.$queryRaw<RawActivityTrendRow[]>`
+    SELECT DATE_FORMAT(createdAt, '%Y-%m-%d') AS bucket, COUNT(*) AS count
+    FROM \`AdminActivityLog\`
+    WHERE createdAt >= ${start}
+      AND createdAt < ${end}
+    GROUP BY bucket
+    ORDER BY bucket ASC
+  `;
+}
+
+function countNumber(value: number | bigint | string) {
+  return typeof value === "bigint" ? Number(value) : Number(value);
+}
+
+function labelForBucket(value: string | Date, interval: "day" | "month") {
+  const raw = value instanceof Date ? value.toISOString() : value;
+  if (interval === "month") {
+    const [year, month] = raw.slice(0, 7).split("-").map(Number);
+    return new Intl.DateTimeFormat("id-ID", { month: "short", year: "2-digit" }).format(
+      new Date(year, month - 1, 1),
+    );
+  }
+
+  const [year, month, day] = raw.slice(0, 10).split("-").map(Number);
+  return new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "short" }).format(
+    new Date(year, month - 1, day),
+  );
+}
+
+function SuperAdminRangeForm({
+  rangeKey,
+  startInput,
+  endInput,
+}: {
+  rangeKey: string;
+  startInput: string;
+  endInput: string;
+}) {
+  return (
+    <form action="/super-admin" method="get" className="grid gap-2 sm:grid-cols-[150px_150px_150px_auto] sm:items-end">
+      <label>
+        <span className="mb-1 block text-xs font-bold text-[#5B6472]">Periode</span>
+        <select name="range" defaultValue={rangeKey} className="min-h-10 w-full rounded-lg border border-[#D7DEE8] bg-white px-3 text-sm outline-none">
+          <option value="7d">7 hari</option>
+          <option value="1m">1 bulan</option>
+          <option value="3m">3 bulan</option>
+          <option value="custom">Custom</option>
+        </select>
+      </label>
+      <label>
+        <span className="mb-1 block text-xs font-bold text-[#5B6472]">Mulai</span>
+        <input type="date" name="start" defaultValue={startInput} className="min-h-10 w-full rounded-lg border border-[#D7DEE8] bg-white px-3 text-sm outline-none" />
+      </label>
+      <label>
+        <span className="mb-1 block text-xs font-bold text-[#5B6472]">Sampai</span>
+        <input type="date" name="end" defaultValue={endInput} className="min-h-10 w-full rounded-lg border border-[#D7DEE8] bg-white px-3 text-sm outline-none" />
+      </label>
+      <button type="submit" className="min-h-10 rounded-lg bg-[#0D0B61] px-4 text-sm font-black text-white">
+        Terapkan
+      </button>
+    </form>
+  );
+}
+
+function ActivityTrendChart({ points, label }: { points: ActivityTrendPoint[]; label: string }) {
+  const max = Math.max(1, ...points.map((point) => point.count));
+
+  return (
+    <section className="min-w-0 rounded-lg border border-[#D7DEE8] bg-white p-5 text-[#111827] shadow-sm">
+      <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-base font-black text-[#111827]">Tren Aktivitas Admin</h2>
+          <p className="text-xs font-medium text-[#5B6472]">{label}</p>
+        </div>
+        <Link href="/super-admin/system-logs" className="text-xs font-black text-[#0D0B61]">
+          Lihat log
+        </Link>
+      </div>
+      {points.length > 0 ? (
+        <div className="overflow-x-auto">
+          <div className="flex h-64 min-w-[720px] items-end gap-2 border-b border-[#D7DEE8] pb-8">
+            {points.map((point) => (
+              <div key={point.label} className="relative flex min-w-8 flex-1 flex-col items-center justify-end gap-2">
+                <span className="text-[11px] font-black text-[#111827]">{point.count.toLocaleString("id-ID")}</span>
+                <div
+                  className="w-full rounded-t bg-[#0D0B61]"
+                  style={{ height: `${Math.max(8, (point.count / max) * 180)}px` }}
+                />
+                <span className="absolute top-full mt-2 -rotate-45 whitespace-nowrap text-[10px] font-bold text-[#5B6472]">
+                  {point.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="flex min-h-48 items-center justify-center rounded-lg border border-dashed border-[#D7DEE8] bg-[#EEF4F7] text-sm font-semibold text-[#5B6472]">
+          Belum ada aktivitas admin pada periode ini.
+        </div>
+      )}
+    </section>
   );
 }
 

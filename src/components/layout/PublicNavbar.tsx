@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Search, BookmarkIcon, LogOut, ChevronDown } from 'lucide-react';
 import type { CurrentUser } from '@/lib/session';
 import { signOut } from '@/lib/auth-client';
+import type { CSSProperties } from 'react';
 
 type PublicNavbarProps = {
   whatsappUrl: string;
@@ -37,19 +38,26 @@ export default function PublicNavbar({
       {/* Announcement Bar */}
       {normalizedAnnouncement ? (
         <div
-          className="w-full text-center"
+          className="w-full overflow-hidden"
           style={{
             background: 'var(--color-brand)',
             borderBottom: '1px solid rgba(255,255,255,0.06)',
-            padding: '9px 16px',
+            padding: '9px 0',
           }}
         >
-          <p
-            className="m-0"
-            style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.03em' }}
+          <div
+            className="public-announcement-track flex whitespace-nowrap"
+            style={{ '--announcement-duration': `${Math.max(24, normalizedAnnouncement.length / 2)}s` } as CSSProperties}
           >
-            {normalizedAnnouncement}
-          </p>
+            {[normalizedAnnouncement, normalizedAnnouncement, normalizedAnnouncement].map((message, index) => (
+              <span
+                key={`${message}-${index}`}
+                className="inline-block px-10 text-xs font-bold uppercase text-white/75 md:px-14"
+              >
+                {message}
+              </span>
+            ))}
+          </div>
         </div>
       ) : null}
 
@@ -128,7 +136,7 @@ export default function PublicNavbar({
               }}
             >
               <span className="hidden sm:inline">WhatsApp</span>
-              <span className="sm:hidden">📱</span>
+              <span className="sm:hidden">WA</span>
             </a>
 
             {/* Auth */}
