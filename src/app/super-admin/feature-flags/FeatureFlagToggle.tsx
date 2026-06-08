@@ -6,17 +6,30 @@ import ToggleSwitch from "@/components/ui/ToggleSwitch";
 
 type Props = {
   flagKey: string;
+  name: string;
   enabled: boolean;
   flagId: string | null;
+  critical?: boolean;
 };
 
-export function FeatureFlagToggle({ flagKey, enabled, flagId }: Props) {
+export function FeatureFlagToggle({ flagKey, name, enabled, flagId, critical = false }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [current, setCurrent] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
+  const [resetKey, setResetKey] = useState(0);
 
   const handleToggle = useCallback(async (checked: boolean) => {
+    if (critical) {
+      const confirmed = window.confirm(
+        `Ubah fitur kritis "${name}" menjadi ${checked ? "aktif" : "nonaktif"}?`,
+      );
+      if (!confirmed) {
+        setResetKey((value) => value + 1);
+        return;
+      }
+    }
+
     setLoading(true);
     setError(null);
 
@@ -32,16 +45,18 @@ export function FeatureFlagToggle({ flagKey, enabled, flagId }: Props) {
       router.refresh();
     } catch {
       setError("Toggle failed");
-      setCurrent((prev) => !prev);
+      setCurrent(current);
+      setResetKey((value) => value + 1);
     } finally {
       setLoading(false);
     }
-  }, [flagKey, flagId, router]);
+  }, [critical, current, flagKey, flagId, name, router]);
 
   return (
     <div>
       <div className={loading ? "pointer-events-none opacity-50" : ""}>
         <ToggleSwitch
+          key={`${flagKey}-${current}-${resetKey}`}
           name={`flag_${flagKey}`}
           label={current ? "Aktif" : "Nonaktif"}
           defaultChecked={current}

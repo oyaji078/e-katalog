@@ -1,19 +1,29 @@
-import { ChevronRight } from "lucide-react";
+import {
+  Cpu,
+  HardDrive,
+  Keyboard,
+  Laptop,
+  Monitor,
+  Mouse,
+  Network,
+  Printer,
+} from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-import FigmaFooter from "@/components/layout/FigmaFooter";
-import FigmaSiteHeader from "@/components/layout/FigmaSiteHeader";
-import FigmaCategoryGrid from "@/components/ui/FigmaCategoryGrid";
-import FigmaFlashSaleSection from "@/components/ui/FigmaFlashSaleSection";
-import FigmaHeroCarousel from "@/components/ui/FigmaHeroCarousel";
-import FigmaPromoBannerRow from "@/components/ui/FigmaPromoBannerRow";
-import FigmaServiceStrip from "@/components/ui/FigmaServiceStrip";
+import PublicNavbar from "@/components/layout/PublicNavbar";
+import AnalyticsPageTracker from "@/components/ui/AnalyticsPageTracker";
+import HeroBanner from "@/components/ui/HeroBanner";
 import ProductGrid from "@/components/ui/ProductGrid";
+import PublicFooter from "@/components/ui/PublicFooter";
+import type { Prisma } from "@/generated/prisma/client";
 import {
   canSeeRetailPrice,
   canUseRetailVoucher,
+  formatRupiah,
   getVisibleVouchers,
   productCardSelect,
+  voucherLabel,
   voucherWithScopeSelect,
 } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
@@ -24,283 +34,397 @@ import {
   getFlashSaleDisplayForViewer,
 } from "@/lib/flash-sale";
 import { toProductCardProps } from "@/lib/product-card-mapper";
-import { publicPromoBannerSelect, toPublicPromoBanners } from "@/lib/promo-banner-display";
-import { bannerVoucherSelect } from "@/lib/banner-voucher";
 import { getCurrentUser } from "@/lib/session";
-import { buildWhatsappUrl, resolveStoreWhatsappNumber } from "@/lib/whatsapp";
+import { getPublicSiteSettings } from "@/lib/site-settings";
+import { getStoreWhatsappNumberFromDB } from "@/lib/store-settings";
+import { isRenderablePromoBannerImageUrl } from "@/lib/promo-banner-url";
+import { buildWhatsappUrl } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
 
-const NEW_ARRIVAL_DAYS = 30;
+const PAGE_SIZE = 15;
 
-export default async function Home() {
+const categoryIcons = [Laptop, Cpu, Monitor, Keyboard, Mouse, Printer, Network, HardDrive];
+
+type HomePageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function Home({ searchParams }: HomePageProps) {
+  const params = await searchParams;
+  const categorySlug = firstParam(params.category);
+  const sort = parseSort(firstParam(params.sort));
+  const page = parsePage(firstParam(params.page));
   const db = getDb();
+  const now = new Date();
 
-  const [user, retailPriceEnabled, publicVoucherEnabled, retailVoucherEnabled] =
+  const [user, retailPriceEnabled, publicVoucherEnabled, retailVoucherEnabled, flashSaleEnabled] =
     await Promise.all([
       getCurrentUser().catch(() => null),
       isFeatureEnabled("enable_retail_price"),
       isFeatureEnabled("enable_public_voucher"),
       isFeatureEnabled("enable_retail_voucher"),
+      isFeatureEnabled("enable_flash_sale"),
     ]);
+
+  if (user?.role === "ADMIN") redirect("/admin");
+  if (user?.role === "SUPER_ADMIN") redirect("/super-admin");
 
   const isRetailActive = user?.retailStatus === "RETAIL_ACTIVE";
-
-  const newArrivalCutoff = new Date();
-  newArrivalCutoff.setDate(newArrivalCutoff.getDate() - NEW_ARRIVAL_DAYS);
-
-  const trafficOrderBy = [
-    { inquiryCount: "desc" as const },
-    { clickCount: "desc" as const },
-    { viewCount: "desc" as const },
-    { createdAt: "desc" as const },
-  ];
-
-  const [categories, recommendedProducts, newArrivalProducts, popularProducts,
-    vouchers, whatsappNumber, activeFlashSaleProducts, promoBanners, promoEnabled, heroBanners] =
-    await Promise.all([
-      db.category.findMany({
-        where: { isActive: true },
-        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-        select: { id: true, name: true, slug: true, icon: true },
-      }),
-      // Rekomendasi Produk: traffic first, latest as fallback when traffic is empty.
-      db.product.findMany({
-        where: { status: "ACTIVE" },
-        select: productCardSelect,
-        orderBy: trafficOrderBy,
-        take: 10,
-      }),
-      // Produk Baru: created within 30 days
-      db.product.findMany({
-        where: { status: "ACTIVE", createdAt: { gte: newArrivalCutoff } },
-        select: productCardSelect,
-        orderBy: { createdAt: "desc" },
-        take: 10,
-      }),
-      // Produk Populer: traffic first, latest as fallback when traffic is empty.
-      db.product.findMany({
-        where: { status: "ACTIVE" },
-        select: productCardSelect,
-        orderBy: trafficOrderBy,
-        take: 10,
-      }),
-      db.voucher.findMany({
-        where: { isActive: true, status: "ACTIVE" },
-        select: voucherWithScopeSelect,
-        orderBy: [{ endsAt: "asc" }, { createdAt: "desc" }],
-        take: 6,
-      }),
-      resolveStoreWhatsappNumber(db),
-      db.flashSaleProduct.findMany({
-        where: {
-          flashSale: {
-            isActive: true,
-            startsAt: { lte: new Date() },
-            endsAt: { gte: new Date() },
-          },
-        },
-        select: activeFlashSaleProductSelect,
-        orderBy: { sortOrder: "asc" },
-        take: 100,
-      }),
-      db.promoBanner.findMany({
-        where: {
-          isActive: true,
-          [isRetailActive ? "showForRetail" : "showForPublic"]: true,
-          AND: [
-            { OR: [{ startsAt: null }, { startsAt: { lte: new Date() } }] },
-            { OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }] },
-          ],
-        },
-        select: publicPromoBannerSelect,
-        orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-        take: 10,
-      }),
-      isFeatureEnabled("enable_promo_banner"),
-      db.heroBanner.findMany({
-        where: {
-          isActive: true,
-          AND: [
-            { OR: [{ startsAt: null }, { startsAt: { lte: new Date() } }] },
-            { OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }] },
-          ],
-        },
-        orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-        take: 5,
-      }),
-    ]);
-
-  const showRetailPrice = canSeeRetailPrice(user, retailPriceEnabled);
-  const flashSaleMap = buildActiveFlashSaleMap(activeFlashSaleProducts);
-  const mapCards = (products: typeof recommendedProducts) =>
-    products.map((p) => {
-      const activeFlashSale = flashSaleMap.get(p.id);
-      const flashSaleDisplay = getFlashSaleDisplayForViewer(activeFlashSale, showRetailPrice);
-
-      return toProductCardProps(p, {
-        user,
-        retailPriceEnabled,
-        publicVoucherEnabled,
-        retailVoucherEnabled,
-        vouchers,
-        hasActiveFlashSale: Boolean(activeFlashSale),
-        flashSalePrice: flashSaleDisplay?.price,
-        flashSaleStock: flashSaleDisplay?.stock,
-      });
-    });
-
-  const recommendedCards = mapCards(recommendedProducts);
-  const newArrivalCards = mapCards(newArrivalProducts);
-  const popularCards = mapCards(popularProducts);
-
-  const flashSaleProducts = activeFlashSaleProducts.flatMap((fp) => {
-    const flashSaleDisplay = getFlashSaleDisplayForViewer(fp, showRetailPrice);
-    if (!flashSaleDisplay) return [];
-
-    return [
-      toProductCardProps(fp.product, {
-        user,
-        retailPriceEnabled,
-        publicVoucherEnabled,
-        retailVoucherEnabled,
-        vouchers,
-        hasActiveFlashSale: true,
-        flashSalePrice: flashSaleDisplay.price,
-        flashSaleStock: flashSaleDisplay.stock,
-      }),
-    ];
+  const productWhere = buildProductWhere(categorySlug, sort, now, {
+    voucherEnabled: isRetailActive ? retailVoucherEnabled : publicVoucherEnabled,
+    flashSaleEnabled,
   });
 
+  const [
+    categories,
+    products,
+    vouchers,
+    activeFlashSaleProducts,
+    activeHeroBanners,
+    settings,
+    waNumber,
+  ] = await Promise.all([
+    db.category.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: { id: true, name: true, slug: true, logoUrl: true },
+    }),
+    db.product.findMany({
+      where: productWhere,
+      select: productCardSelect,
+      orderBy: productOrderBy(sort),
+      take: PAGE_SIZE,
+      skip: (page - 1) * PAGE_SIZE,
+    }),
+    db.voucher.findMany({
+      where: {
+        isActive: true,
+        status: "ACTIVE",
+        startsAt: { lte: now },
+        endsAt: { gte: now },
+      },
+      select: voucherWithScopeSelect,
+      orderBy: [{ endsAt: "asc" }, { createdAt: "desc" }],
+      take: 6,
+    }),
+    flashSaleEnabled
+      ? db.flashSaleProduct.findMany({
+          where: {
+            flashSale: { isActive: true, startsAt: { lte: now }, endsAt: { gte: now } },
+          },
+          select: activeFlashSaleProductSelect,
+          orderBy: { sortOrder: "asc" },
+          take: 100,
+        })
+      : Promise.resolve([]),
+    db.heroBanner.findMany({
+      where: {
+        isActive: true,
+        OR: [
+          {
+            AND: [
+              { startsAt: { lte: now } },
+              { endsAt: { gte: now } },
+            ],
+          },
+          {
+            AND: [
+              { startsAt: null },
+              { endsAt: null },
+            ],
+          },
+          {
+            AND: [
+              { startsAt: null },
+              { endsAt: { gte: now } },
+            ],
+          },
+          {
+            AND: [
+              { startsAt: { lte: now } },
+              { endsAt: null },
+            ],
+          },
+        ],
+      },
+      orderBy: [{ sortOrder: "asc" }, { updatedAt: "desc" }],
+      select: { id: true, title: true, subtitle: true, imageUrl: true },
+      take: 1,
+    }),
+    getPublicSiteSettings(),
+    getStoreWhatsappNumberFromDB(),
+  ]);
+
+  const heroBanner = resolveHeroBanner(activeHeroBanners);
+
+  const showRetailPrice = canSeeRetailPrice(user, retailPriceEnabled);
   const canSeeRetailVouchers = canUseRetailVoucher(user);
-  const promoBannerVoucherIds = Array.from(
-    new Set(promoBanners.map((banner) => banner.voucherId).filter(Boolean)),
-  ) as string[];
-  const promoBannerVouchers = promoBannerVoucherIds.length
-    ? await db.voucher.findMany({
-        where: { id: { in: promoBannerVoucherIds } },
-        select: bannerVoucherSelect,
-      })
-    : [];
-  const publicPromoBanners = toPublicPromoBanners(
-    promoBanners,
-    new Map(promoBannerVouchers.map((voucher) => [voucher.id, voucher])),
-    {
+  const flashSaleMap = buildActiveFlashSaleMap(activeFlashSaleProducts);
+  const productCards = products.map((product) => {
+    const activeFlashSale = flashSaleMap.get(product.id);
+    const flashSaleDisplay = getFlashSaleDisplayForViewer(activeFlashSale, showRetailPrice);
+
+    return toProductCardProps(product, {
+      user,
+      retailPriceEnabled,
       publicVoucherEnabled,
       retailVoucherEnabled,
-      canSeeRetailVoucher: canSeeRetailVouchers,
-    },
-  );
+      vouchers,
+      hasActiveFlashSale: Boolean(activeFlashSale),
+      flashSalePrice: flashSaleDisplay?.price,
+      flashSaleStock: flashSaleDisplay?.stock,
+    });
+  });
   const visibleVouchers = getVisibleVouchers(vouchers, {
     publicVoucherEnabled,
     retailVoucherEnabled,
     canSeeRetail: canSeeRetailVouchers,
   });
   const generalWaUrl = buildWhatsappUrl({
-    whatsappNumber,
-    message: "Halo Admin, saya ingin bertanya tentang produk komputer dan aksesoris di katalog.",
+    message: "Halo Admin, saya ingin bertanya tentang produk yang tersedia di katalog.",
+    whatsappNumber: waNumber,
   });
 
   return (
-    <main
-      className="min-h-screen text-brand-text"
-      style={{ backgroundColor: "var(--brand-bg)", fontFamily: "'Nunito', 'Plus Jakarta Sans', sans-serif" }}
-    >
-      <FigmaSiteHeader />
+    <main className="min-h-screen bg-[var(--color-page)]">
+      <AnalyticsPageTracker type="PAGE_VIEW" path="/" metadata={{ source: "home" }} />
+      <PublicNavbar
+        whatsappUrl={generalWaUrl}
+        session={user}
+        announcementText={settings.announcementEnabled ? settings.announcementText : ""}
+      />
 
-      <div className="mx-auto max-w-7xl pb-20 md:pb-10">
-        <FigmaHeroCarousel banners={heroBanners} />
-        <FigmaCategoryGrid dbCategories={categories} />
-        <FigmaServiceStrip />
-
-        {/* 1. Flash Sale */}
-        {flashSaleProducts.length > 0 ? (
-          <FigmaFlashSaleSection products={flashSaleProducts.slice(0, 6)} />
-        ) : null}
-
-        {/* 2. Promo & Voucher */}
-        <FigmaPromoBannerRow
-          whatsappUrl={generalWaUrl}
-          hasVoucher={visibleVouchers.length > 0}
-          banners={publicPromoBanners}
-          enabled={promoEnabled}
+      {/* HERO — full viewport width, edge to edge, no container/radius */}
+      {heroBanner ? (
+        <HeroBanner
+          title={heroBanner.title}
+          subtitle={heroBanner.subtitle ?? undefined}
+          image={heroBanner.image ?? undefined}
         />
+      ) : (
+        <div className="relative min-h-[380px] w-full overflow-hidden bg-[var(--color-brand-hero)] sm:min-h-[440px]">
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0A0E1A] via-[#0A0E1A]/55 to-transparent" />
+          <div className="absolute bottom-0 left-0 z-10 px-8 pb-10 pt-8 sm:px-12 lg:px-16">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-white/50">
+              Rama Computer
+            </p>
+            <h1 className="max-w-2xl text-3xl font-bold leading-tight text-white sm:text-4xl">
+              Komputer & Aksesoris untuk Kebutuhan Kerja, Gaming, dan Toko Retail
+            </h1>
+            <p className="mt-3 max-w-xl text-base text-white/70">
+              Cek katalog produk terlengkap. Tanya harga dan ketersediaan langsung via WhatsApp.
+            </p>
+          </div>
+        </div>
+      )}
 
-        {user &&
-        user.retailStatus !== "RETAIL_ACTIVE" &&
-        user.role !== "ADMIN" &&
-        user.role !== "SUPER_ADMIN" ? (
-          <section className="mt-6 rounded-2xl border border-brand-secondary/30 bg-brand-secondary/10 p-4 text-sm text-brand-primary">
-            Akun ritel Anda belum aktif.{" "}
-            {user.retailStatus === "PENDING_RETAIL" ? (
-              <Link href="/retail/activate" className="font-black underline">
-                Aktivasi token sekarang
-              </Link>
-            ) : (
-              <Link href="/retail/request-token" className="font-black underline">
-                Minta token aktivasi
-              </Link>
-            )}{" "}
-            untuk melihat harga khusus ritel.
+      <div className="mx-auto max-w-7xl space-y-10 px-4 pb-12 pt-6 sm:px-6">
+        <section>
+          <div className="mb-5 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="h-5 w-1 shrink-0 rounded-full bg-[var(--color-accent)]" />
+              <h2 className="text-lg font-bold text-[var(--color-text)]">Kategori Produk</h2>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8">
+            {categories.map((category, index) => {
+              const Icon = categoryIcons[index % categoryIcons.length];
+              return (
+                <Link
+                  href={`/categories/${category.slug}`}
+                  key={category.id}
+                  className="group flex flex-col items-center rounded-xl border border-[var(--color-border)] bg-white px-3 py-4 text-center transition-all duration-200 hover:border-[var(--color-accent)] hover:shadow-[0_4px_12px_rgba(59,130,246,0.10)]"
+                >
+                  <span className="mb-2.5 flex size-11 items-center justify-center rounded-[10px] bg-[var(--color-accent-soft)] transition-colors group-hover:bg-[var(--color-accent)]">
+                    <Icon className="size-[22px] text-[var(--color-accent)] transition-colors group-hover:text-white" />
+                  </span>
+                  <span className="text-[13px] font-medium leading-[1.3] text-[var(--color-text)] transition-colors group-hover:text-[var(--color-accent)]">
+                    {category.name}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {visibleVouchers.length > 0 ? (
+          <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-purple-600 to-purple-800 p-5 text-white">
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-purple-200">
+                Voucher Aktif
+              </p>
+              <p className="text-lg font-bold">{visibleVouchers[0].title}</p>
+              <p className="mt-0.5 text-sm text-purple-200">
+                Diskon {voucherLabel(visibleVouchers[0])}
+                {visibleVouchers[0].minimumPurchase
+                  ? `, min ${formatRupiah(visibleVouchers[0].minimumPurchase)}`
+                  : ""}
+              </p>
+            </div>
+            <Link
+              href="/vouchers"
+              className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-purple-700 transition hover:bg-purple-50"
+            >
+              Lihat Voucher
+            </Link>
           </section>
         ) : null}
 
-        {/* 3. Rekomendasi Produk */}
-        {recommendedCards.length > 0 ? (
-          <Section title="Rekomendasi Produk" href="/products">
-            <ProductGrid products={recommendedCards} columns={5} />
-          </Section>
-        ) : null}
-
-        {/* 4. Produk Baru */}
-        {newArrivalCards.length > 0 ? (
-          <Section title="Produk Baru" href="/products?sort=terbaru">
-            <ProductGrid products={newArrivalCards} columns={5} />
-          </Section>
-        ) : null}
-
-        {/* 5. Produk Populer */}
-        {popularCards.length > 0 ? (
-          <Section title="Produk Populer" href="/products?sort=recommended">
-            <ProductGrid products={popularCards} columns={5} />
-          </Section>
-        ) : null}
-
-        {/* 6. Catalog Teaser */}
-        {recommendedCards.length === 0 && newArrivalCards.length === 0 && popularCards.length === 0 ? (
-          <div className="bg-white p-8 text-center text-sm text-brand-muted md:rounded-2xl">
-            Produk aktif belum tersedia.
+        <section>
+          <div className="mb-5 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="h-5 w-1 shrink-0 rounded-full bg-[var(--color-accent)]" />
+              <h2 className="text-lg font-bold text-[var(--color-text)]">Produk Unggulan</h2>
+            </div>
+            <Link
+              href="/products"
+              className="text-sm font-medium text-[var(--color-accent)] hover:underline"
+            >
+              Lihat semua →
+            </Link>
           </div>
-        ) : null}
-
-        <div className="mb-2 mt-6 flex justify-center md:mx-4">
-          <Link
-            href="/products"
-            className="rounded-full bg-brand-primary px-8 py-3 text-sm font-bold text-white shadow-md transition-all hover:scale-105 hover:bg-brand-hover hover:shadow-lg active:scale-95"
-          >
-            Lihat Lebih Banyak Produk
-          </Link>
-        </div>
-
-        <FigmaFooter />
+          {productCards.length > 0 ? (
+            <ProductGrid products={productCards} columns={4} />
+          ) : (
+            <div className="rounded-xl border border-[var(--color-border)] bg-white p-8 text-center text-sm text-[var(--color-text-muted)]">
+              Produk aktif belum tersedia.
+            </div>
+          )}
+        </section>
       </div>
+
+      <PublicFooter
+        whatsappUrl={generalWaUrl}
+        storeName={settings.storeName}
+        storeAddress={settings.address}
+        publicVoucherEnabled={publicVoucherEnabled}
+        topCategories={categories}
+      />
     </main>
   );
 }
 
-function Section({ title, href, children }: { title: string; href: string; children: React.ReactNode }) {
-  return (
-    <section className="mt-2 md:mx-4 md:mt-4">
-      <div className="flex items-center justify-between bg-white px-4 pb-3 pt-4 md:rounded-t-2xl">
-        <h2 className="text-base font-black text-gray-900 md:text-lg">{title}</h2>
-        <Link
-          href={href}
-          className="flex items-center gap-0.5 text-xs font-bold text-brand-primary transition-opacity hover:opacity-70"
-        >
-          Lihat Semua <ChevronRight size={13} />
-        </Link>
-      </div>
-      {children}
-    </section>
-  );
+function buildProductWhere(
+  categorySlug: string,
+  sort: string,
+  now: Date,
+  features: { voucherEnabled: boolean; flashSaleEnabled: boolean },
+): Prisma.ProductWhereInput {
+  const where: Prisma.ProductWhereInput = {
+    status: "ACTIVE",
+    category: { isActive: true },
+    brand: { isActive: true },
+  };
+  if (categorySlug) where.category = { slug: categorySlug, isActive: true };
+  if (sort === "promo") {
+    const promoBranches: Prisma.ProductWhereInput[] = [];
+    if (features.voucherEnabled) {
+      promoBranches.push({
+        vouchers: {
+          some: {
+            voucher: {
+              isActive: true,
+              status: "ACTIVE",
+              startsAt: { lte: now },
+              endsAt: { gte: now },
+            },
+          },
+        },
+      });
+    }
+    if (features.flashSaleEnabled) {
+      promoBranches.push({
+        flashSaleProducts: {
+          some: {
+            flashSale: {
+              isActive: true,
+              startsAt: { lte: now },
+              endsAt: { gte: now },
+            },
+          },
+        },
+      });
+    }
+    if (promoBranches.length > 0) where.OR = promoBranches;
+  }
+  return where;
+}
+
+function productOrderBy(sort: string): Prisma.ProductOrderByWithRelationInput[] {
+  if (sort === "popular") {
+    return [
+      { inquiryCount: "desc" },
+      { clickCount: "desc" },
+      { viewCount: "desc" },
+      { createdAt: "desc" },
+    ];
+  }
+  return [{ createdAt: "desc" }];
+}
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+}
+
+function parseSort(value: string) {
+  if (value === "popular" || value === "promo") return value;
+  return "latest";
+}
+
+type ActiveHeroBannerRow = {
+  id: string;
+  title: string;
+  subtitle: string | null;
+  imageUrl: string | null;
+};
+
+type ResolvedHeroBanner = {
+  title: string;
+  subtitle: string | null;
+  image: string | null;
+};
+
+function resolveHeroBanner(rows: ActiveHeroBannerRow[]): ResolvedHeroBanner | null {
+  const selected = rows[0] ?? null;
+
+  if (process.env.NODE_ENV !== "production") {
+    if (!selected) {
+      console.info("[hero-banner] fallback used — no active HeroBanner matched current schedule");
+    } else {
+      const validImage =
+        selected.imageUrl && isRenderablePromoBannerImageUrl(selected.imageUrl);
+      console.info("[hero-banner] using HeroBanner", {
+        source: "HeroBanner",
+        id: selected.id,
+        title: selected.title,
+        imageUrl: selected.imageUrl,
+        imageRenderable: Boolean(validImage),
+        imageReason: !selected.imageUrl
+          ? "missing image — gradient fallback"
+          : validImage
+            ? "ok"
+            : "invalid path — gradient fallback",
+      });
+    }
+  }
+
+  if (!selected) return null;
+
+  const image =
+    selected.imageUrl && isRenderablePromoBannerImageUrl(selected.imageUrl)
+      ? selected.imageUrl
+      : null;
+
+  return {
+    title: selected.title,
+    subtitle: selected.subtitle,
+    image,
+  };
+}
+
+function parsePage(value: string) {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed < 1) return 1;
+  return parsed;
 }

@@ -5,6 +5,7 @@ import {
   formatRupiah,
   getEligibleProductVouchers,
   productBadge,
+  productHoverImage,
   productImage,
   safeImageSrc,
   stockLabel,
@@ -41,28 +42,27 @@ export function toProductCardProps(
     hasActiveFlashSale: options.hasActiveFlashSale ?? hasVisibleFlashSale,
   });
 
-  const productIdentifier = product.slug || product.id;
+  const productIdentifier = product.slug || product.sku;
 
   return {
     href: `/products/${productIdentifier}`,
     image: safeImageSrc(productImage(product)),
+    hoverImage: safeImageSrc(productHoverImage(product)),
     name: product.name,
     specification: product.shortSpecification,
     publicPrice: formatRupiah(product.publicPrice),
     retailPrice: showRetail && product.retailPrice ? formatRupiah(product.retailPrice) : undefined,
     showRetailAsPrimary: showRetail && !!product.retailPrice,
-    badge: hasVisibleFlashSale
-      ? "Flash Sale"
-      : visibleVouchers.length > 0
-        ? "Promo"
-        : productBadge(product),
+    badge: hasVisibleFlashSale || visibleVouchers.length > 0
+      ? "Promo"
+      : productBadge(product),
     voucherAvailable: visibleVouchers.length > 0,
     voucherLabel: visibleVouchers[0] ? voucherLabel(visibleVouchers[0]) : undefined,
     stockStatus: product.stockStatus,
     stockText: stockLabel(product),
     brandName: product.brand?.name ?? null,
     categoryName: product.category?.name ?? null,
-    productId: product.id,
+    productId: productIdentifier,
     productSlug: product.slug,
     flashSalePrice: hasVisibleFlashSale ? formatRupiah(options.flashSalePrice) : undefined,
     flashSaleStock: options.flashSaleStock,

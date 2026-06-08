@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useActionState } from "react";
-import { useRouter } from "next/navigation";
 
 import { activateRetailToken, type ActivationState } from "./actions";
 
 const initialState: ActivationState = { status: "idle" };
 
 export default function ActivationForm() {
-  const router = useRouter();
   const [state, formAction, isPending] = useActionState(
     activateRetailToken,
     initialState,
@@ -16,9 +14,9 @@ export default function ActivationForm() {
 
   useEffect(() => {
     if (state.status === "success") {
-      router.push("/retail/activate/success");
+      window.location.href = "/retail/activate/success";
     }
-  }, [state.status, router]);
+  }, [state.status]);
 
   return (
     <form action={formAction} className="mt-6 space-y-4">
@@ -29,8 +27,11 @@ export default function ActivationForm() {
         <input
           id="token"
           name="token"
-          type="password"
-          placeholder="Masukkan token aktivasi"
+          type="text"
+          inputMode="numeric"
+          pattern="\d{6}"
+          maxLength={6}
+          placeholder="Masukkan 6 digit OTP"
           required
           className="mt-2 w-full rounded-xl border border-brand-border px-3 py-3 text-sm outline-none focus:border-brand-primary"
         />

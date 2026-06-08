@@ -1,11 +1,13 @@
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default function RetailActivationSuccessPage() {
   return (
     <main className="min-h-screen bg-brand-bg px-4 py-10 text-brand-text">
       <section className="mx-auto max-w-md rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
         <Link href="/" className="text-sm font-semibold text-brand-primary">
-          E-Katalog Komputer
+          RAMA COMPUTER
         </Link>
         <h1 className="mt-6 text-2xl font-bold">Aktivasi Berhasil</h1>
         <p className="mt-2 text-sm leading-6 text-brand-muted">

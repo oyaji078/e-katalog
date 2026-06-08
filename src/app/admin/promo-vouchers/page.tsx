@@ -112,65 +112,109 @@ function VoucherTab({ vouchers }: { vouchers: VoucherWithRelations[] }) {
           Add Voucher
         </Link>
       </div>
-      <div className="overflow-hidden rounded-lg border border-brand-border bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-brand-border text-sm">
-            <thead className="bg-brand-primary/5 text-xs uppercase tracking-wide text-brand-primary">
-              <tr>
-                <th className="px-4 py-3 text-left">Voucher</th>
-                <th className="px-4 py-3 text-left">Audience</th>
-                <th className="px-4 py-3 text-left">Discount</th>
-                <th className="px-4 py-3 text-left">Minimum</th>
-                <th className="px-4 py-3 text-left">Scope</th>
-                <th className="px-4 py-3 text-left">Window</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-brand-border">
-              {vouchers.map((voucher) => (
-                <tr key={voucher.id}>
-                  <td className="px-4 py-3">
-                    <p className="font-semibold text-brand-text">{voucher.title}</p>
+
+      {vouchers.length === 0 ? (
+        <div className="rounded-lg border border-brand-border bg-white p-10 text-center text-sm text-brand-muted">
+          No vouchers found.
+        </div>
+      ) : (
+        <>
+          {/* Mobile: card layout */}
+          <div className="grid gap-3 md:hidden">
+            {vouchers.map((voucher) => (
+              <div key={voucher.id} className="min-w-0 rounded-lg border border-brand-border bg-white p-4 shadow-sm">
+                <div className="mb-2 flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-brand-text">{voucher.title}</p>
                     <p className="font-mono text-xs text-brand-muted">{voucher.code}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex gap-1">
-                      {voucher.showForPublic ? <span className="rounded-full bg-brand-accent/10 px-2 py-1 text-xs font-bold text-brand-accent">Public</span> : null}
-                      {voucher.showForRetail ? <span className="rounded-full bg-brand-secondary/20 px-2 py-1 text-xs font-bold text-brand-primary">Retail</span> : null}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-brand-accent">{voucherLabel(voucher)}</td>
-                  <td className="px-4 py-3 text-brand-muted">
-                    {voucher.minimumPurchase ? formatRupiah(voucher.minimumPurchase) : "-"}
-                  </td>
-                  <td className="px-4 py-3 text-brand-muted">
+                  </div>
+                  <span className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold ${voucher.isActive && voucher.status === "ACTIVE" ? "bg-success/20 text-success" : "bg-brand-muted/10 text-brand-muted"}`}>
+                    {voucher.status}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+                  <span className="font-semibold text-brand-muted">Diskon:</span>
+                  <span className="font-semibold text-brand-accent">{voucherLabel(voucher)}</span>
+                  <span className="font-semibold text-brand-muted">Min. Pembelian:</span>
+                  <span>{voucher.minimumPurchase ? formatRupiah(voucher.minimumPurchase) : "-"}</span>
+                  <span className="font-semibold text-brand-muted">Audiens:</span>
+                  <span className="inline-flex gap-1">
+                    {voucher.showForPublic ? <span className="rounded-full bg-brand-accent/10 px-1.5 py-0.5 text-[10px] font-bold text-brand-accent">Public</span> : null}
+                    {voucher.showForRetail ? <span className="rounded-full bg-brand-secondary/20 px-1.5 py-0.5 text-[10px] font-bold text-brand-primary">Retail</span> : null}
+                  </span>
+                  <span className="font-semibold text-brand-muted">Cakupan:</span>
+                  <span>
                     {voucher.scope}
                     {voucher.scope === "PRODUCTS" ? ` (${voucher.products.length})` : ""}
                     {voucher.scope === "CATEGORIES" ? ` (${voucher.categories.length})` : ""}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-brand-muted">
-                    {dateLabel(voucher.startsAt)} - {dateLabel(voucher.endsAt)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-1 text-xs font-bold ${voucher.isActive && voucher.status === "ACTIVE" ? "bg-success/20 text-success" : "bg-brand-muted/10 text-brand-muted"}`}>
-                      {voucher.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <VoucherActionsClient voucherId={voucher.id} isActive={voucher.isActive && voucher.status === "ACTIVE"} />
-                  </td>
-                </tr>
-              ))}
-              {vouchers.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="px-4 py-10 text-center text-sm text-brand-muted">No vouchers found.</td>
-                </tr>
-              ) : null}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                  </span>
+                  <span className="font-semibold text-brand-muted">Periode:</span>
+                  <span className="text-[11px]">{dateLabel(voucher.startsAt)} - {dateLabel(voucher.endsAt)}</span>
+                </div>
+                <div className="mt-3 flex justify-end">
+                  <VoucherActionsClient voucherId={voucher.id} isActive={voucher.isActive && voucher.status === "ACTIVE"} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: table layout */}
+          <div className="hidden overflow-hidden rounded-lg border border-brand-border bg-white shadow-sm md:block">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-brand-border text-sm">
+                <thead className="bg-[#EEF4F7] text-xs uppercase tracking-wide text-[#111827]">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Voucher</th>
+                    <th className="px-4 py-3 text-left">Audience</th>
+                    <th className="px-4 py-3 text-left">Discount</th>
+                    <th className="px-4 py-3 text-left">Minimum</th>
+                    <th className="px-4 py-3 text-left">Scope</th>
+                    <th className="px-4 py-3 text-left">Window</th>
+                    <th className="px-4 py-3 text-left">Status</th>
+                    <th className="px-4 py-3 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-brand-border">
+                  {vouchers.map((voucher) => (
+                    <tr key={voucher.id}>
+                      <td className="px-4 py-3">
+                        <p className="font-semibold text-brand-text">{voucher.title}</p>
+                        <p className="font-mono text-xs text-brand-muted">{voucher.code}</p>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex gap-1">
+                          {voucher.showForPublic ? <span className="rounded-full bg-brand-accent/10 px-2 py-1 text-xs font-bold text-brand-accent">Public</span> : null}
+                          {voucher.showForRetail ? <span className="rounded-full bg-brand-secondary/20 px-2 py-1 text-xs font-bold text-brand-primary">Retail</span> : null}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 font-semibold text-brand-accent">{voucherLabel(voucher)}</td>
+                      <td className="px-4 py-3 text-brand-muted">
+                        {voucher.minimumPurchase ? formatRupiah(voucher.minimumPurchase) : "-"}
+                      </td>
+                      <td className="px-4 py-3 text-brand-muted">
+                        {voucher.scope}
+                        {voucher.scope === "PRODUCTS" ? ` (${voucher.products.length})` : ""}
+                        {voucher.scope === "CATEGORIES" ? ` (${voucher.categories.length})` : ""}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-brand-muted">
+                        {dateLabel(voucher.startsAt)} - {dateLabel(voucher.endsAt)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`rounded-full px-2 py-1 text-xs font-bold ${voucher.isActive && voucher.status === "ACTIVE" ? "bg-success/20 text-success" : "bg-brand-muted/10 text-brand-muted"}`}>
+                          {voucher.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <VoucherActionsClient voucherId={voucher.id} isActive={voucher.isActive && voucher.status === "ACTIVE"} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

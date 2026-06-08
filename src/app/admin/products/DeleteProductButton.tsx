@@ -40,15 +40,15 @@ export default function DeleteProductButton({ productId }: { productId: string }
           setError("");
           setIsConfirming(true);
         }}
-        className="rounded-lg bg-danger/10 px-3 py-1.5 text-xs font-semibold text-danger hover:bg-danger/20"
+        className="rounded-lg bg-danger/10 px-3 py-1.5 text-xs font-semibold text-danger hover:bg-danger hover:text-white"
       >
         Hapus
       </button>
 
       {isConfirming ? (
-        <div className="absolute right-0 z-20 mt-2 w-72 rounded-lg border border-brand-border bg-white p-4 text-left shadow-xl">
-          <h3 className="text-sm font-bold text-brand-text">Hapus Produk?</h3>
-          <p className="mt-2 text-xs leading-5 text-brand-muted">
+        <div className="absolute right-0 z-20 mt-2 w-72 rounded-lg border border-brand-light bg-brand-soft-white p-4 text-left text-brand-on-light shadow-xl">
+          <h3 className="text-sm font-bold text-brand-on-light">Hapus Produk?</h3>
+          <p className="mt-2 text-xs leading-5 text-brand-muted-on-light">
             Produk akan dihapus permanen dari database dan tidak tampil lagi di halaman public.
           </p>
 
@@ -62,7 +62,7 @@ export default function DeleteProductButton({ productId }: { productId: string }
                 setError("");
               }}
               disabled={isLoading}
-              className="rounded-lg border border-brand-border px-3 py-1.5 text-xs font-semibold text-brand-muted disabled:opacity-60"
+              className="rounded-lg border border-brand-light px-3 py-1.5 text-xs font-semibold text-brand-muted-on-light hover:bg-[rgba(13,11,97,0.08)] disabled:opacity-60"
             >
               Batal
             </button>

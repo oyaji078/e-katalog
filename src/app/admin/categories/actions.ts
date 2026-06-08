@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getAdminSession, toUserRole } from "@/lib/admin-auth";
 import { logAdminActivity } from "@/lib/activity-log";
 import { getDb } from "@/lib/db";
+import { saveCategoryImage, deleteCategoryImage } from "@/lib/upload/storage";
 
 export type CategoryFormState = {
   success: boolean;
@@ -80,6 +81,8 @@ export async function createCategoryAction(
   const description = text(formData, "description") || null;
   const isActive = formData.get("isActive") === "1" || formData.get("isActive") === "on";
   const sortOrder = parseInt(text(formData, "sortOrder") || "0", 10);
+  const logoFile = formData.get("logoUrl") as File | null;
+  let logoUrl: string | null = null;
 
   const fieldErrors: CategoryFormState["fieldErrors"] = {};
 
@@ -99,8 +102,20 @@ export async function createCategoryAction(
     return buildFieldError({ ...formInitial }, { slug: "Slug sudah digunakan oleh kategori lain." });
   }
 
+  if (logoFile && logoFile.size > 0) {
+    try {
+      logoUrl = await saveCategoryImage(logoFile);
+    } catch (error) {
+      return {
+        ...formInitial,
+        error: error instanceof Error ? error.message : "Gagal mengupload logo kategori.",
+        fieldErrors: {},
+      };
+    }
+  }
+
   const category = await db.category.create({
-    data: { name, slug, icon, description, isActive, sortOrder },
+    data: { name, slug, icon, logoUrl, description, isActive, sortOrder },
   });
 
   await logAdminActivity({
@@ -131,6 +146,8 @@ export async function updateCategoryAction(
   const icon = text(formData, "icon") || null;
   const description = text(formData, "description") || null;
   const sortOrder = parseInt(text(formData, "sortOrder") || "0", 10);
+  const logoFile = formData.get("logoUrl") as File | null;
+  const removeLogo = formData.get("removeLogo") === "1";
 
   if (!id) return { ...formInitial, error: "ID kategori tidak valid." };
 
@@ -153,9 +170,29 @@ export async function updateCategoryAction(
     return buildFieldError({ ...formInitial }, { slug: "Slug sudah digunakan oleh kategori lain." });
   }
 
+  let logoUrl: string | null | undefined = undefined;
+
+  if (removeLogo) {
+    const current = await db.category.findUnique({ where: { id }, select: { logoUrl: true } });
+    if (current?.logoUrl) deleteCategoryImage(current.logoUrl);
+    logoUrl = null;
+  } else if (logoFile && logoFile.size > 0) {
+    try {
+      const current = await db.category.findUnique({ where: { id }, select: { logoUrl: true } });
+      if (current?.logoUrl) deleteCategoryImage(current.logoUrl);
+      logoUrl = await saveCategoryImage(logoFile);
+    } catch (error) {
+      return {
+        ...formInitial,
+        error: error instanceof Error ? error.message : "Gagal mengupload logo kategori.",
+        fieldErrors: {},
+      };
+    }
+  }
+
   const category = await db.category.update({
     where: { id },
-    data: { name, slug, icon, description, sortOrder },
+    data: { name, slug, icon, description, sortOrder, ...(logoUrl !== undefined ? { logoUrl } : {}) },
   });
 
   await logAdminActivity({
@@ -192,13 +229,6 @@ export async function toggleCategoryStatusAction(
   });
 
   if (!existing) return { ...statusInitial, error: "Kategori tidak ditemukan." };
-
-  if (!activate && existing._count.products > 0) {
-    return {
-      ...statusInitial,
-      error: "Kategori masih memiliki produk. Nonaktifkan kategori ini?",
-    };
-  }
 
   const category = await db.category.update({
     where: { id },
@@ -245,7 +275,7 @@ export async function deleteCategoryAction(
   if (existing._count.products > 0) {
     return {
       ...deleteInitial,
-      error: "Kategori tidak dapat dihapus karena masih digunakan oleh produk. Gunakan Nonaktifkan sebagai gantinya.",
+      error: "Kategori masih memiliki produk. Nonaktifkan kategori jika ingin menyembunyikannya dari katalog.",
     };
   }
 

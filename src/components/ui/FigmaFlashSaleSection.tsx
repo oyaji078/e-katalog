@@ -1,10 +1,11 @@
 "use client";
 
-import { ChevronRight, Zap } from "lucide-react";
+import { ChevronRight, Laptop, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import SavedProductButton from "@/components/ui/SavedProductButton";
 import WhatsAppInquiryButton from "@/components/ui/WhatsAppInquiryButton";
 
 type FigmaFlashProduct = {
@@ -23,22 +24,29 @@ type FigmaFlashProduct = {
 
 type FigmaFlashSaleSectionProps = {
   products: FigmaFlashProduct[];
+  endsAt?: string;
+  initialNow?: number;
 };
 
 function pad(number: number) {
   return String(number).padStart(2, "0");
 }
 
+function getRemaining(endsAt: string, now: number) {
+  const diff = Math.max(0, new Date(endsAt).getTime() - now);
+  const totalSeconds = Math.floor(diff / 1000);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  return { h, m, s, done: diff <= 0 };
+}
+
 function FlashPlaceholder() {
   return (
-    <div className="flex size-full items-center justify-center bg-gradient-to-br from-brand-primary/10 via-white to-brand-secondary/25">
+    <div className="flex size-full items-center justify-center bg-gradient-to-br from-[#294669] to-[#E4D329]/30">
       <div className="flex flex-col items-center gap-2">
-        <svg className="size-10 text-brand-primary/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-          <line x1="8" y1="21" x2="16" y2="21"/>
-          <line x1="12" y1="17" x2="12" y2="21"/>
-        </svg>
-        <span className="rounded-full bg-white/80 px-2 py-1 text-[10px] font-bold text-brand-primary shadow-sm">
+        <Laptop className="size-10 text-[#E4D329]" strokeWidth={1.5} />
+        <span className="border border-[#2A2A38] bg-[#14161E]/80 px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-[#F0F0F5]">
           Produk
         </span>
       </div>
@@ -46,175 +54,138 @@ function FlashPlaceholder() {
   );
 }
 
-export default function FigmaFlashSaleSection({ products }: FigmaFlashSaleSectionProps) {
-  const [timeLeft, setTimeLeft] = useState({ h: 7, m: 32, s: 45 });
+function FlashCountdown({ endsAt, initialNow }: { endsAt: string; initialNow?: number }) {
+  const [now, setNow] = useState(initialNow ?? new Date(endsAt).getTime());
+  const remaining = useMemo(() => getRemaining(endsAt, now), [endsAt, now]);
 
   useEffect(() => {
     const prefersReducedMotion =
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+    // Re-sync the SSR-stable seed to the real client clock on mount, then tick.
+    const update = () => setNow(Date.now());
+    update();
     if (prefersReducedMotion) return;
 
-    const timer = window.setInterval(() => {
-      setTimeLeft((previous) => {
-        let { h, m, s } = previous;
-        s -= 1;
-        if (s < 0) {
-          s = 59;
-          m -= 1;
-        }
-        if (m < 0) {
-          m = 59;
-          h -= 1;
-        }
-        if (h < 0) return { h: 23, m: 59, s: 59 };
-        return { h, m, s };
-      });
-    }, 1000);
-
+    const timer = window.setInterval(update, 1000);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [endsAt]);
 
   return (
-    <section
-      className="mt-2 overflow-hidden md:mx-4 md:mt-4 md:rounded-2xl"
-      style={{
-        background:
-          "linear-gradient(180deg, var(--brand-soft) 0%, var(--brand-accent-soft) 42%, #ffffff 100%)",
-      }}
-    >
-      <svg className="block w-full h-2 text-brand-soft" viewBox="0 0 1200 16" preserveAspectRatio="none" fill="currentColor">
-        <path d="M0,16 C150,0 350,16 600,16 C850,16 1050,0 1200,16 L1200,0 L0,0 Z" />
-      </svg>
-      <div className="flex items-center justify-between px-4 pb-3 pt-3">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
-            <Zap size={18} fill="var(--brand-accent)" stroke="none" />
-            <span className="text-base font-black text-brand-primary md:text-lg">
+    <div className="flex items-center gap-2">
+      <span className="hidden text-[10px] font-black uppercase tracking-[0.2em] text-[#8A8A9E] sm:inline">
+        Berakhir
+      </span>
+      {[remaining.h, remaining.m, remaining.s].map((value, index) => (
+        <span key={`${index}-${value}`} className="contents">
+          <span className="border border-[#2A2A38] bg-[#1C1E26] px-2 py-1 font-mono text-xs font-black text-[#F0F0F5]">
+            {pad(value)}
+          </span>
+          {index < 2 ? <span className="text-xs font-black text-[#E4D329]">:</span> : null}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+export default function FigmaFlashSaleSection({
+  products,
+  endsAt,
+  initialNow,
+}: FigmaFlashSaleSectionProps) {
+  if (products.length === 0) return null;
+
+  return (
+    <section className="mx-auto mt-10 max-w-[1400px] overflow-hidden border-y border-[#2A2A38] bg-[#14161E]">
+      <div className="flex min-w-0 items-center justify-between gap-3 px-4 py-4 md:px-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Zap size={18} fill="#E4D329" stroke="none" />
+            <span className="text-sm font-black uppercase tracking-[0.22em] text-[#F0F0F5] md:text-base">
               Flash Sale
             </span>
           </div>
-          <div className="flex items-center gap-1">
-            {[timeLeft.h, timeLeft.m, timeLeft.s].map((value, index) => (
-              <span key={`${value}-${index}`} className="contents">
-                <span
-                  className="rounded bg-brand-primary px-1.5 py-0.5 font-mono text-xs font-black text-white shadow-sm"
-                >
-                  {pad(value)}
-                </span>
-                {index < 2 ? <span className="text-xs font-bold text-gray-400">:</span> : null}
-              </span>
-            ))}
-          </div>
+          {endsAt ? <FlashCountdown endsAt={endsAt} initialNow={initialNow} /> : null}
         </div>
         <Link
-          href="/products"
-          className="flex items-center gap-0.5 text-xs font-bold text-brand-primary transition-opacity hover:opacity-70"
+          href="/products?flashSale=1"
+          className="flex shrink-0 items-center gap-1 text-[10px] font-black uppercase tracking-[0.2em] text-[#8A8A9E] transition-colors hover:text-[#E4D329]"
         >
           Lihat Semua <ChevronRight size={13} />
         </Link>
       </div>
 
-      {products.length > 0 ? (
-        <div className="flex gap-3 overflow-x-auto px-4 pb-5 [scrollbar-width:none]">
-          {products.map((product, index) => {
-            return (
-              <div
-                key={`${product.href}-${index}`}
-                className="w-40 flex-shrink-0 overflow-hidden rounded-xl border border-brand-border bg-white shadow-sm transition-shadow duration-200 hover:shadow-lg md:w-48"
-              >
-                <Link href={product.href} className="block">
-                  <div className="relative h-36 w-full overflow-hidden bg-gray-50 md:h-40">
-                    {product.image ? (
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        sizes="(max-width: 768px) 160px, 192px"
-                        className="object-cover transition-transform duration-300 hover:scale-105"
-                      />
-                    ) : (
-                      <FlashPlaceholder />
-                    )}
-                    <span
-                      className="absolute left-2 top-2 rounded bg-brand-accent px-1.5 py-0.5 text-[10px] font-black text-brand-primary-dark shadow-sm"
-                    >
-                      {product.badge ?? "PROMO"}
-                    </span>
-                  </div>
-                </Link>
-                <div className="p-2.5">
-                  <Link href={product.href}>
-                    <p className="mb-1.5 line-clamp-2 text-xs font-semibold leading-tight text-gray-700">
-                      {product.name}
-                    </p>
-                  </Link>
-                  {product.flashSalePrice ? (
-                    <>
-                      <p className="text-sm font-black text-brand-accent">
-                        {product.flashSalePrice}
-                      </p>
-                      <p className="mt-0.5 text-[10px] text-gray-400 line-through">
-                        {product.showRetailAsPrimary && product.retailPrice
-                          ? product.retailPrice
-                          : product.publicPrice}
-                      </p>
-                    </>
-                  ) : product.showRetailAsPrimary && product.retailPrice ? (
-                    <>
-                      <p className="text-sm font-black text-brand-primary">
-                        {product.retailPrice}
-                      </p>
-                      <p className="mt-0.5 text-[10px] text-gray-400 line-through">
-                        {product.publicPrice}
-                      </p>
-                    </>
-                  ) : (
-                    <p className="text-sm font-black text-brand-primary">
-                      {product.publicPrice}
-                    </p>
-                  )}
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        width: `${Math.min(90, 42 + index * 8)}%`,
-                        background:
-                          "linear-gradient(to right, var(--brand-accent), var(--brand-primary))",
-                      }}
-                    />
-                  </div>
-                  <p className="mt-0.5 text-[10px] text-gray-400">
-                    {product.stockText ?? "Cek stok"}
+      <div className="flex gap-3 overflow-x-auto px-4 pb-5 [scrollbar-width:none] md:px-6">
+        {products.map((product, index) => (
+          <div
+            key={`${product.href}-${index}`}
+            className="group w-40 flex-shrink-0 overflow-hidden border border-[#2A2A38] bg-[#14161E] text-[#F0F0F5] transition-all duration-300 hover:-translate-y-1 hover:border-[#E4D329] hover:shadow-[0_4px_16px_rgba(228,211,41,0.16)] md:w-48"
+          >
+            <div className="relative h-44 w-full overflow-hidden bg-[#1C1E26] md:h-56">
+              <Link href={product.href} className="relative block size-full">
+                {product.image ? (
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 768px) 160px, 192px"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  <FlashPlaceholder />
+                )}
+                <span className="absolute left-2 top-2 bg-[#E4D329] px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[#0D0B61]">
+                  {product.badge ?? "Promo"}
+                </span>
+              </Link>
+              <SavedProductButton
+                productId={product.productId}
+                productName={product.name}
+                variant="icon"
+                className="absolute right-2 top-2 z-10 border-[#2A2A38] bg-[#14161E] text-[#F0F0F5] hover:text-[#E4D329]"
+              />
+            </div>
+            <div className="p-3">
+              <Link href={product.href}>
+                <p className="mb-2 line-clamp-2 text-xs font-semibold leading-tight text-[#F0F0F5] transition-colors group-hover:text-[#E4D329]">
+                  {product.name}
+                </p>
+              </Link>
+              {product.flashSalePrice ? (
+                <>
+                  <p className="text-sm font-black text-[#E4D329]">{product.flashSalePrice}</p>
+                  <p className="mt-0.5 text-[10px] text-[#5B6472] line-through">
+                    {product.showRetailAsPrimary && product.retailPrice
+                      ? product.retailPrice
+                      : product.publicPrice}
                   </p>
-                  <div className="mt-2 grid grid-cols-2 gap-1.5">
-                    <Link
-                      href={product.href}
-                      className="rounded-full border border-brand-primary/20 bg-white px-2 py-1.5 text-center text-[10px] font-black text-brand-primary transition hover:bg-brand-primary hover:text-white"
-                    >
-                      Detail
-                    </Link>
-                    <WhatsAppInquiryButton
-                      productId={product.productId}
-                      productSlug={product.productSlug ?? undefined}
-                      label="Tanya"
-                      className="w-full rounded-full px-2 py-1.5 text-[10px]"
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="px-4 pb-5">
-          <div className="rounded-xl border border-dashed border-brand-border bg-white/60 p-6 text-center">
-            <Zap className="mx-auto mb-2 size-8 text-gray-300" />
-            <p className="text-sm font-bold text-gray-400">Flash Sale Akan Segera Dimulai</p>
-            <p className="mt-1 text-xs text-gray-300">Produk promo akan muncul di sini.</p>
+                </>
+              ) : product.showRetailAsPrimary && product.retailPrice ? (
+                <>
+                  <p className="text-sm font-black text-[#E4D329]">{product.retailPrice}</p>
+                  <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#8A8A9E]">
+                    Harga ritel
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm font-black text-[#E4D329]">{product.publicPrice}</p>
+              )}
+              <p className="mt-2 truncate text-[10px] text-[#8A8A9E]">
+                {product.stockText ?? "Cek stok"}
+              </p>
+              <WhatsAppInquiryButton
+                productId={product.productId}
+                productSlug={product.productSlug ?? undefined}
+                sourcePage="flash-sale"
+                label="Tanya WA"
+                className="mt-3 h-8 w-full rounded-none bg-[#22C55E] px-2 text-[11px] font-black uppercase tracking-wider text-white shadow-none hover:bg-[#22C55E]/90"
+              />
+            </div>
+            <div className="h-px bg-gradient-to-r from-transparent via-[#E4D329]/60 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </section>
   );
 }

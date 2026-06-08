@@ -38,9 +38,8 @@ export default async function AdminEditProductPage({
       orderBy: { name: "asc" },
     }),
     db.brand.findMany({
-      where: { isActive: true },
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
+      select: { id: true, name: true, isActive: true },
+      orderBy: [{ isActive: "desc" }, { name: "asc" }],
     }),
   ]);
 

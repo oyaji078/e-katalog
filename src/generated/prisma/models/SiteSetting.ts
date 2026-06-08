@@ -20,8 +20,18 @@ export type SiteSettingModel = runtime.Types.Result.DefaultSelection<Prisma.$Sit
 
 export type AggregateSiteSetting = {
   _count: SiteSettingCountAggregateOutputType | null
+  _avg: SiteSettingAvgAggregateOutputType | null
+  _sum: SiteSettingSumAggregateOutputType | null
   _min: SiteSettingMinAggregateOutputType | null
   _max: SiteSettingMaxAggregateOutputType | null
+}
+
+export type SiteSettingAvgAggregateOutputType = {
+  announcementSpeed: number | null
+}
+
+export type SiteSettingSumAggregateOutputType = {
+  announcementSpeed: number | null
 }
 
 export type SiteSettingMinAggregateOutputType = {
@@ -35,12 +45,21 @@ export type SiteSettingMinAggregateOutputType = {
   primaryColor: string | null
   secondaryColor: string | null
   accentColor: string | null
+  textColor: string | null
+  mutedColor: string | null
+  borderColor: string | null
+  supportColor: string | null
+  whatsappColor: string | null
   whatsappNumber: string | null
   email: string | null
   address: string | null
   googleMapsUrl: string | null
   businessHours: string | null
   footerDescription: string | null
+  announcementEnabled: boolean | null
+  announcementText: string | null
+  announcementSpeed: number | null
+  announcementLink: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,12 +75,21 @@ export type SiteSettingMaxAggregateOutputType = {
   primaryColor: string | null
   secondaryColor: string | null
   accentColor: string | null
+  textColor: string | null
+  mutedColor: string | null
+  borderColor: string | null
+  supportColor: string | null
+  whatsappColor: string | null
   whatsappNumber: string | null
   email: string | null
   address: string | null
   googleMapsUrl: string | null
   businessHours: string | null
   footerDescription: string | null
+  announcementEnabled: boolean | null
+  announcementText: string | null
+  announcementSpeed: number | null
+  announcementLink: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -77,17 +105,34 @@ export type SiteSettingCountAggregateOutputType = {
   primaryColor: number
   secondaryColor: number
   accentColor: number
+  textColor: number
+  mutedColor: number
+  borderColor: number
+  supportColor: number
+  whatsappColor: number
   whatsappNumber: number
   email: number
   address: number
   googleMapsUrl: number
   businessHours: number
   footerDescription: number
+  announcementEnabled: number
+  announcementText: number
+  announcementSpeed: number
+  announcementLink: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type SiteSettingAvgAggregateInputType = {
+  announcementSpeed?: true
+}
+
+export type SiteSettingSumAggregateInputType = {
+  announcementSpeed?: true
+}
 
 export type SiteSettingMinAggregateInputType = {
   id?: true
@@ -100,12 +145,21 @@ export type SiteSettingMinAggregateInputType = {
   primaryColor?: true
   secondaryColor?: true
   accentColor?: true
+  textColor?: true
+  mutedColor?: true
+  borderColor?: true
+  supportColor?: true
+  whatsappColor?: true
   whatsappNumber?: true
   email?: true
   address?: true
   googleMapsUrl?: true
   businessHours?: true
   footerDescription?: true
+  announcementEnabled?: true
+  announcementText?: true
+  announcementSpeed?: true
+  announcementLink?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -121,12 +175,21 @@ export type SiteSettingMaxAggregateInputType = {
   primaryColor?: true
   secondaryColor?: true
   accentColor?: true
+  textColor?: true
+  mutedColor?: true
+  borderColor?: true
+  supportColor?: true
+  whatsappColor?: true
   whatsappNumber?: true
   email?: true
   address?: true
   googleMapsUrl?: true
   businessHours?: true
   footerDescription?: true
+  announcementEnabled?: true
+  announcementText?: true
+  announcementSpeed?: true
+  announcementLink?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -142,12 +205,21 @@ export type SiteSettingCountAggregateInputType = {
   primaryColor?: true
   secondaryColor?: true
   accentColor?: true
+  textColor?: true
+  mutedColor?: true
+  borderColor?: true
+  supportColor?: true
+  whatsappColor?: true
   whatsappNumber?: true
   email?: true
   address?: true
   googleMapsUrl?: true
   businessHours?: true
   footerDescription?: true
+  announcementEnabled?: true
+  announcementText?: true
+  announcementSpeed?: true
+  announcementLink?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -191,6 +263,18 @@ export type SiteSettingAggregateArgs<ExtArgs extends runtime.Types.Extensions.In
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: SiteSettingAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: SiteSettingSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: SiteSettingMinAggregateInputType
@@ -221,6 +305,8 @@ export type SiteSettingGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   _count?: SiteSettingCountAggregateInputType | true
+  _avg?: SiteSettingAvgAggregateInputType
+  _sum?: SiteSettingSumAggregateInputType
   _min?: SiteSettingMinAggregateInputType
   _max?: SiteSettingMaxAggregateInputType
 }
@@ -230,21 +316,32 @@ export type SiteSettingGroupByOutputType = {
   singletonKey: string
   siteName: string
   storeName: string
-  tagline: string
+  tagline: string | null
   logoUrl: string | null
   faviconUrl: string | null
   primaryColor: string
   secondaryColor: string
   accentColor: string
+  textColor: string
+  mutedColor: string
+  borderColor: string
+  supportColor: string | null
+  whatsappColor: string
   whatsappNumber: string
   email: string | null
   address: string | null
   googleMapsUrl: string | null
   businessHours: string | null
-  footerDescription: string
+  footerDescription: string | null
+  announcementEnabled: boolean
+  announcementText: string | null
+  announcementSpeed: number
+  announcementLink: string | null
   createdAt: Date
   updatedAt: Date
   _count: SiteSettingCountAggregateOutputType | null
+  _avg: SiteSettingAvgAggregateOutputType | null
+  _sum: SiteSettingSumAggregateOutputType | null
   _min: SiteSettingMinAggregateOutputType | null
   _max: SiteSettingMaxAggregateOutputType | null
 }
@@ -272,18 +369,27 @@ export type SiteSettingWhereInput = {
   singletonKey?: Prisma.StringFilter<"SiteSetting"> | string
   siteName?: Prisma.StringFilter<"SiteSetting"> | string
   storeName?: Prisma.StringFilter<"SiteSetting"> | string
-  tagline?: Prisma.StringFilter<"SiteSetting"> | string
+  tagline?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   logoUrl?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   faviconUrl?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   primaryColor?: Prisma.StringFilter<"SiteSetting"> | string
   secondaryColor?: Prisma.StringFilter<"SiteSetting"> | string
   accentColor?: Prisma.StringFilter<"SiteSetting"> | string
+  textColor?: Prisma.StringFilter<"SiteSetting"> | string
+  mutedColor?: Prisma.StringFilter<"SiteSetting"> | string
+  borderColor?: Prisma.StringFilter<"SiteSetting"> | string
+  supportColor?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
+  whatsappColor?: Prisma.StringFilter<"SiteSetting"> | string
   whatsappNumber?: Prisma.StringFilter<"SiteSetting"> | string
   email?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   address?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   googleMapsUrl?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   businessHours?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
-  footerDescription?: Prisma.StringFilter<"SiteSetting"> | string
+  footerDescription?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
+  announcementEnabled?: Prisma.BoolFilter<"SiteSetting"> | boolean
+  announcementText?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
+  announcementSpeed?: Prisma.IntFilter<"SiteSetting"> | number
+  announcementLink?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SiteSetting"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SiteSetting"> | Date | string
 }
@@ -293,18 +399,27 @@ export type SiteSettingOrderByWithRelationInput = {
   singletonKey?: Prisma.SortOrder
   siteName?: Prisma.SortOrder
   storeName?: Prisma.SortOrder
-  tagline?: Prisma.SortOrder
+  tagline?: Prisma.SortOrderInput | Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   faviconUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   primaryColor?: Prisma.SortOrder
   secondaryColor?: Prisma.SortOrder
   accentColor?: Prisma.SortOrder
+  textColor?: Prisma.SortOrder
+  mutedColor?: Prisma.SortOrder
+  borderColor?: Prisma.SortOrder
+  supportColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  whatsappColor?: Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   googleMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   businessHours?: Prisma.SortOrderInput | Prisma.SortOrder
-  footerDescription?: Prisma.SortOrder
+  footerDescription?: Prisma.SortOrderInput | Prisma.SortOrder
+  announcementEnabled?: Prisma.SortOrder
+  announcementText?: Prisma.SortOrderInput | Prisma.SortOrder
+  announcementSpeed?: Prisma.SortOrder
+  announcementLink?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _relevance?: Prisma.SiteSettingOrderByRelevanceInput
@@ -318,18 +433,27 @@ export type SiteSettingWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SiteSettingWhereInput | Prisma.SiteSettingWhereInput[]
   siteName?: Prisma.StringFilter<"SiteSetting"> | string
   storeName?: Prisma.StringFilter<"SiteSetting"> | string
-  tagline?: Prisma.StringFilter<"SiteSetting"> | string
+  tagline?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   logoUrl?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   faviconUrl?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   primaryColor?: Prisma.StringFilter<"SiteSetting"> | string
   secondaryColor?: Prisma.StringFilter<"SiteSetting"> | string
   accentColor?: Prisma.StringFilter<"SiteSetting"> | string
+  textColor?: Prisma.StringFilter<"SiteSetting"> | string
+  mutedColor?: Prisma.StringFilter<"SiteSetting"> | string
+  borderColor?: Prisma.StringFilter<"SiteSetting"> | string
+  supportColor?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
+  whatsappColor?: Prisma.StringFilter<"SiteSetting"> | string
   whatsappNumber?: Prisma.StringFilter<"SiteSetting"> | string
   email?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   address?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   googleMapsUrl?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   businessHours?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
-  footerDescription?: Prisma.StringFilter<"SiteSetting"> | string
+  footerDescription?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
+  announcementEnabled?: Prisma.BoolFilter<"SiteSetting"> | boolean
+  announcementText?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
+  announcementSpeed?: Prisma.IntFilter<"SiteSetting"> | number
+  announcementLink?: Prisma.StringNullableFilter<"SiteSetting"> | string | null
   createdAt?: Prisma.DateTimeFilter<"SiteSetting"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SiteSetting"> | Date | string
 }, "id" | "singletonKey">
@@ -339,23 +463,34 @@ export type SiteSettingOrderByWithAggregationInput = {
   singletonKey?: Prisma.SortOrder
   siteName?: Prisma.SortOrder
   storeName?: Prisma.SortOrder
-  tagline?: Prisma.SortOrder
+  tagline?: Prisma.SortOrderInput | Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   faviconUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   primaryColor?: Prisma.SortOrder
   secondaryColor?: Prisma.SortOrder
   accentColor?: Prisma.SortOrder
+  textColor?: Prisma.SortOrder
+  mutedColor?: Prisma.SortOrder
+  borderColor?: Prisma.SortOrder
+  supportColor?: Prisma.SortOrderInput | Prisma.SortOrder
+  whatsappColor?: Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   googleMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   businessHours?: Prisma.SortOrderInput | Prisma.SortOrder
-  footerDescription?: Prisma.SortOrder
+  footerDescription?: Prisma.SortOrderInput | Prisma.SortOrder
+  announcementEnabled?: Prisma.SortOrder
+  announcementText?: Prisma.SortOrderInput | Prisma.SortOrder
+  announcementSpeed?: Prisma.SortOrder
+  announcementLink?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SiteSettingCountOrderByAggregateInput
+  _avg?: Prisma.SiteSettingAvgOrderByAggregateInput
   _max?: Prisma.SiteSettingMaxOrderByAggregateInput
   _min?: Prisma.SiteSettingMinOrderByAggregateInput
+  _sum?: Prisma.SiteSettingSumOrderByAggregateInput
 }
 
 export type SiteSettingScalarWhereWithAggregatesInput = {
@@ -366,18 +501,27 @@ export type SiteSettingScalarWhereWithAggregatesInput = {
   singletonKey?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
   siteName?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
   storeName?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
-  tagline?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
+  tagline?: Prisma.StringNullableWithAggregatesFilter<"SiteSetting"> | string | null
   logoUrl?: Prisma.StringNullableWithAggregatesFilter<"SiteSetting"> | string | null
   faviconUrl?: Prisma.StringNullableWithAggregatesFilter<"SiteSetting"> | string | null
   primaryColor?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
   secondaryColor?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
   accentColor?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
+  textColor?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
+  mutedColor?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
+  borderColor?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
+  supportColor?: Prisma.StringNullableWithAggregatesFilter<"SiteSetting"> | string | null
+  whatsappColor?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
   whatsappNumber?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
   email?: Prisma.StringNullableWithAggregatesFilter<"SiteSetting"> | string | null
   address?: Prisma.StringNullableWithAggregatesFilter<"SiteSetting"> | string | null
   googleMapsUrl?: Prisma.StringNullableWithAggregatesFilter<"SiteSetting"> | string | null
   businessHours?: Prisma.StringNullableWithAggregatesFilter<"SiteSetting"> | string | null
-  footerDescription?: Prisma.StringWithAggregatesFilter<"SiteSetting"> | string
+  footerDescription?: Prisma.StringNullableWithAggregatesFilter<"SiteSetting"> | string | null
+  announcementEnabled?: Prisma.BoolWithAggregatesFilter<"SiteSetting"> | boolean
+  announcementText?: Prisma.StringNullableWithAggregatesFilter<"SiteSetting"> | string | null
+  announcementSpeed?: Prisma.IntWithAggregatesFilter<"SiteSetting"> | number
+  announcementLink?: Prisma.StringNullableWithAggregatesFilter<"SiteSetting"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SiteSetting"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SiteSetting"> | Date | string
 }
@@ -387,18 +531,27 @@ export type SiteSettingCreateInput = {
   singletonKey?: string
   siteName?: string
   storeName?: string
-  tagline?: string
+  tagline?: string | null
   logoUrl?: string | null
   faviconUrl?: string | null
   primaryColor?: string
   secondaryColor?: string
   accentColor?: string
+  textColor?: string
+  mutedColor?: string
+  borderColor?: string
+  supportColor?: string | null
+  whatsappColor?: string
   whatsappNumber?: string
   email?: string | null
   address?: string | null
   googleMapsUrl?: string | null
   businessHours?: string | null
-  footerDescription?: string
+  footerDescription?: string | null
+  announcementEnabled?: boolean
+  announcementText?: string | null
+  announcementSpeed?: number
+  announcementLink?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -408,18 +561,27 @@ export type SiteSettingUncheckedCreateInput = {
   singletonKey?: string
   siteName?: string
   storeName?: string
-  tagline?: string
+  tagline?: string | null
   logoUrl?: string | null
   faviconUrl?: string | null
   primaryColor?: string
   secondaryColor?: string
   accentColor?: string
+  textColor?: string
+  mutedColor?: string
+  borderColor?: string
+  supportColor?: string | null
+  whatsappColor?: string
   whatsappNumber?: string
   email?: string | null
   address?: string | null
   googleMapsUrl?: string | null
   businessHours?: string | null
-  footerDescription?: string
+  footerDescription?: string | null
+  announcementEnabled?: boolean
+  announcementText?: string | null
+  announcementSpeed?: number
+  announcementLink?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -429,18 +591,27 @@ export type SiteSettingUpdateInput = {
   singletonKey?: Prisma.StringFieldUpdateOperationsInput | string
   siteName?: Prisma.StringFieldUpdateOperationsInput | string
   storeName?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faviconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.StringFieldUpdateOperationsInput | string
   secondaryColor?: Prisma.StringFieldUpdateOperationsInput | string
   accentColor?: Prisma.StringFieldUpdateOperationsInput | string
+  textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  mutedColor?: Prisma.StringFieldUpdateOperationsInput | string
+  borderColor?: Prisma.StringFieldUpdateOperationsInput | string
+  supportColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappColor?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  footerDescription?: Prisma.StringFieldUpdateOperationsInput | string
+  footerDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  announcementText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementSpeed?: Prisma.IntFieldUpdateOperationsInput | number
+  announcementLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -450,18 +621,27 @@ export type SiteSettingUncheckedUpdateInput = {
   singletonKey?: Prisma.StringFieldUpdateOperationsInput | string
   siteName?: Prisma.StringFieldUpdateOperationsInput | string
   storeName?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faviconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.StringFieldUpdateOperationsInput | string
   secondaryColor?: Prisma.StringFieldUpdateOperationsInput | string
   accentColor?: Prisma.StringFieldUpdateOperationsInput | string
+  textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  mutedColor?: Prisma.StringFieldUpdateOperationsInput | string
+  borderColor?: Prisma.StringFieldUpdateOperationsInput | string
+  supportColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappColor?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  footerDescription?: Prisma.StringFieldUpdateOperationsInput | string
+  footerDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  announcementText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementSpeed?: Prisma.IntFieldUpdateOperationsInput | number
+  announcementLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -471,18 +651,27 @@ export type SiteSettingCreateManyInput = {
   singletonKey?: string
   siteName?: string
   storeName?: string
-  tagline?: string
+  tagline?: string | null
   logoUrl?: string | null
   faviconUrl?: string | null
   primaryColor?: string
   secondaryColor?: string
   accentColor?: string
+  textColor?: string
+  mutedColor?: string
+  borderColor?: string
+  supportColor?: string | null
+  whatsappColor?: string
   whatsappNumber?: string
   email?: string | null
   address?: string | null
   googleMapsUrl?: string | null
   businessHours?: string | null
-  footerDescription?: string
+  footerDescription?: string | null
+  announcementEnabled?: boolean
+  announcementText?: string | null
+  announcementSpeed?: number
+  announcementLink?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -492,18 +681,27 @@ export type SiteSettingUpdateManyMutationInput = {
   singletonKey?: Prisma.StringFieldUpdateOperationsInput | string
   siteName?: Prisma.StringFieldUpdateOperationsInput | string
   storeName?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faviconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.StringFieldUpdateOperationsInput | string
   secondaryColor?: Prisma.StringFieldUpdateOperationsInput | string
   accentColor?: Prisma.StringFieldUpdateOperationsInput | string
+  textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  mutedColor?: Prisma.StringFieldUpdateOperationsInput | string
+  borderColor?: Prisma.StringFieldUpdateOperationsInput | string
+  supportColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappColor?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  footerDescription?: Prisma.StringFieldUpdateOperationsInput | string
+  footerDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  announcementText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementSpeed?: Prisma.IntFieldUpdateOperationsInput | number
+  announcementLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -513,18 +711,27 @@ export type SiteSettingUncheckedUpdateManyInput = {
   singletonKey?: Prisma.StringFieldUpdateOperationsInput | string
   siteName?: Prisma.StringFieldUpdateOperationsInput | string
   storeName?: Prisma.StringFieldUpdateOperationsInput | string
-  tagline?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faviconUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.StringFieldUpdateOperationsInput | string
   secondaryColor?: Prisma.StringFieldUpdateOperationsInput | string
   accentColor?: Prisma.StringFieldUpdateOperationsInput | string
+  textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  mutedColor?: Prisma.StringFieldUpdateOperationsInput | string
+  borderColor?: Prisma.StringFieldUpdateOperationsInput | string
+  supportColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappColor?: Prisma.StringFieldUpdateOperationsInput | string
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessHours?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  footerDescription?: Prisma.StringFieldUpdateOperationsInput | string
+  footerDescription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  announcementText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  announcementSpeed?: Prisma.IntFieldUpdateOperationsInput | number
+  announcementLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -546,14 +753,27 @@ export type SiteSettingCountOrderByAggregateInput = {
   primaryColor?: Prisma.SortOrder
   secondaryColor?: Prisma.SortOrder
   accentColor?: Prisma.SortOrder
+  textColor?: Prisma.SortOrder
+  mutedColor?: Prisma.SortOrder
+  borderColor?: Prisma.SortOrder
+  supportColor?: Prisma.SortOrder
+  whatsappColor?: Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   googleMapsUrl?: Prisma.SortOrder
   businessHours?: Prisma.SortOrder
   footerDescription?: Prisma.SortOrder
+  announcementEnabled?: Prisma.SortOrder
+  announcementText?: Prisma.SortOrder
+  announcementSpeed?: Prisma.SortOrder
+  announcementLink?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SiteSettingAvgOrderByAggregateInput = {
+  announcementSpeed?: Prisma.SortOrder
 }
 
 export type SiteSettingMaxOrderByAggregateInput = {
@@ -567,12 +787,21 @@ export type SiteSettingMaxOrderByAggregateInput = {
   primaryColor?: Prisma.SortOrder
   secondaryColor?: Prisma.SortOrder
   accentColor?: Prisma.SortOrder
+  textColor?: Prisma.SortOrder
+  mutedColor?: Prisma.SortOrder
+  borderColor?: Prisma.SortOrder
+  supportColor?: Prisma.SortOrder
+  whatsappColor?: Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   googleMapsUrl?: Prisma.SortOrder
   businessHours?: Prisma.SortOrder
   footerDescription?: Prisma.SortOrder
+  announcementEnabled?: Prisma.SortOrder
+  announcementText?: Prisma.SortOrder
+  announcementSpeed?: Prisma.SortOrder
+  announcementLink?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -588,14 +817,27 @@ export type SiteSettingMinOrderByAggregateInput = {
   primaryColor?: Prisma.SortOrder
   secondaryColor?: Prisma.SortOrder
   accentColor?: Prisma.SortOrder
+  textColor?: Prisma.SortOrder
+  mutedColor?: Prisma.SortOrder
+  borderColor?: Prisma.SortOrder
+  supportColor?: Prisma.SortOrder
+  whatsappColor?: Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
   email?: Prisma.SortOrder
   address?: Prisma.SortOrder
   googleMapsUrl?: Prisma.SortOrder
   businessHours?: Prisma.SortOrder
   footerDescription?: Prisma.SortOrder
+  announcementEnabled?: Prisma.SortOrder
+  announcementText?: Prisma.SortOrder
+  announcementSpeed?: Prisma.SortOrder
+  announcementLink?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type SiteSettingSumOrderByAggregateInput = {
+  announcementSpeed?: Prisma.SortOrder
 }
 
 
@@ -611,12 +853,21 @@ export type SiteSettingSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   primaryColor?: boolean
   secondaryColor?: boolean
   accentColor?: boolean
+  textColor?: boolean
+  mutedColor?: boolean
+  borderColor?: boolean
+  supportColor?: boolean
+  whatsappColor?: boolean
   whatsappNumber?: boolean
   email?: boolean
   address?: boolean
   googleMapsUrl?: boolean
   businessHours?: boolean
   footerDescription?: boolean
+  announcementEnabled?: boolean
+  announcementText?: boolean
+  announcementSpeed?: boolean
+  announcementLink?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["siteSetting"]>
@@ -634,17 +885,26 @@ export type SiteSettingSelectScalar = {
   primaryColor?: boolean
   secondaryColor?: boolean
   accentColor?: boolean
+  textColor?: boolean
+  mutedColor?: boolean
+  borderColor?: boolean
+  supportColor?: boolean
+  whatsappColor?: boolean
   whatsappNumber?: boolean
   email?: boolean
   address?: boolean
   googleMapsUrl?: boolean
   businessHours?: boolean
   footerDescription?: boolean
+  announcementEnabled?: boolean
+  announcementText?: boolean
+  announcementSpeed?: boolean
+  announcementLink?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SiteSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "singletonKey" | "siteName" | "storeName" | "tagline" | "logoUrl" | "faviconUrl" | "primaryColor" | "secondaryColor" | "accentColor" | "whatsappNumber" | "email" | "address" | "googleMapsUrl" | "businessHours" | "footerDescription" | "createdAt" | "updatedAt", ExtArgs["result"]["siteSetting"]>
+export type SiteSettingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "singletonKey" | "siteName" | "storeName" | "tagline" | "logoUrl" | "faviconUrl" | "primaryColor" | "secondaryColor" | "accentColor" | "textColor" | "mutedColor" | "borderColor" | "supportColor" | "whatsappColor" | "whatsappNumber" | "email" | "address" | "googleMapsUrl" | "businessHours" | "footerDescription" | "announcementEnabled" | "announcementText" | "announcementSpeed" | "announcementLink" | "createdAt" | "updatedAt", ExtArgs["result"]["siteSetting"]>
 
 export type $SiteSettingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SiteSetting"
@@ -654,18 +914,27 @@ export type $SiteSettingPayload<ExtArgs extends runtime.Types.Extensions.Interna
     singletonKey: string
     siteName: string
     storeName: string
-    tagline: string
+    tagline: string | null
     logoUrl: string | null
     faviconUrl: string | null
     primaryColor: string
     secondaryColor: string
     accentColor: string
+    textColor: string
+    mutedColor: string
+    borderColor: string
+    supportColor: string | null
+    whatsappColor: string
     whatsappNumber: string
     email: string | null
     address: string | null
     googleMapsUrl: string | null
     businessHours: string | null
-    footerDescription: string
+    footerDescription: string | null
+    announcementEnabled: boolean
+    announcementText: string | null
+    announcementSpeed: number
+    announcementLink: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["siteSetting"]>
@@ -1047,12 +1316,21 @@ export interface SiteSettingFieldRefs {
   readonly primaryColor: Prisma.FieldRef<"SiteSetting", 'String'>
   readonly secondaryColor: Prisma.FieldRef<"SiteSetting", 'String'>
   readonly accentColor: Prisma.FieldRef<"SiteSetting", 'String'>
+  readonly textColor: Prisma.FieldRef<"SiteSetting", 'String'>
+  readonly mutedColor: Prisma.FieldRef<"SiteSetting", 'String'>
+  readonly borderColor: Prisma.FieldRef<"SiteSetting", 'String'>
+  readonly supportColor: Prisma.FieldRef<"SiteSetting", 'String'>
+  readonly whatsappColor: Prisma.FieldRef<"SiteSetting", 'String'>
   readonly whatsappNumber: Prisma.FieldRef<"SiteSetting", 'String'>
   readonly email: Prisma.FieldRef<"SiteSetting", 'String'>
   readonly address: Prisma.FieldRef<"SiteSetting", 'String'>
   readonly googleMapsUrl: Prisma.FieldRef<"SiteSetting", 'String'>
   readonly businessHours: Prisma.FieldRef<"SiteSetting", 'String'>
   readonly footerDescription: Prisma.FieldRef<"SiteSetting", 'String'>
+  readonly announcementEnabled: Prisma.FieldRef<"SiteSetting", 'Boolean'>
+  readonly announcementText: Prisma.FieldRef<"SiteSetting", 'String'>
+  readonly announcementSpeed: Prisma.FieldRef<"SiteSetting", 'Int'>
+  readonly announcementLink: Prisma.FieldRef<"SiteSetting", 'String'>
   readonly createdAt: Prisma.FieldRef<"SiteSetting", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SiteSetting", 'DateTime'>
 }

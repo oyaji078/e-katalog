@@ -37,6 +37,7 @@ export default async function AdminProductsPage({
       select: {
         id: true,
         name: true,
+        sku: true,
         slug: true,
         primaryImageUrl: true,
         costPrice: true,
@@ -58,6 +59,7 @@ export default async function AdminProductsPage({
   const serialized = products.map((p) => ({
     id: p.id,
     name: p.name,
+    sku: p.sku,
     slug: p.slug,
     primaryImageUrl: p.primaryImageUrl ?? p.images[0]?.url ?? null,
     costPrice: p.costPrice.toString(),

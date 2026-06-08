@@ -58,7 +58,14 @@ export async function activateRetailToken(
   if (!token) {
     return {
       status: "error",
-      message: "Masukkan token aktivasi ritel.",
+      message: "Masukkan OTP aktivasi ritel.",
+    };
+  }
+
+  if (!/^\d{6}$/.test(token)) {
+    return {
+      status: "error",
+      message: "Token aktivasi harus berupa 6 digit angka.",
     };
   }
 

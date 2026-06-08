@@ -1,4 +1,4 @@
-import { readdirSync, existsSync, writeFileSync } from "fs";
+import { readdirSync, writeFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -28,11 +28,7 @@ const evidence = [];
 for (const file of files) {
   const name = file.replace(/\.png$/, "");
   const parts = name.split("-");
-  const viewport = parts.pop(); // last part is viewport (e.g. 1366x768)
-  const fileBase = parts.join("-");
-
-  // Determine the base name (without viewport suffix)
-  let base = fileBase;
+  parts.pop(); // last part is viewport (e.g. 1366x768)
   // The file pattern is: <page>-<viewport>.png
   // Reconstruct: remove the last -viewport suffix
   const idx = name.lastIndexOf("-");

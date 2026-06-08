@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import Link from "next/link";
 
 import "./globals.css";
@@ -9,21 +10,32 @@ import { getCurrentUser } from "@/lib/session";
 import { buildSiteThemeStyle, getPublicSiteSettings } from "@/lib/site-settings";
 import FigmaMobileBottomNav from "@/components/ui/FigmaMobileBottomNav";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getPublicSiteSettings();
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
 
-  return {
-    title: settings.siteName,
-    description: settings.tagline,
-    icons: settings.faviconUrl ? { icon: settings.faviconUrl } : undefined,
-  };
-}
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
+  title: {
+    default: "Rama Computer - Katalog Komputer & Aksesoris",
+    template: "%s | Rama Computer",
+  },
+  description: "Katalog komputer, laptop, aksesoris, dan elektronik. Cek harga dan stok via WhatsApp.",
+  openGraph: {
+    siteName: "Rama Computer",
+    type: "website",
+  },
+};
+
+export const dynamic = "force-dynamic";
 
 function isAuthPage(pathname: string) {
   return (
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
-    pathname.startsWith("/retail/") ||
     pathname.startsWith("/admin") ||
     pathname.startsWith("/super-admin") ||
     pathname.startsWith("/api/auth")
@@ -65,18 +77,25 @@ export default async function RootLayout({
     // Fail open — allow access if maintenance check fails
   }
 
-  const [user, settings] = await Promise.all([
+  const [user, settings, publicVoucherEnabled, retailVoucherEnabled] = await Promise.all([
     getCurrentUser().catch(() => null),
     getPublicSiteSettings(),
+    isFeatureEnabled("enable_public_voucher"),
+    isFeatureEnabled("enable_retail_voucher"),
   ]);
   const hideBottomNav = isAuthPage(pathname);
 
+  const isAdminUser = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+  const showPublicBottomNav = !hideBottomNav && !isAdminUser;
+  const voucherEnabled =
+    user?.retailStatus === "RETAIL_ACTIVE" ? retailVoucherEnabled : publicVoucherEnabled;
+
   return (
-    <html lang="en" className="h-full antialiased" style={buildSiteThemeStyle(settings)}>
-      <body className={`min-h-full flex flex-col ${hideBottomNav ? "" : "pb-16 lg:pb-0"}`}>
+    <html lang="en" className={`${inter.variable} h-full antialiased`} style={buildSiteThemeStyle(settings)}>
+      <body className={`min-h-full flex flex-col ${showPublicBottomNav ? "pb-16 lg:pb-0" : ""}`}>
         {showMaintenance ? (
           <div className="flex min-h-screen items-center justify-center bg-brand-bg px-4">
-            <div className="max-w-md rounded-lg border border-brand-border bg-white p-8 text-center shadow-sm">
+            <div className="max-w-md rounded-lg border border-brand-border bg-brand-card p-8 text-center shadow-sm">
               <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-warning/20">
                 <span className="text-3xl font-bold text-warning">!</span>
               </div>
@@ -86,7 +105,7 @@ export default async function RootLayout({
               </p>
               <Link
                 href="/"
-                className="mt-6 inline-block rounded-md bg-brand-primary px-4 py-2 text-sm font-bold text-white"
+                className="mt-6 inline-block rounded-md bg-brand-accent px-4 py-2 text-sm font-bold text-brand-on-accent hover:bg-brand-accent-hover"
               >
                 Refresh
               </Link>
@@ -95,7 +114,9 @@ export default async function RootLayout({
         ) : (
           <>
             {children}
-            {hideBottomNav ? null : <FigmaMobileBottomNav user={user} />}
+            {showPublicBottomNav ? (
+              <FigmaMobileBottomNav user={user} voucherEnabled={voucherEnabled} />
+            ) : null}
           </>
         )}
       </body>

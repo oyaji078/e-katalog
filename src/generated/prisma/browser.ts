@@ -122,3 +122,8 @@ export type SiteSetting = Prisma.SiteSettingModel
  * 
  */
 export type AdminActivityLog = Prisma.AdminActivityLogModel
+/**
+ * Model AnalyticsEvent
+ * 
+ */
+export type AnalyticsEvent = Prisma.AnalyticsEventModel

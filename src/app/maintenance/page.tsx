@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default function MaintenancePage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-brand-bg px-4">

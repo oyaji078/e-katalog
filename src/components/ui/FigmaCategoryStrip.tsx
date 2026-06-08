@@ -1,9 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { getCategoryIcon } from "@/lib/category-icons";
 
 type FigmaCategoryStripProps = {
-  dbCategories: Array<{ name: string; slug: string; icon: string | null }>;
+  dbCategories: Array<{ name: string; slug: string; icon: string | null; logoUrl?: string | null }>;
 };
 
 export default function FigmaCategoryStrip({ dbCategories }: FigmaCategoryStripProps) {
@@ -33,8 +34,12 @@ export default function FigmaCategoryStrip({ dbCategories }: FigmaCategoryStripP
                 href={`/products?category=${category.slug}`}
                 className="group flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border border-brand-border bg-brand-bg px-2 py-3 text-center transition hover:border-brand-primary hover:bg-white hover:shadow-sm"
               >
-                <span className="flex size-10 items-center justify-center rounded-2xl bg-white text-brand-primary shadow-sm group-hover:bg-brand-primary group-hover:text-white">
-                  <Icon className="size-5" />
+                <span className="flex size-10 items-center justify-center overflow-hidden rounded-2xl bg-white text-brand-primary shadow-sm group-hover:bg-brand-primary group-hover:text-white">
+                  {category.logoUrl ? (
+                    <Image src={category.logoUrl} alt="" width={40} height={40} className="size-full object-cover" />
+                  ) : (
+                    <Icon className="size-5" />
+                  )}
                 </span>
                 <span className="text-[11px] font-black leading-tight text-brand-text">
                   {category.name}

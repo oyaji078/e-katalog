@@ -27,7 +27,7 @@ export default function FigmaHeroBanner({
         <div className="flex flex-col justify-center">
           <div className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-wide text-white ring-1 ring-white/20">
             <Sparkles className="size-4 text-brand-secondary" />
-            Marketplace katalog elektronik
+            E-katalog elektronik
           </div>
           <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight tracking-normal sm:text-5xl">
             Upgrade Perangkat Kerja & Gaming Anda

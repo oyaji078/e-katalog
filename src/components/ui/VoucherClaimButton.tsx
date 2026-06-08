@@ -22,8 +22,8 @@ export default function VoucherClaimButton({
   isClaimed,
   canClaim,
   disabledReason,
-  className = "inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-2 text-xs font-black text-white transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-60",
-  claimedClassName = "inline-flex items-center justify-center gap-2 rounded-xl bg-brand-secondary/15 px-4 py-2 text-xs font-black text-brand-primary",
+  className = "inline-flex items-center justify-center gap-2 rounded-xl bg-brand-accent px-4 py-2 text-xs font-black text-brand-on-accent transition hover:bg-brand-accent-hover disabled:cursor-not-allowed disabled:opacity-60",
+  claimedClassName = "inline-flex items-center justify-center gap-2 rounded-xl bg-brand-support/15 px-4 py-2 text-xs font-black text-brand-on-light",
   label = "Klaim Voucher",
 }: VoucherClaimButtonProps) {
   const router = useRouter();

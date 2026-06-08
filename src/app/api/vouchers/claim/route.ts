@@ -2,25 +2,45 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { applyRateLimitHeaders, checkRateLimit, RATE_LIMITS, tooManyRequests } from "@/lib/ratelimit";
 import { getCurrentUser } from "@/lib/session";
 
+// Node.js runtime: the in-memory rate-limit store requires a persistent process.
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
+  // IP-based throttle (3/min). Per-user/voucher idempotency ("1 claim per user
+  // per voucher") is enforced atomically below by the @@unique([voucherId,
+  // userId]) constraint inside the FOR UPDATE transaction — the correct place
+  // for that guarantee, since it must survive restarts and multiple instances.
+  const rateLimit = await checkRateLimit(request, RATE_LIMITS.vouchersClaim);
+  if (!rateLimit.success) return tooManyRequests(rateLimit);
+
   try {
     let body: { voucherId?: string };
     try {
       body = await request.json();
     } catch {
-      return NextResponse.json({ status: "error", message: "Invalid request body" }, { status: 400 });
+      return applyRateLimitHeaders(
+        NextResponse.json({ status: "error", message: "Invalid request body" }, { status: 400 }),
+        rateLimit,
+      );
     }
 
     const { voucherId } = body;
     if (!voucherId) {
-      return NextResponse.json({ status: "error", message: "Voucher ID is required" }, { status: 400 });
+      return applyRateLimitHeaders(
+        NextResponse.json({ status: "error", message: "Voucher ID is required" }, { status: 400 }),
+        rateLimit,
+      );
     }
 
     const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json({ status: "error", message: "Silakan login terlebih dahulu untuk klaim voucher." }, { status: 401 });
+      return applyRateLimitHeaders(
+        NextResponse.json({ status: "error", message: "Silakan login terlebih dahulu untuk klaim voucher." }, { status: 401 }),
+        rateLimit,
+      );
     }
 
     const db = getDb();
@@ -30,16 +50,25 @@ export async function POST(request: NextRequest) {
     });
 
     if (!voucher) {
-      return NextResponse.json({ status: "error", message: "Voucher tidak ditemukan." }, { status: 404 });
+      return applyRateLimitHeaders(
+        NextResponse.json({ status: "error", message: "Voucher tidak ditemukan." }, { status: 404 }),
+        rateLimit,
+      );
     }
 
     if (!voucher.isActive || voucher.status !== "ACTIVE") {
-      return NextResponse.json({ status: "error", message: "Voucher tidak aktif." }, { status: 400 });
+      return applyRateLimitHeaders(
+        NextResponse.json({ status: "error", message: "Voucher tidak aktif." }, { status: 400 }),
+        rateLimit,
+      );
     }
 
     const now = new Date();
     if (voucher.startsAt > now || voucher.endsAt < now) {
-      return NextResponse.json({ status: "error", message: "Voucher sudah tidak berlaku." }, { status: 400 });
+      return applyRateLimitHeaders(
+        NextResponse.json({ status: "error", message: "Voucher sudah tidak berlaku." }, { status: 400 }),
+        rateLimit,
+      );
     }
 
     const publicVoucherEnabled = await isFeatureEnabled("enable_public_voucher");
@@ -48,15 +77,24 @@ export async function POST(request: NextRequest) {
     const isRetailUser = user.retailStatus === "RETAIL_ACTIVE";
 
     if (voucher.showForPublic && !isRetailUser && !publicVoucherEnabled) {
-      return NextResponse.json({ status: "error", message: "Voucher publik sedang tidak tersedia." }, { status: 403 });
+      return applyRateLimitHeaders(
+        NextResponse.json({ status: "error", message: "Voucher publik sedang tidak tersedia." }, { status: 403 }),
+        rateLimit,
+      );
     }
 
     if (voucher.showForRetail || isRetailUser) {
       if (voucher.showForRetail && !retailVoucherEnabled) {
-        return NextResponse.json({ status: "error", message: "Voucher retail sedang tidak tersedia." }, { status: 403 });
+        return applyRateLimitHeaders(
+          NextResponse.json({ status: "error", message: "Voucher retail sedang tidak tersedia." }, { status: 403 }),
+          rateLimit,
+        );
       }
       if (voucher.showForRetail && !isRetailUser) {
-        return NextResponse.json({ status: "error", message: "Voucher retail hanya untuk akun retail aktif." }, { status: 403 });
+        return applyRateLimitHeaders(
+          NextResponse.json({ status: "error", message: "Voucher retail hanya untuk akun retail aktif." }, { status: 403 }),
+          rateLimit,
+        );
       }
     }
 
@@ -100,20 +138,35 @@ export async function POST(request: NextRequest) {
     });
 
     if (outcome.code === "ALREADY_CLAIMED") {
-      return NextResponse.json({ status: "error", message: "Anda sudah mengklaim voucher ini." }, { status: 409 });
+      return applyRateLimitHeaders(
+        NextResponse.json({ status: "error", message: "Anda sudah mengklaim voucher ini." }, { status: 409 }),
+        rateLimit,
+      );
     }
     if (outcome.code === "UNAVAILABLE") {
-      return NextResponse.json({ status: "error", message: "Voucher sudah tidak dapat diklaim." }, { status: 409 });
+      return applyRateLimitHeaders(
+        NextResponse.json({ status: "error", message: "Voucher sudah tidak dapat diklaim." }, { status: 409 }),
+        rateLimit,
+      );
     }
     if (outcome.code === "QUOTA_FULL") {
-      return NextResponse.json({ status: "error", message: "Kuota voucher sudah habis." }, { status: 400 });
+      return applyRateLimitHeaders(
+        NextResponse.json({ status: "error", message: "Kuota voucher sudah habis." }, { status: 400 }),
+        rateLimit,
+      );
     }
 
-    return NextResponse.json({
-      status: "success",
-      message: `Voucher "${voucher.title}" berhasil diklaim!`,
-    });
+    return applyRateLimitHeaders(
+      NextResponse.json({
+        status: "success",
+        message: `Voucher "${voucher.title}" berhasil diklaim!`,
+      }),
+      rateLimit,
+    );
   } catch {
-    return NextResponse.json({ status: "error", message: "Terjadi kesalahan. Silakan coba lagi." }, { status: 500 });
+    return applyRateLimitHeaders(
+      NextResponse.json({ status: "error", message: "Terjadi kesalahan. Silakan coba lagi." }, { status: 500 }),
+      rateLimit,
+    );
   }
 }

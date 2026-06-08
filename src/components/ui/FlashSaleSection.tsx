@@ -64,7 +64,7 @@ export default function FlashSaleSection({ products }: FlashSaleSectionProps) {
                     </div>
                   )}
                   {product.badge ? (
-                    <span className="absolute left-1.5 top-1.5 rounded-full bg-brand-accent px-2 py-0.5 text-[10px] font-black text-white">
+                    <span className="absolute left-1.5 top-1.5 rounded-full bg-brand-accent px-2 py-0.5 text-[10px] font-black text-brand-on-accent">
                       {product.badge}
                     </span>
                   ) : null}

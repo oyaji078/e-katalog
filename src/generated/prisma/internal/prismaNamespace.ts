@@ -404,7 +404,8 @@ export const ModelName = {
   FeatureFlag: 'FeatureFlag',
   StoreSetting: 'StoreSetting',
   SiteSetting: 'SiteSetting',
-  AdminActivityLog: 'AdminActivityLog'
+  AdminActivityLog: 'AdminActivityLog',
+  AnalyticsEvent: 'AnalyticsEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -420,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "category" | "brand" | "product" | "productImage" | "flashSale" | "flashSaleProduct" | "voucher" | "productVoucher" | "voucherClaim" | "retailToken" | "promoBanner" | "heroBanner" | "whatsappInquiryLog" | "featureFlag" | "storeSetting" | "siteSetting" | "adminActivityLog"
+    modelProps: "user" | "session" | "account" | "verification" | "category" | "brand" | "product" | "productImage" | "flashSale" | "flashSaleProduct" | "voucher" | "productVoucher" | "voucherClaim" | "retailToken" | "promoBanner" | "heroBanner" | "whatsappInquiryLog" | "featureFlag" | "storeSetting" | "siteSetting" | "adminActivityLog" | "analyticsEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1810,6 +1811,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AnalyticsEvent: {
+      payload: Prisma.$AnalyticsEventPayload<ExtArgs>
+      fields: Prisma.AnalyticsEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AnalyticsEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AnalyticsEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        findFirst: {
+          args: Prisma.AnalyticsEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AnalyticsEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        findMany: {
+          args: Prisma.AnalyticsEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>[]
+        }
+        create: {
+          args: Prisma.AnalyticsEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        createMany: {
+          args: Prisma.AnalyticsEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.AnalyticsEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        update: {
+          args: Prisma.AnalyticsEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.AnalyticsEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AnalyticsEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.AnalyticsEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AnalyticsEventPayload>
+        }
+        aggregate: {
+          args: Prisma.AnalyticsEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAnalyticsEvent>
+        }
+        groupBy: {
+          args: Prisma.AnalyticsEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnalyticsEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AnalyticsEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AnalyticsEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1919,6 +1986,8 @@ export const CategoryScalarFieldEnum = {
   slug: 'slug',
   description: 'description',
   icon: 'icon',
+  logoUrl: 'logoUrl',
+  iconUrl: 'iconUrl',
   isActive: 'isActive',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
@@ -1951,6 +2020,7 @@ export const ProductScalarFieldEnum = {
   description: 'description',
   shortSpecification: 'shortSpecification',
   specifications: 'specifications',
+  pricingMode: 'pricingMode',
   costPrice: 'costPrice',
   publicMarginType: 'publicMarginType',
   publicMarginValue: 'publicMarginValue',
@@ -2183,12 +2253,21 @@ export const SiteSettingScalarFieldEnum = {
   primaryColor: 'primaryColor',
   secondaryColor: 'secondaryColor',
   accentColor: 'accentColor',
+  textColor: 'textColor',
+  mutedColor: 'mutedColor',
+  borderColor: 'borderColor',
+  supportColor: 'supportColor',
+  whatsappColor: 'whatsappColor',
   whatsappNumber: 'whatsappNumber',
   email: 'email',
   address: 'address',
   googleMapsUrl: 'googleMapsUrl',
   businessHours: 'businessHours',
   footerDescription: 'footerDescription',
+  announcementEnabled: 'announcementEnabled',
+  announcementText: 'announcementText',
+  announcementSpeed: 'announcementSpeed',
+  announcementLink: 'announcementLink',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2211,6 +2290,21 @@ export const AdminActivityLogScalarFieldEnum = {
 } as const
 
 export type AdminActivityLogScalarFieldEnum = (typeof AdminActivityLogScalarFieldEnum)[keyof typeof AdminActivityLogScalarFieldEnum]
+
+
+export const AnalyticsEventScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  path: 'path',
+  productId: 'productId',
+  productName: 'productName',
+  userId: 'userId',
+  phone: 'phone',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type AnalyticsEventScalarFieldEnum = (typeof AnalyticsEventScalarFieldEnum)[keyof typeof AnalyticsEventScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2291,7 +2385,9 @@ export const CategoryOrderByRelevanceFieldEnum = {
   name: 'name',
   slug: 'slug',
   description: 'description',
-  icon: 'icon'
+  icon: 'icon',
+  logoUrl: 'logoUrl',
+  iconUrl: 'iconUrl'
 } as const
 
 export type CategoryOrderByRelevanceFieldEnum = (typeof CategoryOrderByRelevanceFieldEnum)[keyof typeof CategoryOrderByRelevanceFieldEnum]
@@ -2332,6 +2428,7 @@ export const ProductOrderByRelevanceFieldEnum = {
   slug: 'slug',
   description: 'description',
   shortSpecification: 'shortSpecification',
+  pricingMode: 'pricingMode',
   warrantyInfo: 'warrantyInfo',
   primaryImageUrl: 'primaryImageUrl',
   categoryId: 'categoryId',
@@ -2480,12 +2577,19 @@ export const SiteSettingOrderByRelevanceFieldEnum = {
   primaryColor: 'primaryColor',
   secondaryColor: 'secondaryColor',
   accentColor: 'accentColor',
+  textColor: 'textColor',
+  mutedColor: 'mutedColor',
+  borderColor: 'borderColor',
+  supportColor: 'supportColor',
+  whatsappColor: 'whatsappColor',
   whatsappNumber: 'whatsappNumber',
   email: 'email',
   address: 'address',
   googleMapsUrl: 'googleMapsUrl',
   businessHours: 'businessHours',
-  footerDescription: 'footerDescription'
+  footerDescription: 'footerDescription',
+  announcementText: 'announcementText',
+  announcementLink: 'announcementLink'
 } as const
 
 export type SiteSettingOrderByRelevanceFieldEnum = (typeof SiteSettingOrderByRelevanceFieldEnum)[keyof typeof SiteSettingOrderByRelevanceFieldEnum]
@@ -2502,6 +2606,18 @@ export const AdminActivityLogOrderByRelevanceFieldEnum = {
 } as const
 
 export type AdminActivityLogOrderByRelevanceFieldEnum = (typeof AdminActivityLogOrderByRelevanceFieldEnum)[keyof typeof AdminActivityLogOrderByRelevanceFieldEnum]
+
+
+export const AnalyticsEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  path: 'path',
+  productId: 'productId',
+  productName: 'productName',
+  userId: 'userId',
+  phone: 'phone'
+} as const
+
+export type AnalyticsEventOrderByRelevanceFieldEnum = (typeof AnalyticsEventOrderByRelevanceFieldEnum)[keyof typeof AnalyticsEventOrderByRelevanceFieldEnum]
 
 
 
@@ -2672,6 +2788,13 @@ export type EnumAdminActionRiskFieldRefInput<$PrismaModel> = FieldRefInputType<$
 
 
 /**
+ * Reference to a field of type 'AnalyticsEventType'
+ */
+export type EnumAnalyticsEventTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AnalyticsEventType'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -2808,6 +2931,7 @@ export type GlobalOmitConfig = {
   storeSetting?: Prisma.StoreSettingOmit
   siteSetting?: Prisma.SiteSettingOmit
   adminActivityLog?: Prisma.AdminActivityLogOmit
+  analyticsEvent?: Prisma.AnalyticsEventOmit
 }
 
 /* Types for Logging */

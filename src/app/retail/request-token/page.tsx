@@ -3,6 +3,8 @@ import { getCurrentUser } from "@/lib/session";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { RetailWhatsAppRequestButton } from "@/components/ui/RetailWhatsAppRequestButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function RetailRequestTokenPage() {
   const user = await getCurrentUser();
   const featureEnabled = await isFeatureEnabled("enable_retail_whatsapp_request");
@@ -16,7 +18,7 @@ export default async function RetailRequestTokenPage() {
     <main className="min-h-screen bg-brand-bg px-4 py-10 text-brand-text">
       <section className="mx-auto max-w-md rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
         <Link href="/" className="text-sm font-semibold text-brand-primary">
-          E-Katalog Komputer
+          RAMA COMPUTER
         </Link>
         <h1 className="mt-6 text-2xl font-bold">Minta Token Retail</h1>
 
@@ -57,7 +59,7 @@ export default async function RetailRequestTokenPage() {
             <ol className="mt-6 space-y-3 text-sm text-brand-muted">
               <li className="flex items-start gap-2">
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-white">1</span>
-                <span>Hubungi admin melalui WhatsApp untuk meminta token aktivasi.</span>
+                <span>Hubungi admin melalui WhatsApp untuk meminta OTP aktivasi.</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-white">2</span>

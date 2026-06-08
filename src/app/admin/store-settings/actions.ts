@@ -1,12 +1,15 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 
-import { getAdminSession } from "@/lib/admin-auth";
+import { requireAdmin } from "@/lib/access-control";
+import { logAdminActivity } from "@/lib/activity-log";
+import { getAdminSession, toUserRole } from "@/lib/admin-auth";
 import { getDb } from "@/lib/db";
+import { DEFAULT_SITE_SETTINGS, SITE_SETTINGS_CACHE_TAG } from "@/lib/site-settings-constants";
 import {
-  DEFAULT_SITE_SETTINGS,
   SITE_SETTING_SINGLETON_KEY,
+  isValidAnnouncementLink,
   isSafeSiteUploadPath,
   isValidHttpsUrl,
   normalizeHexColor,
@@ -17,56 +20,8 @@ import {
   isLocalSiteUploadPath,
   saveSiteImage,
 } from "@/lib/upload/storage";
-
-export type WebIdentityFields = {
-  siteName: string;
-  storeName: string;
-  tagline: string;
-  logoUrl: string;
-  faviconUrl: string;
-  primaryColor: string;
-  secondaryColor: string;
-  accentColor: string;
-  whatsappNumber: string;
-  email: string;
-  address: string;
-  googleMapsUrl: string;
-  businessHours: string;
-  footerDescription: string;
-};
-
-export type WebIdentityFormState = {
-  success: boolean;
-  message: string;
-  error: string;
-  fieldErrors: Partial<Record<keyof WebIdentityFields, string>>;
-  fields: WebIdentityFields;
-};
-
-const emptyFields: WebIdentityFields = {
-  siteName: "",
-  storeName: "",
-  tagline: "",
-  logoUrl: "",
-  faviconUrl: "",
-  primaryColor: DEFAULT_SITE_SETTINGS.primaryColor,
-  secondaryColor: DEFAULT_SITE_SETTINGS.secondaryColor,
-  accentColor: DEFAULT_SITE_SETTINGS.accentColor,
-  whatsappNumber: "",
-  email: "",
-  address: "",
-  googleMapsUrl: "",
-  businessHours: "",
-  footerDescription: "",
-};
-
-export const initialWebIdentityState: WebIdentityFormState = {
-  success: false,
-  message: "",
-  error: "",
-  fieldErrors: {},
-  fields: emptyFields,
-};
+import type { WebIdentityFields, WebIdentityFormState } from "./form-state";
+import { initialWebIdentityState } from "./form-state";
 
 function text(formData: FormData, key: keyof WebIdentityFields) {
   return String(formData.get(key) ?? "").trim();
@@ -84,12 +39,21 @@ function readFields(formData: FormData): WebIdentityFields {
     primaryColor: resetColors ? DEFAULT_SITE_SETTINGS.primaryColor : text(formData, "primaryColor"),
     secondaryColor: resetColors ? DEFAULT_SITE_SETTINGS.secondaryColor : text(formData, "secondaryColor"),
     accentColor: resetColors ? DEFAULT_SITE_SETTINGS.accentColor : text(formData, "accentColor"),
+    textColor: resetColors ? DEFAULT_SITE_SETTINGS.textColor : text(formData, "textColor"),
+    mutedColor: resetColors ? DEFAULT_SITE_SETTINGS.mutedColor : text(formData, "mutedColor"),
+    borderColor: resetColors ? DEFAULT_SITE_SETTINGS.borderColor : text(formData, "borderColor"),
+    supportColor: resetColors ? DEFAULT_SITE_SETTINGS.supportColor : text(formData, "supportColor"),
+    whatsappColor: resetColors ? DEFAULT_SITE_SETTINGS.whatsappColor : text(formData, "whatsappColor"),
     whatsappNumber: text(formData, "whatsappNumber"),
     email: text(formData, "email"),
     address: text(formData, "address"),
     googleMapsUrl: text(formData, "googleMapsUrl"),
     businessHours: text(formData, "businessHours"),
     footerDescription: text(formData, "footerDescription"),
+    announcementEnabled: formData.get("announcementEnabled") === "on" ? "on" : "",
+    announcementText: text(formData, "announcementText"),
+    announcementSpeed: text(formData, "announcementSpeed"),
+    announcementLink: text(formData, "announcementLink"),
   };
 }
 
@@ -107,21 +71,45 @@ function buildErrorState(
   fieldErrors: WebIdentityFormState["fieldErrors"],
   fallback = "Periksa kembali pengaturan web.",
 ): WebIdentityFormState {
+  const firstError = Object.values(fieldErrors)[0];
+
   return {
     success: false,
     message: "",
-    error: Object.values(fieldErrors)[0] ?? fallback,
-    fieldErrors,
+    error: Array.isArray(firstError) ? firstError[0] ?? fallback : firstError ?? fallback,
+    fieldErrors: fieldErrors ?? {},
     fields,
   };
 }
 
-function validateFields(fields: WebIdentityFields) {
+function hasNewFile(formData: FormData, key: string): boolean {
+  const file = formData.get(key);
+  return file instanceof File && file.size > 0;
+}
+
+function isRemoved(formData: FormData, key: "logo" | "favicon"): boolean {
+  return formData.get(key === "logo" ? "removeLogo" : "removeFavicon") === "1";
+}
+
+function normalizeColorWithFallback(
+  value: string,
+  fallback: string,
+  fieldKey: keyof WebIdentityFields,
+  label: string,
+  fieldErrors: WebIdentityFormState["fieldErrors"],
+): string {
+  const raw = String(value ?? "").trim();
+  if (!raw) return fallback;
+  const normalized = normalizeHexColor(raw);
+  if (!normalized) {
+    fieldErrors[fieldKey] = `${label} harus berupa hex, contoh ${fallback}.`;
+    return fallback;
+  }
+  return normalized;
+}
+
+function validateFields(fields: WebIdentityFields, formData: FormData) {
   const fieldErrors: WebIdentityFormState["fieldErrors"] = {};
-  const primaryColor = normalizeHexColor(fields.primaryColor);
-  const secondaryColor = normalizeHexColor(fields.secondaryColor);
-  const accentColor = normalizeHexColor(fields.accentColor);
-  const whatsappNumber = normalizeWhatsappNumber(fields.whatsappNumber);
 
   if (!fields.siteName) fieldErrors.siteName = "Nama website wajib diisi.";
   if (!fields.storeName) fieldErrors.storeName = "Nama toko wajib diisi.";
@@ -129,12 +117,43 @@ function validateFields(fields: WebIdentityFields) {
   if (!fields.footerDescription) {
     fieldErrors.footerDescription = "Deskripsi footer singkat wajib diisi.";
   }
-  if (!primaryColor) fieldErrors.primaryColor = "Warna utama harus berupa hex, contoh #1A3D6A.";
-  if (!secondaryColor) {
-    fieldErrors.secondaryColor = "Warna sekunder harus berupa hex, contoh #2E4E79.";
-  }
-  if (!accentColor) fieldErrors.accentColor = "Warna aksen harus berupa hex, contoh #C8A91E.";
-  if (!whatsappNumber) {
+
+  const primaryColor = normalizeColorWithFallback(
+    fields.primaryColor, DEFAULT_SITE_SETTINGS.primaryColor,
+    "primaryColor", "Warna Utama 60%", fieldErrors,
+  );
+  const secondaryColor = normalizeColorWithFallback(
+    fields.secondaryColor, DEFAULT_SITE_SETTINGS.secondaryColor,
+    "secondaryColor", "Warna Sekunder 30%", fieldErrors,
+  );
+  const accentColor = normalizeColorWithFallback(
+    fields.accentColor, DEFAULT_SITE_SETTINGS.accentColor,
+    "accentColor", "Warna Aksen 10%", fieldErrors,
+  );
+  const textColor = normalizeColorWithFallback(
+    fields.textColor, DEFAULT_SITE_SETTINGS.textColor,
+    "textColor", "Warna Teks Utama", fieldErrors,
+  );
+  const mutedColor = normalizeColorWithFallback(
+    fields.mutedColor, DEFAULT_SITE_SETTINGS.mutedColor,
+    "mutedColor", "Warna Teks Redup", fieldErrors,
+  );
+  const whatsappColor = normalizeColorWithFallback(
+    fields.whatsappColor, DEFAULT_SITE_SETTINGS.whatsappColor,
+    "whatsappColor", "Warna WhatsApp", fieldErrors,
+  );
+  const borderColor = normalizeColorWithFallback(
+    fields.borderColor, DEFAULT_SITE_SETTINGS.borderColor,
+    "borderColor", "Warna Netral / Border", fieldErrors,
+  );
+  const supportColor = normalizeColorWithFallback(
+    fields.supportColor, DEFAULT_SITE_SETTINGS.supportColor,
+    "supportColor", "Warna Pendukung", fieldErrors,
+  );
+  const whatsappNumber = normalizeWhatsappNumber(fields.whatsappNumber) ?? DEFAULT_SITE_SETTINGS.whatsappNumber;
+  const announcementSpeed = Number.parseInt(fields.announcementSpeed, 10);
+
+  if (!normalizeWhatsappNumber(fields.whatsappNumber)) {
     fieldErrors.whatsappNumber =
       "Nomor WhatsApp wajib memakai format Indonesia, contoh 08123456789 atau 628123456789.";
   }
@@ -142,14 +161,42 @@ function validateFields(fields: WebIdentityFields) {
   if (fields.googleMapsUrl && !isValidHttpsUrl(fields.googleMapsUrl)) {
     fieldErrors.googleMapsUrl = "Link Google Maps harus memakai URL https://.";
   }
-  if (fields.logoUrl && !isSafeSiteUploadPath(fields.logoUrl)) {
+  if (!Number.isFinite(announcementSpeed) || announcementSpeed < 10 || announcementSpeed > 120) {
+    fieldErrors.announcementSpeed = "Kecepatan tulisan harus 10-120 detik.";
+  }
+  if (fields.announcementLink && !isValidAnnouncementLink(fields.announcementLink)) {
+    fieldErrors.announcementLink = "Link tujuan harus berupa path situs atau URL https://.";
+  }
+  if (
+    fields.logoUrl &&
+    !hasNewFile(formData, "logoFile") &&
+    !isRemoved(formData, "logo") &&
+    !isSafeSiteUploadPath(fields.logoUrl, "logo")
+  ) {
     fieldErrors.logoUrl = "Logo harus memakai file /uploads/site/logo-xxx.webp.";
   }
-  if (fields.faviconUrl && !isSafeSiteUploadPath(fields.faviconUrl)) {
+  if (
+    fields.faviconUrl &&
+    !hasNewFile(formData, "faviconFile") &&
+    !isRemoved(formData, "favicon") &&
+    !isSafeSiteUploadPath(fields.faviconUrl, "favicon")
+  ) {
     fieldErrors.faviconUrl = "Favicon harus memakai file /uploads/site/favicon-xxx.webp.";
   }
 
-  return { fieldErrors, primaryColor, secondaryColor, accentColor, whatsappNumber };
+  return {
+    fieldErrors,
+    primaryColor,
+    secondaryColor,
+    accentColor,
+    textColor,
+    mutedColor,
+    whatsappColor,
+    borderColor,
+    supportColor,
+    whatsappNumber,
+    announcementSpeed,
+  };
 }
 
 async function resolveUploadedImage(
@@ -180,6 +227,9 @@ function revalidateSettingsSurfaces() {
   revalidatePath("/admin");
   revalidatePath("/admin/store-settings");
   revalidatePath("/super-admin");
+  // Invalidate the cross-request site-settings cache (see getPublicSiteSettings).
+  // Next 16: updateTag = immediate, read-your-own-writes invalidation from a Server Action.
+  updateTag(SITE_SETTINGS_CACHE_TAG);
 }
 
 export async function updateWebIdentityAction(
@@ -197,14 +247,30 @@ export async function updateWebIdentityAction(
     };
   }
 
-  const { fieldErrors, primaryColor, secondaryColor, accentColor, whatsappNumber } =
-    validateFields(fields);
+  const {
+    fieldErrors,
+    primaryColor,
+    secondaryColor,
+    accentColor,
+    textColor,
+    mutedColor,
+    whatsappColor,
+    borderColor,
+    supportColor,
+    whatsappNumber,
+    announcementSpeed,
+  } =
+    validateFields(fields, formData);
 
   if (
     Object.keys(fieldErrors).length > 0 ||
     !primaryColor ||
     !secondaryColor ||
     !accentColor ||
+    !textColor ||
+    !mutedColor ||
+    !whatsappColor ||
+    !borderColor ||
     !whatsappNumber
   ) {
     return buildErrorState(fields, fieldErrors);
@@ -239,12 +305,21 @@ export async function updateWebIdentityAction(
         primaryColor,
         secondaryColor,
         accentColor,
+        textColor,
+        mutedColor,
+        borderColor,
+        supportColor,
+        whatsappColor,
         whatsappNumber,
         email: optionalText(fields.email),
         address: optionalText(fields.address),
         googleMapsUrl: optionalText(fields.googleMapsUrl),
         businessHours: optionalText(fields.businessHours),
         footerDescription: fields.footerDescription,
+        announcementEnabled: fields.announcementEnabled === "on",
+        announcementText: fields.announcementText,
+        announcementSpeed,
+        announcementLink: optionalText(fields.announcementLink),
       },
       create: {
         singletonKey: SITE_SETTING_SINGLETON_KEY,
@@ -256,12 +331,21 @@ export async function updateWebIdentityAction(
         primaryColor,
         secondaryColor,
         accentColor,
+        textColor,
+        mutedColor,
+        borderColor,
+        supportColor,
+        whatsappColor,
         whatsappNumber,
         email: optionalText(fields.email),
         address: optionalText(fields.address),
         googleMapsUrl: optionalText(fields.googleMapsUrl),
         businessHours: optionalText(fields.businessHours),
         footerDescription: fields.footerDescription,
+        announcementEnabled: fields.announcementEnabled === "on",
+        announcementText: fields.announcementText,
+        announcementSpeed,
+        announcementLink: optionalText(fields.announcementLink),
       },
     });
 
@@ -275,6 +359,16 @@ export async function updateWebIdentityAction(
     ) {
       deleteSiteImage(existing.faviconUrl);
     }
+
+    await logAdminActivity({
+      actorId: session.user.id,
+      actorRole: toUserRole(session.user.role),
+      action: "Web identity settings updated",
+      targetType: "SiteSetting",
+      targetId: SITE_SETTING_SINGLETON_KEY,
+      risk: "MEDIUM",
+      metadata: { siteName: fields.siteName, storeName: fields.storeName },
+    });
   } catch {
     return {
       success: false,
@@ -299,7 +393,41 @@ export async function updateWebIdentityAction(
       primaryColor,
       secondaryColor,
       accentColor,
+      textColor,
+      mutedColor,
+      borderColor,
+      supportColor,
+      whatsappColor,
       whatsappNumber,
+      announcementEnabled: fields.announcementEnabled === "on" ? "on" : "",
+      announcementSpeed: String(announcementSpeed),
     },
   };
+}
+
+export async function updateStoreSetting(key: string, value: string) {
+  await requireAdmin();
+  const session = await getAdminSession();
+  const db = getDb();
+
+  await db.storeSetting.upsert({
+    where: { key },
+    update: { value },
+    create: { key, value },
+  });
+
+  await logAdminActivity({
+    actorId: session?.user.id ?? null,
+    actorRole: toUserRole(session?.user.role ?? null),
+    action: "Store setting updated",
+    targetType: "StoreSetting",
+    targetId: key,
+    risk: "MEDIUM",
+    metadata: { key },
+  });
+
+  revalidatePath("/admin/store-settings");
+  updateTag(SITE_SETTINGS_CACHE_TAG);
+
+  return { success: true };
 }

@@ -1,23 +1,39 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/session";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { applyRateLimitHeaders, checkRateLimit, RATE_LIMITS, tooManyRequests } from "@/lib/ratelimit";
 import { resolveStoreWhatsappNumber, buildWhatsappUrl } from "@/lib/whatsapp";
 
-export async function POST() {
+// Node.js runtime: the in-memory rate-limit store requires a persistent process.
+export const runtime = "nodejs";
+
+export async function POST(request: NextRequest) {
+  const rateLimit = await checkRateLimit(request, RATE_LIMITS.retailWhatsapp);
+  if (!rateLimit.success) return tooManyRequests(rateLimit);
+
   const featureEnabled = await isFeatureEnabled("enable_retail_whatsapp_request");
   if (!featureEnabled) {
-    return NextResponse.json({ error: "Retail WhatsApp request is currently disabled." }, { status: 403 });
+    return applyRateLimitHeaders(
+      NextResponse.json({ error: "Retail WhatsApp request is currently disabled." }, { status: 403 }),
+      rateLimit,
+    );
   }
 
   const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "Please log in first." }, { status: 401 });
+    return applyRateLimitHeaders(
+      NextResponse.json({ error: "Please log in first." }, { status: 401 }),
+      rateLimit,
+    );
   }
 
   if (user.role !== "USER") {
-    return NextResponse.json({ error: "Only retail users can request token via WhatsApp." }, { status: 403 });
+    return applyRateLimitHeaders(
+      NextResponse.json({ error: "Only retail users can request token via WhatsApp." }, { status: 403 }),
+      rateLimit,
+    );
   }
 
   const db = getDb();
@@ -35,13 +51,19 @@ export async function POST() {
   });
 
   if (!retailUser) {
-    return NextResponse.json({ error: "User not found." }, { status: 404 });
+    return applyRateLimitHeaders(
+      NextResponse.json({ error: "User not found." }, { status: 404 }),
+      rateLimit,
+    );
   }
 
   if (retailUser.retailStatus !== "REGISTERED" && retailUser.retailStatus !== "PENDING_RETAIL") {
-    return NextResponse.json(
-      { error: `Your account status is "${retailUser.retailStatus}". Token requests are only allowed for registered retail accounts.` },
-      { status: 400 },
+    return applyRateLimitHeaders(
+      NextResponse.json(
+        { error: `Your account status is "${retailUser.retailStatus}". Token requests are only allowed for registered retail accounts.` },
+        { status: 400 },
+      ),
+      rateLimit,
     );
   }
 
@@ -55,7 +77,7 @@ export async function POST() {
   const waNumber = await resolveStoreWhatsappNumber(db);
 
   const message = [
-    "Halo Admin, saya ingin meminta token aktivasi retail.",
+    "Halo Admin, saya ingin meminta OTP aktivasi retail.",
     "",
     `Nama: ${retailUser.name ?? "-"}`,
     `Email: ${retailUser.email ?? "-"}`,
@@ -63,10 +85,10 @@ export async function POST() {
     `Toko/Instansi: ${retailUser.storeName ?? "-"}`,
     `Kode Pengguna: ${retailUser.userCode ?? "-"}`,
     "",
-    "Mohon bantu buatkan token aktivasi retail.",
+    "Mohon bantu buatkan OTP aktivasi retail.",
   ].join("\n");
 
   const waUrl = buildWhatsappUrl({ message, whatsappNumber: waNumber });
 
-  return NextResponse.json({ waUrl });
+  return applyRateLimitHeaders(NextResponse.json({ waUrl }), rateLimit);
 }

@@ -1,7 +1,6 @@
-import { BadgePercent, Laptop, PackageCheck, Tag } from "lucide-react";
 import Image from "next/image";
-
-import TrackedProductLink from "@/components/ui/TrackedProductLink";
+import Link from "next/link";
+import SaveButton from "@/components/ui/SaveButton";
 import WhatsAppInquiryButton from "@/components/ui/WhatsAppInquiryButton";
 
 export type ProductCardProps = {
@@ -16,20 +15,45 @@ export type ProductCardProps = {
   voucherAvailable?: boolean;
   voucherLabel?: string;
   stockStatus?: "READY" | "LOW_STOCK" | "OUT_OF_STOCK" | "PREORDER";
-  stockText?: string;
-  brandName?: string | null;
-  categoryName?: string | null;
   productId: string;
   productSlug?: string | null;
+  isFirst?: boolean;
+  // Extra properties from product-card-mapper (optional for forward compatibility)
+  hoverImage?: string | null;
+  categoryName?: string | null;
+  brandName?: string | null;
   flashSalePrice?: string;
+  stockText?: string;
+  imagePriority?: boolean;
   flashSaleStock?: number;
 };
 
-const badgeTone: Record<string, string> = {
-  Baru: "bg-brand-secondary text-brand-primary",
-  Promo: "bg-brand-accent text-white",
-  "Flash Sale": "bg-brand-accent text-white",
-};
+function getBadgeStyles(badge: string | undefined) {
+  if (!badge || badge === 'READY') return null;
+  const normalized = badge.toUpperCase();
+
+  if (normalized === 'PROMO') return { bg: 'bg-red-50', text: 'text-red-900', border: 'border-red-200' };
+  if (normalized === 'BARU') return { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' };
+  if (normalized === 'POPULER') return { bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-200' };
+  if (normalized === 'REKOMENDASI') return { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200' };
+  
+  return null;
+}
+
+function getStockStyles(status: ProductCardProps["stockStatus"]) {
+  switch (status) {
+    case 'READY':
+      return { bg: 'bg-green-50', text: 'text-green-700', label: 'Ready' };
+    case 'LOW_STOCK':
+      return { bg: 'bg-amber-50', text: 'text-amber-900', label: 'Stok Terbatas' };
+    case 'OUT_OF_STOCK':
+      return { bg: 'bg-red-50', text: 'text-red-700', label: 'Out of Stock' };
+    case 'PREORDER':
+      return { bg: 'bg-blue-50', text: 'text-blue-700', label: 'Preorder' };
+    default:
+      return null;
+  }
+}
 
 export default function ProductCard({
   href,
@@ -41,142 +65,109 @@ export default function ProductCard({
   showRetailAsPrimary,
   badge,
   voucherAvailable,
-  voucherLabel,
-  stockText,
-  brandName,
-  categoryName,
+  stockStatus,
   productId,
   productSlug,
-  flashSalePrice,
+  isFirst,
 }: ProductCardProps) {
-  const badgeClass = badge ? badgeTone[badge] ?? "bg-brand-primary text-white" : "";
+  const basePrice = showRetailAsPrimary && retailPrice ? retailPrice : publicPrice;
+  const badgeStyles = getBadgeStyles(badge);
+  const stockStyles = getStockStyles(stockStatus);
+  const showStockChip = stockStatus && stockStatus !== 'READY';
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-brand-border bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-brand-primary/25 hover:shadow-lg">
-      <TrackedProductLink href={href} productId={productId} source="product-card-image" className="relative block bg-brand-bg">
-        <div className="relative aspect-[4/3] overflow-hidden">
-          {image ? (
+    <article className="group bg-white rounded-2xl border border-[var(--color-border)] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 overflow-hidden flex flex-col h-full">
+      {/* Image Container */}
+      <div className="relative aspect-square rounded-t-2xl overflow-hidden bg-[var(--color-page)]">
+        {/* Image */}
+        {image && (
+          <Link href={href}>
             <Image
               src={image}
               alt={name}
               fill
-              sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 20vw"
-              className="object-cover transition duration-300 group-hover:scale-105"
+              priority={isFirst}
+              loading={isFirst ? "eager" : "lazy"}
+              sizes="(max-width:640px) 50vw, (max-width:1024px) 33vw, 25vw"
+              className="object-cover transition-transform duration-300 group-hover:scale-105 cursor-pointer"
             />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-brand-primary/10 to-brand-secondary/15">
-              <Laptop className="size-14 text-brand-primary" />
-            </div>
-          )}
-        </div>
-        {badge ? (
-          <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
-            <span className={`rounded-full px-2 py-1 text-[10px] font-black ${badgeClass}`}>
-              {badge}
-            </span>
-          </div>
-        ) : null}
-        {voucherAvailable ? (
-          <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-brand-accent px-2 py-1 text-[10px] font-black text-white shadow-sm">
-            <BadgePercent className="size-3" />
-            Promo
-          </span>
-        ) : null}
-        {showRetailAsPrimary ? (
-          <span className="absolute bottom-2 right-2 rounded-full bg-brand-secondary px-2 py-1 text-[10px] font-black text-brand-primary shadow-sm">
-            Harga Ritel
-          </span>
-        ) : null}
-      </TrackedProductLink>
+          </Link>
+        )}
 
-      <div className="flex flex-1 flex-col p-3">
-        <div className="flex min-h-6 flex-wrap items-center gap-1.5">
-          {brandName ? (
-            <span className="rounded-full bg-brand-primary/10 px-2 py-1 text-[10px] font-black text-brand-primary">
-              {brandName}
-            </span>
-          ) : null}
-          {categoryName ? (
-            <span className="rounded-full bg-brand-bg px-2 py-1 text-[10px] font-bold text-brand-muted">
-              {categoryName}
-            </span>
-          ) : null}
+        {/* Save Button - top-left (always visible) */}
+        <div className="absolute top-2 left-2 z-20">
+          <SaveButton
+            productId={productId}
+            className="border border-black/5 shadow-[0_2px_8px_rgba(15,23,42,0.14)]"
+          />
         </div>
 
-        <TrackedProductLink href={href} productId={productId} source="product-card-title" className="mt-2 block">
-          <h3 className="line-clamp-2 min-h-11 text-sm font-black leading-snug text-brand-text group-hover:text-brand-primary">
+        {/* Badge - top-left, offset so it does not cover the save button */}
+        {badgeStyles && (
+          <span
+            className={`absolute top-2 left-10 z-10 px-2 py-0.5 rounded-md text-[11px] font-semibold ${badgeStyles.bg} ${badgeStyles.text} border ${badgeStyles.border}`}
+          >
+            {badge}
+          </span>
+        )}
+
+        {/* Stock Chip - bottom-left */}
+        {showStockChip && stockStyles && (
+          <span
+            className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-md text-[11px] font-semibold ${stockStyles.bg} ${stockStyles.text}`}
+          >
+            {stockStyles.label}
+          </span>
+        )}
+      </div>
+
+      {/* Card Body */}
+      <div className="p-4 flex flex-col gap-3 flex-1">
+        {/* Product Name - clickable */}
+        <Link href={href}>
+          <h3 className="text-sm font-semibold text-[var(--color-text)] line-clamp-2 leading-snug hover:text-[var(--color-accent)] transition cursor-pointer">
             {name}
           </h3>
-        </TrackedProductLink>
+        </Link>
 
-        <p className="mt-2 line-clamp-2 min-h-10 text-xs leading-5 text-brand-muted">
-          {specification || "Spesifikasi lengkap tersedia di detail produk."}
-        </p>
+        {/* Specification */}
+        {specification && (
+          <p className="text-xs text-[var(--color-text-muted)] line-clamp-1">
+            {specification}
+          </p>
+        )}
 
-        <div className="mt-3 min-h-16 rounded-xl bg-brand-bg p-3">
-          {flashSalePrice ? (
-            <>
-              <div className="flex items-center gap-1 text-[11px] font-black text-brand-accent">
-                <BadgePercent className="size-3.5 text-brand-accent" />
-                Harga Flash Sale
-              </div>
-              <p className="mt-1 text-lg font-black leading-tight text-brand-accent">
-                {flashSalePrice}
-              </p>
-              <p className="text-xs font-semibold text-brand-muted line-through">
-                {showRetailAsPrimary && retailPrice ? retailPrice : publicPrice}
-              </p>
-            </>
-          ) : showRetailAsPrimary && retailPrice ? (
-            <>
-              <div className="flex items-center gap-1 text-[11px] font-black text-brand-primary">
-                <Tag className="size-3.5 text-brand-secondary" />
-                Harga Ritel
-              </div>
-              <p className="mt-1 text-lg font-black leading-tight text-brand-primary">
-                {retailPrice}
-              </p>
-              <p className="text-xs font-semibold text-brand-muted line-through">{publicPrice}</p>
-            </>
-          ) : (
-            <>
-              <p className="text-[11px] font-bold text-brand-muted">Harga publik</p>
-              <p className="mt-1 text-lg font-black leading-tight text-brand-accent">
-                {publicPrice}
-              </p>
-            </>
+        {/* Price */}
+        <div className="mt-1">
+          <p className="text-base font-bold text-[var(--color-accent)]">
+            {basePrice}
+          </p>
+          {retailPrice && showRetailAsPrimary && publicPrice && (
+            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+              Public: <span className="font-semibold">{publicPrice}</span>
+            </p>
+          )}
+          {retailPrice && !showRetailAsPrimary && (
+            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+              Retail: <span className="font-semibold text-[var(--color-success)]">{retailPrice}</span>
+            </p>
           )}
         </div>
 
-        <div className="mt-3 flex items-center justify-between gap-2 text-xs">
-          <span className="inline-flex min-w-0 items-center gap-1 font-semibold text-brand-muted">
-            <PackageCheck className="size-4 shrink-0 text-brand-secondary" />
-            <span className="truncate">{stockText ?? "Cek stok"}</span>
-          </span>
-          {voucherAvailable ? (
-            <span className="shrink-0 rounded-full bg-brand-accent/10 px-2 py-1 font-black text-brand-accent">
-              {voucherLabel ?? "Promo"}
-            </span>
-          ) : null}
-        </div>
+        {/* Voucher available badge */}
+        {voucherAvailable && (
+          <div className="text-[11px] text-purple-700 flex items-center gap-1">
+            🎟 Voucher tersedia
+          </div>
+        )}
 
-        <div className="mt-3 grid grid-cols-[1fr_auto] gap-2">
-          <WhatsAppInquiryButton
-            productId={productId}
-            productSlug={productSlug ?? undefined}
-            sourcePage="product-card"
-            label="Tanya"
-            className="w-full rounded-xl px-3 py-2.5 text-xs"
-          />
-          <TrackedProductLink
-            href={href}
-            productId={productId}
-            source="product-card-detail"
-            className="inline-flex items-center justify-center rounded-xl border border-brand-primary/25 px-3 py-2.5 text-xs font-black text-brand-primary transition hover:border-brand-primary hover:bg-brand-primary hover:text-white"
-          >
-            Detail
-          </TrackedProductLink>
-        </div>
+        {/* WhatsApp CTA - at bottom, single button */}
+        <WhatsAppInquiryButton
+          productId={productId}
+          productSlug={productSlug ?? undefined}
+          sourcePage="product-card"
+          className="mt-auto w-full"
+        />
       </div>
     </article>
   );

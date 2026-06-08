@@ -1,4 +1,5 @@
 import { getDb } from "@/lib/db";
+import { safeCategoryLogoSrc } from "@/lib/category-assets";
 import AdminCategoryClient from "./AdminCategoryClient";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +10,7 @@ export type SerializedCategory = {
   slug: string;
   description: string | null;
   icon: string | null;
+  logoUrl: string | null;
   isActive: boolean;
   sortOrder: number;
   productCount: number;
@@ -27,6 +29,7 @@ export default async function AdminCategoriesPage() {
     slug: c.slug,
     description: c.description,
     icon: c.icon,
+    logoUrl: safeCategoryLogoSrc(c.logoUrl),
     isActive: c.isActive,
     sortOrder: c.sortOrder,
     productCount: c._count.products,

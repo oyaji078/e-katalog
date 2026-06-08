@@ -1,34 +1,19 @@
 import { createHash, randomBytes } from "node:crypto";
 import { unlinkSync, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import sharp from "sharp";
 
-const PRODUCT_UPLOAD_DIR = path.resolve(
-  /* turbopackIgnore: true */ process.cwd(),
-  "public",
-  "uploads",
-  "products",
-);
-const PROMO_BANNER_UPLOAD_DIR = path.resolve(
-  /* turbopackIgnore: true */ process.cwd(),
-  "public",
-  "uploads",
-  "promo-banners",
-);
-const SITE_UPLOAD_DIR = path.resolve(
-  /* turbopackIgnore: true */ process.cwd(),
-  "public",
-  "uploads",
-  "site",
-);
+const PUBLIC_UPLOAD_DIR = path.join(/*turbopackIgnore: true*/ process.cwd(), "public", "uploads");
+const PRODUCT_UPLOAD_DIR = path.join(/*turbopackIgnore: true*/ PUBLIC_UPLOAD_DIR, "products");
+const PROMO_BANNER_UPLOAD_DIR = path.join(/*turbopackIgnore: true*/ PUBLIC_UPLOAD_DIR, "promo-banners");
+const SITE_UPLOAD_DIR = path.join(/*turbopackIgnore: true*/ PUBLIC_UPLOAD_DIR, "site");
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const MAX_UPLOAD_SIZE = 5 * 1024 * 1024; // 5 MB
 export const MAX_SITE_UPLOAD_SIZE = 2 * 1024 * 1024; // 2 MB
 
 export function ensureUploadDirectory(uploadDir = PRODUCT_UPLOAD_DIR): void {
-  if (!existsSync(uploadDir)) {
-    mkdirSync(uploadDir, { recursive: true });
+  if (!existsSync(/*turbopackIgnore: true*/ uploadDir)) {
+    mkdirSync(/*turbopackIgnore: true*/ uploadDir, { recursive: true });
   }
 }
 
@@ -50,6 +35,26 @@ export function validateSiteImageFile(file: File): string | null {
     return "Ukuran file maksimal 2 MB.";
   }
   return null;
+}
+
+// Magic-byte signatures for the allowed image types. file.type (the declared
+// MIME) is client-controlled, so we also verify the real file header before
+// writing/processing. The subsequent sharp re-encode is a second line of defense.
+const IMAGE_MAGIC_BYTES: Record<string, number[][]> = {
+  "image/jpeg": [[0xff, 0xd8, 0xff]],
+  "image/png": [[0x89, 0x50, 0x4e, 0x47]],
+  "image/webp": [[0x52, 0x49, 0x46, 0x46]], // "RIFF" container (WebP)
+};
+
+export function assertImageMagicBytes(buffer: Buffer, declaredType: string): void {
+  const signatures = IMAGE_MAGIC_BYTES[declaredType];
+  if (!signatures) {
+    throw new Error("Tipe file tidak didukung. Gunakan JPG, PNG, atau WebP.");
+  }
+  const matches = signatures.some((sig) => sig.every((byte, index) => buffer[index] === byte));
+  if (!matches) {
+    throw new Error("Isi file tidak cocok dengan tipe gambar yang dinyatakan.");
+  }
 }
 
 export function sanitizeFilename(original: string): string {
@@ -79,12 +84,14 @@ export async function saveSiteImage(file: File, kind: "logo" | "favicon"): Promi
 
   const suffix = randomBytes(4).toString("hex");
   const fileName = `${kind}-${suffix}.webp`;
-  const filePath = path.join(SITE_UPLOAD_DIR, fileName);
+  const filePath = path.join(/*turbopackIgnore: true*/ SITE_UPLOAD_DIR, fileName);
   const buffer = Buffer.from(await file.arrayBuffer());
+  assertImageMagicBytes(buffer, file.type);
 
   try {
+    const sharp = (await import("sharp")).default;
     const webp = await sharp(buffer).webp({ quality: 90 }).toBuffer();
-    writeFileSync(filePath, webp);
+    writeFileSync(/*turbopackIgnore: true*/ filePath, webp);
   } catch {
     throw new Error("Gambar gagal diproses. Pastikan file gambar valid.");
   }
@@ -96,36 +103,33 @@ async function saveImageFile(file: File, uploadDir: string, publicBasePath: stri
   const error = validateImageFile(file);
   if (error) throw new Error(error);
 
+  const buffer = Buffer.from(await file.arrayBuffer());
+  assertImageMagicBytes(buffer, file.type);
+
   ensureUploadDirectory(uploadDir);
 
   const sanitized = sanitizeFilename(file.name);
-  const filePath = path.join(uploadDir, sanitized);
+  const filePath = path.join(/*turbopackIgnore: true*/ uploadDir, sanitized);
 
-  if (existsSync(filePath)) {
+  if (existsSync(/*turbopackIgnore: true*/ filePath)) {
     const hash = createHash("md5").update(randomBytes(8)).digest("hex").substring(0, 8);
     const ext = path.extname(sanitized);
     const base = path.basename(sanitized, ext);
-    const deduped = path.join(uploadDir, `${base}-${hash}${ext}`);
-    const buffer = Buffer.from(await file.arrayBuffer());
-    writeFileSync(deduped, buffer);
+    const deduped = path.join(/*turbopackIgnore: true*/ uploadDir, `${base}-${hash}${ext}`);
+    writeFileSync(/*turbopackIgnore: true*/ deduped, buffer);
     return `${publicBasePath}/${path.basename(deduped)}`;
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  writeFileSync(filePath, buffer);
+  writeFileSync(/*turbopackIgnore: true*/ filePath, buffer);
   return `${publicBasePath}/${sanitized}`;
 }
 
 export function deleteProductImage(publicPath: string): void {
   if (!isLocalUploadPath(publicPath)) return;
-  const absolutePath = path.resolve(
-    /* turbopackIgnore: true */ process.cwd(),
-    "public",
-    publicPath.replace(/^\//, ""),
-  );
-  if (existsSync(absolutePath)) {
+  const absolutePath = resolvePublicUploadPath(publicPath);
+  if (absolutePath && existsSync(/*turbopackIgnore: true*/ absolutePath)) {
     try {
-      unlinkSync(absolutePath);
+      unlinkSync(/*turbopackIgnore: true*/ absolutePath);
     } catch {
       // Silently ignore delete failures
     }
@@ -135,21 +139,105 @@ export function deleteProductImage(publicPath: string): void {
 export function deletePromoBannerImage(publicPath: string): void {
   if (!isLocalPromoBannerUploadPath(publicPath)) return;
   const absolutePath = resolvePublicUploadPath(publicPath);
-  if (absolutePath && existsSync(absolutePath)) {
+  if (absolutePath && existsSync(/*turbopackIgnore: true*/ absolutePath)) {
     try {
-      unlinkSync(absolutePath);
+      unlinkSync(/*turbopackIgnore: true*/ absolutePath);
     } catch {
       // Best-effort cleanup; DB mutation must remain authoritative.
     }
   }
 }
 
+const CATEGORY_UPLOAD_DIR = path.join(/*turbopackIgnore: true*/ PUBLIC_UPLOAD_DIR, "categories");
+
+export async function saveCategoryImage(file: File): Promise<string> {
+  const error = validateSiteImageFile(file);
+  if (error) throw new Error(error);
+
+  ensureUploadDirectory(CATEGORY_UPLOAD_DIR);
+
+  const suffix = randomBytes(4).toString("hex");
+  const fileName = `category-${suffix}.webp`;
+  const filePath = path.join(/*turbopackIgnore: true*/ CATEGORY_UPLOAD_DIR, fileName);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  assertImageMagicBytes(buffer, file.type);
+
+  try {
+    const sharp = (await import("sharp")).default;
+    const webp = await sharp(buffer).webp({ quality: 90 }).toBuffer();
+    writeFileSync(/*turbopackIgnore: true*/ filePath, webp);
+  } catch {
+    throw new Error("Gambar gagal diproses. Pastikan file gambar valid.");
+  }
+
+  return `/uploads/categories/${fileName}`;
+}
+
+export function deleteCategoryImage(publicPath: string): void {
+  if (!isLocalCategoryUploadPath(publicPath)) return;
+  const absolutePath = resolvePublicUploadPath(publicPath);
+  if (absolutePath && existsSync(/*turbopackIgnore: true*/ absolutePath)) {
+    try {
+      unlinkSync(/*turbopackIgnore: true*/ absolutePath);
+    } catch {
+      // Best-effort cleanup
+    }
+  }
+}
+
+function isLocalCategoryUploadPath(value: string): boolean {
+  if (!value) return false;
+  return value.startsWith("/uploads/categories/");
+}
+
+const BRAND_UPLOAD_DIR = path.join(/*turbopackIgnore: true*/ PUBLIC_UPLOAD_DIR, "brands");
+
+export async function saveBrandImage(file: File): Promise<string> {
+  const error = validateSiteImageFile(file);
+  if (error) throw new Error(error);
+
+  ensureUploadDirectory(BRAND_UPLOAD_DIR);
+
+  const suffix = randomBytes(4).toString("hex");
+  const fileName = `brand-${suffix}.webp`;
+  const filePath = path.join(/*turbopackIgnore: true*/ BRAND_UPLOAD_DIR, fileName);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  assertImageMagicBytes(buffer, file.type);
+
+  try {
+    const sharp = (await import("sharp")).default;
+    const webp = await sharp(buffer).webp({ quality: 90 }).toBuffer();
+    writeFileSync(/*turbopackIgnore: true*/ filePath, webp);
+  } catch {
+    throw new Error("Gambar gagal diproses. Pastikan file gambar valid.");
+  }
+
+  return `/uploads/brands/${fileName}`;
+}
+
+export function deleteBrandImage(publicPath: string): void {
+  if (!isLocalBrandUploadPath(publicPath)) return;
+  const absolutePath = resolvePublicUploadPath(publicPath);
+  if (absolutePath && existsSync(/*turbopackIgnore: true*/ absolutePath)) {
+    try {
+      unlinkSync(/*turbopackIgnore: true*/ absolutePath);
+    } catch {
+      // Best-effort cleanup
+    }
+  }
+}
+
+function isLocalBrandUploadPath(value: string): boolean {
+  if (!value) return false;
+  return /^\/uploads\/brands\/brand-[a-f0-9]{8}\.webp$/.test(value);
+}
+
 export function deleteSiteImage(publicPath: string): void {
   if (!isLocalSiteUploadPath(publicPath)) return;
   const absolutePath = resolvePublicUploadPath(publicPath);
-  if (absolutePath && existsSync(absolutePath)) {
+  if (absolutePath && existsSync(/*turbopackIgnore: true*/ absolutePath)) {
     try {
-      unlinkSync(absolutePath);
+      unlinkSync(/*turbopackIgnore: true*/ absolutePath);
     } catch {
       // Best-effort cleanup; DB mutation must remain authoritative.
     }
@@ -191,9 +279,9 @@ function resolvePublicUploadPath(value: string): string | null {
       return null;
     }
 
-    const publicDir = path.resolve(/* turbopackIgnore: true */ process.cwd(), "public");
-    const absolutePath = path.resolve(publicDir, decodedPathname.replace(/^\/+/, ""));
-    return isPathInside(publicDir, absolutePath) ? absolutePath : null;
+    const uploadRelativePath = decodedPathname.replace(/^\/uploads\/+/, "");
+    const absolutePath = path.resolve(/*turbopackIgnore: true*/ PUBLIC_UPLOAD_DIR, uploadRelativePath);
+    return isPathInside(PUBLIC_UPLOAD_DIR, absolutePath) ? absolutePath : null;
   } catch {
     return null;
   }
@@ -204,7 +292,7 @@ function isExistingPublicFile(value: string): boolean {
   if (!absolutePath) return false;
 
   try {
-    return statSync(absolutePath).isFile();
+    return statSync(/*turbopackIgnore: true*/ absolutePath).isFile();
   } catch {
     return false;
   }

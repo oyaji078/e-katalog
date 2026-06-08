@@ -48,3 +48,6 @@ public/uploads/products/*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.claude/settings.local.json
+.vscode/settings.json
+results/

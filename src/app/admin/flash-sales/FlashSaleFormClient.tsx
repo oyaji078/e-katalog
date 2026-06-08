@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useActionState, useCallback, useEffect, useMemo, useState } from "react";
 
 import { createFlashSaleAction, updateFlashSaleAction, type FlashSaleFormState } from "./actions";
@@ -58,7 +57,6 @@ export default function FlashSaleFormClient({
   flashSale?: FlashSaleData;
   products: ProductOption[];
 }) {
-  const router = useRouter();
   const isEdit = !!flashSale;
   const action = isEdit ? updateFlashSaleAction : createFlashSaleAction;
   const [state, formAction, isPending] = useActionState(action, initialState);
@@ -132,10 +130,12 @@ export default function FlashSaleFormClient({
 
   useEffect(() => {
     if (state.success) {
-      const timer = setTimeout(() => router.push("/admin/flash-sales"), 1000);
+      const timer = setTimeout(() => {
+        window.location.href = "/admin/flash-sales";
+      }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [state.success, router]);
+  }, [state.success]);
 
   function addProduct(id: string) {
     setSelectedProductIds((prev) => [...prev, id]);

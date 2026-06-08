@@ -15,8 +15,8 @@ export default async function DeploymentPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-brand-text">Deployment Info</h2>
+        <div className="rounded-lg border border-[#D7DEE8] bg-white p-5 text-[#111827] shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-[#111827]">Deployment Info</h2>
           <dl className="grid gap-3 text-sm">
             <DeploymentField label="Provider" value="Hostinger Managed Node.js" />
             <DeploymentField label="Source" value="GitHub" />
@@ -26,8 +26,8 @@ export default async function DeploymentPage() {
           </dl>
         </div>
 
-        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-brand-text">Deployment Checklist</h2>
+        <div className="rounded-lg border border-[#D7DEE8] bg-white p-5 text-[#111827] shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-[#111827]">Deployment Checklist</h2>
           <ul className="grid gap-3 text-sm">
             <ChecklistItem label="Database migration applied" done={false} />
             <ChecklistItem label="Prisma client generated" done={true} />
@@ -47,8 +47,8 @@ export default async function DeploymentPage() {
 function DeploymentField({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid grid-cols-[160px_1fr] gap-3">
-      <dt className="font-semibold text-brand-text">{label}</dt>
-      <dd className="text-brand-muted">{value}</dd>
+      <dt className="font-semibold text-[#111827]">{label}</dt>
+      <dd className="text-[#5B6472]">{value}</dd>
     </div>
   );
 }
@@ -63,7 +63,7 @@ function ChecklistItem({ label, done }: { label: string; done: boolean }) {
       >
         {done ? "✓" : "○"}
       </span>
-      <span className={done ? "text-brand-text" : "text-brand-muted"}>{label}</span>
+      <span className={done ? "text-[#111827]" : "text-[#5B6472]"}>{label}</span>
     </li>
   );
 }

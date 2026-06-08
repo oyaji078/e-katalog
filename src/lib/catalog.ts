@@ -10,6 +10,7 @@ import type {
   Voucher,
   VoucherAudience,
 } from "@/generated/prisma/client";
+import { computePrimaryLabel } from "@/lib/product-labels";
 
 export type CatalogUser = {
   role?: UserRole | string | null;
@@ -30,17 +31,11 @@ export type ProductWithCatalogRelations = Product & {
  * Deliberately excludes admin-only/internal fields (costPrice, margin*),
  * so they never enter Server Component payloads or reach the client.
  */
-const NEW_ARRIVAL_DAYS = 30;
-
-export function isNewArrival(createdAt: Date | string): boolean {
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - NEW_ARRIVAL_DAYS);
-  return new Date(createdAt) > cutoff;
-}
 
 export const productCardSelect = {
   id: true,
   name: true,
+  sku: true,
   slug: true,
   shortSpecification: true,
   publicPrice: true,
@@ -49,6 +44,9 @@ export const productCardSelect = {
   stockStatus: true,
   stockQuantity: true,
   createdAt: true,
+  viewCount: true,
+  clickCount: true,
+  inquiryCount: true,
   categoryId: true,
   category: { select: { name: true, slug: true } },
   brand: { select: { name: true } },
@@ -72,11 +70,15 @@ export const productDetailSelect = {
   warrantyInfo: true,
   publicPrice: true,
   retailPrice: true,
+  isRecommended: true,
   primaryImageUrl: true,
   stockStatus: true,
   stockQuantity: true,
   createdAt: true,
   categoryId: true,
+  viewCount: true,
+  clickCount: true,
+  inquiryCount: true,
   category: { select: { name: true, slug: true } },
   brand: { select: { name: true } },
   images: { select: { url: true }, orderBy: { sortOrder: "asc" } },
@@ -174,6 +176,14 @@ export function productImage(product: {
   return product.primaryImageUrl || product.images?.[0]?.url || "";
 }
 
+export function productHoverImage(product: {
+  primaryImageUrl?: string | null;
+  images?: Array<{ url: string }>;
+}) {
+  const primary = productImage(product);
+  return product.images?.find((image) => image.url && image.url !== primary)?.url || "";
+}
+
 const publicDir = path.resolve(process.cwd(), "public");
 
 function isPathInside(parent: string, child: string) {
@@ -242,9 +252,8 @@ export function safeImageSrc(value: string | null | undefined): string | null {
   return null;
 }
 
-export function productBadge(product: Pick<Product, "stockStatus"> & { createdAt?: Date | string }) {
-  if (product.createdAt && isNewArrival(product.createdAt)) return "Baru";
-  return undefined;
+export function productBadge(product: Pick<Product, "stockStatus" | "viewCount" | "clickCount" | "inquiryCount"> & { createdAt?: Date | string }) {
+  return computePrimaryLabel(product, false);
 }
 
 export function stockLabel(

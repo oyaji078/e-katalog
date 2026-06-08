@@ -27,7 +27,7 @@ export default async function SystemLogsPage() {
       <div className="overflow-x-auto rounded-lg border border-brand-border bg-white shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-brand-border bg-brand-bg text-left text-xs text-brand-muted">
+            <tr className="border-b border-[#D7DEE8] bg-[#EEF4F7] text-left text-xs text-[#111827]">
               <th className="px-4 py-3 font-medium">Date</th>
               <th className="px-4 py-3 font-medium">Actor</th>
               <th className="px-4 py-3 font-medium">Role</th>

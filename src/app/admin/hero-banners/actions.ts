@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { getAdminSession } from "@/lib/admin-auth";
+import { logAdminActivity } from "@/lib/activity-log";
+import { getAdminSession, toUserRole } from "@/lib/admin-auth";
 import { getDb } from "@/lib/db";
 import {
   deletePromoBannerImage,
@@ -240,11 +241,13 @@ export async function createHeroBannerAction(formData: FormData): Promise<HeroBa
     return buildErrorState(fields, fieldErrors);
   }
 
+  const session = await getAdminSession();
+
   try {
     const imageUrl = await resolveImageUrl(formData, fields);
     const db = getDb();
 
-    await db.heroBanner.create({
+    const created = await db.heroBanner.create({
       data: {
         title: fields.title,
         subtitle: nullableText(fields.subtitle),
@@ -256,6 +259,16 @@ export async function createHeroBannerAction(formData: FormData): Promise<HeroBa
         endsAt,
         sortOrder,
       },
+    });
+
+    await logAdminActivity({
+      actorId: session?.user.id ?? null,
+      actorRole: toUserRole(session?.user.role ?? null),
+      action: "Hero banner created",
+      targetType: "HeroBanner",
+      targetId: created.id,
+      risk: "MEDIUM",
+      metadata: { title: fields.title },
     });
   } catch (error) {
     if (error instanceof HeroBannerValidationError) {
@@ -293,6 +306,8 @@ export async function updateHeroBannerAction(id: string, formData: FormData): Pr
   if (Object.keys(fieldErrors).length > 0 || isActive === null || sortOrder === null) {
     return buildErrorState(fields, fieldErrors);
   }
+
+  const session = await getAdminSession();
 
   try {
     const db = getDb();
@@ -335,6 +350,16 @@ export async function updateHeroBannerAction(id: string, formData: FormData): Pr
     ) {
       deletePromoBannerImage(existing.imageUrl);
     }
+
+    await logAdminActivity({
+      actorId: session?.user.id ?? null,
+      actorRole: toUserRole(session?.user.role ?? null),
+      action: "Hero banner updated",
+      targetType: "HeroBanner",
+      targetId: id,
+      risk: "MEDIUM",
+      metadata: { title: fields.title },
+    });
   } catch (error) {
     if (error instanceof HeroBannerValidationError) {
       return buildErrorState(fields, { imageUrl: error.message });
@@ -380,6 +405,15 @@ export async function deleteHeroBannerAction(id: string): Promise<DeleteResult> 
     if (existing.imageUrl && isLocalPromoBannerUploadPath(existing.imageUrl)) {
       deletePromoBannerImage(existing.imageUrl);
     }
+
+    await logAdminActivity({
+      actorId: session.user.id,
+      actorRole: toUserRole(session.user.role),
+      action: "Hero banner deleted",
+      targetType: "HeroBanner",
+      targetId: id,
+      risk: "HIGH",
+    });
   } catch {
     return { success: false, error: "Hero banner gagal dihapus. Silakan coba lagi." };
   }

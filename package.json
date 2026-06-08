@@ -17,7 +17,15 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:seed-demo": "tsx prisma/seed-demo.ts",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "test:e2e": "playwright test",
+    "load:baseline": "k6 run --out json=results/baseline.json scripts/load-test/baseline.js",
+    "load:peak": "k6 run --out json=results/peak.json scripts/load-test/peak.js",
+    "load:stress": "k6 run --out json=results/stress.json scripts/load-test/stress.js",
+    "load:spike": "k6 run --out json=results/spike.json scripts/load-test/spike.js",
+    "load:soak": "k6 run --out json=results/soak.json scripts/load-test/soak.js",
+    "load:api": "k6 run --out json=results/api-contract.json scripts/load-test/api-contract.js",
+    "load:all": "npm run load:baseline && npm run load:api"
   },
   "dependencies": {
     "@better-auth/prisma-adapter": "^1.6.11",

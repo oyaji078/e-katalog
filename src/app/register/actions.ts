@@ -2,7 +2,9 @@
 
 import { headers } from "next/headers";
 
+import { AnalyticsEventType } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 
 export type RegisterState = {
@@ -61,6 +63,13 @@ export async function registerUserAction(formData: FormData): Promise<RegisterSt
     await db.user.update({
       where: { id: result.user.id },
       data: { whatsappNumber, storeName, address },
+    });
+
+    await trackAnalyticsEvent({
+      type: AnalyticsEventType.RETAIL_REGISTER,
+      userId: result.user.id,
+      phone: whatsappNumber,
+      metadata: { hasStoreName: Boolean(storeName) },
     });
 
     return {

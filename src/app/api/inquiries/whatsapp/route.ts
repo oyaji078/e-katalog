@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { AnalyticsEventType } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import {
   canSeeRetailPrice,
   canUseRetailVoucher,
@@ -9,6 +11,7 @@ import {
 } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { applyRateLimitHeaders, checkRateLimit, RATE_LIMITS, tooManyRequests } from "@/lib/ratelimit";
 import { getCurrentUser } from "@/lib/session";
 import {
   buildInquiryMessage,
@@ -17,55 +20,67 @@ import {
   resolveStoreWhatsappNumber,
 } from "@/lib/whatsapp";
 
+// Node.js runtime: the in-memory rate-limit store requires a persistent process.
+export const runtime = "nodejs";
+
+function safeSourcePage(value: unknown) {
+  if (typeof value !== "string") return "catalog";
+  const trimmed = value.trim();
+  return /^[a-z0-9/_-]{1,64}$/i.test(trimmed) ? trimmed : "catalog";
+}
+
 export async function POST(request: NextRequest) {
+  // Sensitive endpoint: rate-limit before any parsing/DB work. Runs ahead of
+  // the try/catch below, whose fallback intentionally returns 200 on errors —
+  // a 429 must not be swallowed by that fallback.
+  const rateLimit = await checkRateLimit(request, RATE_LIMITS.inquiriesWhatsapp);
+  if (!rateLimit.success) return tooManyRequests(rateLimit);
+
   try {
     let body: { productId?: string; productSlug?: string; sourcePage?: string };
     try {
       body = await request.json();
     } catch {
-      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+      return applyRateLimitHeaders(NextResponse.json({ error: "Invalid JSON body" }, { status: 400 }), rateLimit);
     }
 
     const { productId, productSlug } = body;
-    const sourcePage = "catalog";
+    const productKey = productId ?? "";
+    const sourcePage = safeSourcePage(body.sourcePage);
 
     if (!productId && !productSlug) {
-      return NextResponse.json(
-        { error: "productId or productSlug is required" },
-        { status: 400 },
+      return applyRateLimitHeaders(
+        NextResponse.json({ error: "productId or productSlug is required" }, { status: 400 }),
+        rateLimit,
       );
     }
 
     const db = getDb();
 
+    const publicProductWhere = { status: "ACTIVE", category: { isActive: true }, brand: { isActive: true } } as const;
+    const productSelect = {
+      id: true,
+      name: true,
+      sku: true,
+      slug: true,
+      publicPrice: true,
+      retailPrice: true,
+      stockStatus: true,
+      stockQuantity: true,
+      categoryId: true,
+    } as const;
+
     const product = productSlug
       ? await db.product.findFirst({
-          where: { slug: productSlug, status: "ACTIVE" },
-          select: {
-            id: true,
-            name: true,
-            sku: true,
-            slug: true,
-            publicPrice: true,
-            retailPrice: true,
-            stockStatus: true,
-            stockQuantity: true,
-            categoryId: true,
-          },
+          where: { slug: productSlug, ...publicProductWhere },
+          select: productSelect,
         })
       : await db.product.findFirst({
-          where: { id: productId, status: "ACTIVE" },
-          select: {
-            id: true,
-            name: true,
-            sku: true,
-            slug: true,
-            publicPrice: true,
-            retailPrice: true,
-            stockStatus: true,
-            stockQuantity: true,
-            categoryId: true,
+          where: {
+            ...publicProductWhere,
+            OR: [{ slug: productKey }, { sku: productKey }],
           },
+          select: productSelect,
         });
 
     if (!product) {
@@ -92,13 +107,22 @@ export async function POST(request: NextRequest) {
         }).catch(() => {});
       }
 
-      return NextResponse.json(
-        { error: "Product not found" },
-        { status: 404 },
-      );
+      return applyRateLimitHeaders(NextResponse.json({ error: "Product not found" }, { status: 404 }), rateLimit);
     }
 
     const currentUser = await getCurrentUser();
+
+    // Admin/Super Admin must not use public inquiry flow
+    if (currentUser?.role === "ADMIN" || currentUser?.role === "SUPER_ADMIN") {
+      return applyRateLimitHeaders(
+        NextResponse.json(
+          { error: "Admin tidak dapat menggunakan inquiry publik. Gunakan dashboard." },
+          { status: 403 },
+        ),
+        rateLimit,
+      );
+    }
+
     const user = currentUser ? {
       role: currentUser.role,
       retailStatus: currentUser.retailStatus,
@@ -109,11 +133,13 @@ export async function POST(request: NextRequest) {
       publicVoucherEnabled,
       retailVoucherEnabled,
       trackingEnabled,
+      flashSaleEnabled,
     ] = await Promise.all([
       isFeatureEnabled("enable_retail_price").catch(() => false),
       isFeatureEnabled("enable_public_voucher").catch(() => false),
       isFeatureEnabled("enable_retail_voucher").catch(() => false),
       isFeatureEnabled("enable_inquiry_tracking").catch(() => false),
+      isFeatureEnabled("enable_flash_sale").catch(() => false),
     ]);
 
     const showRetailPrice = canSeeRetailPrice(user, retailPriceEnabled);
@@ -132,17 +158,19 @@ export async function POST(request: NextRequest) {
           products: { select: { productId: true } },
         },
       }),
-      db.flashSaleProduct.findFirst({
-        where: {
-          productId: product.id,
-          flashSale: {
-            isActive: true,
-            startsAt: { lte: new Date() },
-            endsAt: { gte: new Date() },
-          },
-        },
-        select: { id: true },
-      }),
+      flashSaleEnabled
+        ? db.flashSaleProduct.findFirst({
+            where: {
+              productId: product.id,
+              flashSale: {
+                isActive: true,
+                startsAt: { lte: new Date() },
+                endsAt: { gte: new Date() },
+              },
+            },
+            select: { id: true },
+          })
+        : Promise.resolve(null),
     ]);
 
     const priceForMinimum =
@@ -204,6 +232,19 @@ export async function POST(request: NextRequest) {
       data: { inquiryCount: { increment: 1 } },
     }).catch(() => {});
 
+    await trackAnalyticsEvent({
+      type: AnalyticsEventType.WHATSAPP_CLICK,
+      path: productLink,
+      productId: product.id,
+      productName: product.name,
+      userId: currentUser?.id,
+      metadata: {
+        sourcePage,
+        showRetailPrice,
+        voucherCount: applicableVouchers.length,
+      },
+    });
+
     if (trackingEnabled) {
       const resolvedUserId = currentUser?.id ?? null;
       const resolvedName = currentUser?.name ?? null;
@@ -222,7 +263,7 @@ export async function POST(request: NextRequest) {
       }).catch(() => {});
     }
 
-    return NextResponse.json({ waUrl });
+    return applyRateLimitHeaders(NextResponse.json({ waUrl }), rateLimit);
   } catch {
     const fallbackNumber = await resolveStoreWhatsappNumber(getDb()).catch(() => undefined);
     const fallbackMessage = "Halo Admin, saya tertarik dengan produk dari katalog.";
@@ -230,6 +271,6 @@ export async function POST(request: NextRequest) {
       message: fallbackMessage,
       whatsappNumber: fallbackNumber,
     });
-    return NextResponse.json({ waUrl: fallbackUrl });
+    return applyRateLimitHeaders(NextResponse.json({ waUrl: fallbackUrl }), rateLimit);
   }
 }

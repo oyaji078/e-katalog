@@ -29,9 +29,9 @@ export default async function MaintenancePage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
+        <div className="rounded-lg border border-[#D7DEE8] bg-white p-5 text-[#111827] shadow-sm">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-brand-text">Status</h2>
+            <h2 className="text-lg font-bold text-[#111827]">Status</h2>
             <span
               className={`rounded-full px-3 py-1 text-xs font-bold text-white ${
                 isEnabled ? "bg-danger" : "bg-success"
@@ -48,13 +48,13 @@ export default async function MaintenancePage() {
           <MaintenanceToggle enabled={isEnabled} flagId={flag?.id ?? null} />
         </div>
 
-        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-brand-text">Maintenance Message</h2>
-          <p className="mb-2 text-sm text-brand-muted">Current message shown to users:</p>
-          <div className="rounded-md border border-brand-border bg-brand-bg p-4 text-sm text-brand-text">
+        <div className="rounded-lg border border-[#D7DEE8] bg-white p-5 text-[#111827] shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-[#111827]">Maintenance Message</h2>
+          <p className="mb-2 text-sm text-[#5B6472]">Current message shown to users:</p>
+          <div className="rounded-md border border-[#D7DEE8] bg-[#EEF4F7] p-4 text-sm text-[#111827]">
             {message}
           </div>
-          <p className="mt-4 text-xs text-brand-muted">
+          <p className="mt-4 text-xs text-[#5B6472]">
             Change the maintenance message in Store Settings under key{" "}
             <code className="font-mono text-brand-primary">maintenance_message</code>.
           </p>

@@ -31,10 +31,10 @@ export default async function FlashSalesPage() {
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-brand-border bg-white shadow-sm">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-lg border border-brand-border bg-white shadow-sm">
+        <table className="w-full min-w-[720px] text-sm">
           <thead>
-            <tr className="border-b border-brand-border bg-brand-bg text-left text-xs text-brand-muted">
+            <tr className="border-b border-[#D7DEE8] bg-[#EEF4F7] text-left text-xs text-[#111827]">
               <th className="px-4 py-3 font-medium">Nama</th>
               <th className="px-4 py-3 font-medium">Mulai</th>
               <th className="px-4 py-3 font-medium">Selesai</th>

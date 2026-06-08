@@ -29,10 +29,10 @@ export default function AdminUsersClient({ users, currentUserId }: { users: Admi
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-brand-border bg-white shadow-sm">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-lg border border-brand-border bg-white shadow-sm">
+        <table className="min-w-[760px] w-full text-sm">
           <thead>
-            <tr className="border-b border-brand-border bg-brand-bg text-left text-xs text-brand-muted">
+            <tr className="border-b border-[#D7DEE8] bg-[#EEF4F7] text-left text-xs text-[#111827]">
               <th className="px-4 py-3 font-medium">Name</th>
               <th className="px-4 py-3 font-medium">Email</th>
               <th className="px-4 py-3 font-medium">Role</th>
@@ -136,6 +136,12 @@ function RoleCell({ user, isSelf, isLastSuperAdmin }: { user: AdminUser; isSelf:
 
   function handleChange(nextRole: AdminUser["role"]) {
     const previousRole = role;
+    const currentPassword = window.prompt("Masukkan password Anda saat ini untuk mengubah role.");
+    if (!currentPassword) {
+      setRole(previousRole);
+      return;
+    }
+
     setRole(nextRole);
     setError("");
     setMessage("");
@@ -144,6 +150,7 @@ function RoleCell({ user, isSelf, isLastSuperAdmin }: { user: AdminUser; isSelf:
       const formData = new FormData();
       formData.set("userId", user.id);
       formData.set("role", nextRole);
+      formData.set("currentPassword", currentPassword);
 
       const result = await changeUserRole(roleInitialState, formData);
       if (result.success) {
@@ -208,15 +215,25 @@ function DeleteCell({ user, isSelf, isLastSuperAdmin }: { user: AdminUser; isSel
             {state.error ? (
               <p className="mt-2 text-xs text-danger">{state.error}</p>
             ) : null}
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="rounded-xl border border-brand-border px-4 py-2 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
-              >
-                Batal
-              </button>
-              <form action={formAction}>
-                <input type="hidden" name="userId" value={user.id} />
+            <form action={formAction} className="mt-4">
+              <input type="hidden" name="userId" value={user.id} />
+              <label className="block text-xs font-semibold text-brand-text">
+                Password Anda Saat Ini
+                <input
+                  name="currentPassword"
+                  type="password"
+                  required
+                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-3 py-2 text-sm outline-none focus:border-brand-primary"
+                />
+              </label>
+              <div className="mt-4 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm(false)}
+                  className="rounded-xl border border-brand-border px-4 py-2 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
+                >
+                  Batal
+                </button>
                 <button
                   type="submit"
                   disabled={isPending}
@@ -224,8 +241,8 @@ function DeleteCell({ user, isSelf, isLastSuperAdmin }: { user: AdminUser; isSel
                 >
                   {isPending ? "Menghapus..." : "Ya, Hapus"}
                 </button>
-              </form>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
       ) : null}
@@ -261,15 +278,25 @@ function DeleteConfirmForm({ user, onDone }: { user: AdminUser; onDone: () => vo
           {state.message}
         </div>
       ) : (
-        <div className="mt-4 flex justify-end gap-2">
-          <button
-            onClick={onDone}
-            className="rounded-xl border border-brand-border px-4 py-2 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
-          >
-            Batal
-          </button>
-          <form action={formAction}>
-            <input type="hidden" name="userId" value={user.id} />
+        <form action={formAction} className="mt-4">
+          <input type="hidden" name="userId" value={user.id} />
+          <label className="block text-xs font-semibold text-brand-text">
+              Password Anda Saat Ini
+            <input
+              name="currentPassword"
+              type="password"
+              required
+              className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-3 py-2 text-sm outline-none focus:border-brand-primary"
+            />
+          </label>
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onDone}
+              className="rounded-xl border border-brand-border px-4 py-2 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
+            >
+              Batal
+            </button>
             <button
               type="submit"
               disabled={isPending}
@@ -277,8 +304,8 @@ function DeleteConfirmForm({ user, onDone }: { user: AdminUser; onDone: () => vo
             >
               {isPending ? "Menghapus..." : "Ya, Hapus"}
             </button>
-          </form>
-        </div>
+          </div>
+        </form>
       )}
     </div>
   );

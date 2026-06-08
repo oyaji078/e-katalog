@@ -2,7 +2,6 @@
 
 import { LogOut } from "lucide-react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { signOut } from "@/lib/auth-client";
 
@@ -12,19 +11,16 @@ type LogoutButtonProps = {
 };
 
 export default function LogoutButton({ className = "", iconOnly = false }: LogoutButtonProps) {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleLogout() {
     setIsLoading(true);
-    await signOut({
-      fetchOptions: {
-        onSuccess() {
-          router.push("/login");
-          router.refresh();
-        },
-      },
-    });
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
+    window.location.href = "/login";
   }
 
   return (

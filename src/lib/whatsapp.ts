@@ -72,27 +72,22 @@ export function buildInquiryMessage(options: InquiryMessageOptions): string {
     : null;
 
   const stockStatus = formatStockStatus(product.stockStatus, product.stockQuantity);
+  const isRetailActive = user?.retailStatus === "RETAIL_ACTIVE";
 
   const lines: string[] = [];
 
-  // Greeting based on user role
-  if (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") {
-    lines.push("Halo Admin, inquiry dari sistem admin:");
-  } else if (user?.retailStatus === "RETAIL_ACTIVE") {
-    lines.push("Halo Admin, saya adalah pelanggan retail dan tertarik dengan produk ini:");
-  } else {
-    lines.push("Halo Admin, saya tertarik dengan produk ini:");
-  }
-
+  lines.push("Halo Admin, saya ingin bertanya tentang produk berikut:");
   lines.push("");
   lines.push(`Produk: ${product.name}`);
-  lines.push(`SKU: ${product.sku}`);
+  lines.push(`Kode Produk: ${product.sku}`);
 
-  if (showRetailPrice && retailPrice) {
-    lines.push(`Harga Retail: ${retailPrice}`);
+  const displayPrice = showRetailPrice && retailPrice ? retailPrice : publicPrice;
+  lines.push(`Harga: ${displayPrice}`);
+
+  if (isRetailActive && showRetailPrice && retailPrice) {
+    lines.push("Tipe Akun: Retail");
   }
 
-  lines.push(`Harga Publik: ${publicPrice}`);
   lines.push(`Stok: ${stockStatus}`);
 
   if (productLink) {
@@ -105,7 +100,7 @@ export function buildInquiryMessage(options: InquiryMessageOptions): string {
 
   lines.push("");
 
-  if (user?.retailStatus === "RETAIL_ACTIVE") {
+  if (isRetailActive && showRetailPrice && retailPrice) {
     lines.push("Apakah produk ini masih tersedia untuk pembelian retail?");
   } else {
     lines.push("Apakah produk ini masih tersedia?");
@@ -134,11 +129,11 @@ export function buildWhatsappUrl(options: WhatsAppUrlOptions): string {
  * Build product URL for inclusion in message (uses slug when available)
  */
 export function buildProductUrl(
-  product: Pick<Product, "id" | "slug">,
+  product: Pick<Product, "id" | "slug" | "sku">,
   baseUrl?: string,
 ): string {
   const origin = baseUrl || (typeof window !== "undefined" ? window.location.origin : "");
-  const identifier = product.slug || product.id;
+  const identifier = product.slug || product.sku;
   return `${origin}/products/${identifier}`;
 }
 

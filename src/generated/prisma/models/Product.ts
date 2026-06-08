@@ -59,6 +59,7 @@ export type ProductMinAggregateOutputType = {
   slug: string | null
   description: string | null
   shortSpecification: string | null
+  pricingMode: string | null
   costPrice: runtime.Decimal | null
   publicMarginType: $Enums.MarginType | null
   publicMarginValue: runtime.Decimal | null
@@ -90,6 +91,7 @@ export type ProductMaxAggregateOutputType = {
   slug: string | null
   description: string | null
   shortSpecification: string | null
+  pricingMode: string | null
   costPrice: runtime.Decimal | null
   publicMarginType: $Enums.MarginType | null
   publicMarginValue: runtime.Decimal | null
@@ -122,6 +124,7 @@ export type ProductCountAggregateOutputType = {
   description: number
   shortSpecification: number
   specifications: number
+  pricingMode: number
   costPrice: number
   publicMarginType: number
   publicMarginValue: number
@@ -181,6 +184,7 @@ export type ProductMinAggregateInputType = {
   slug?: true
   description?: true
   shortSpecification?: true
+  pricingMode?: true
   costPrice?: true
   publicMarginType?: true
   publicMarginValue?: true
@@ -212,6 +216,7 @@ export type ProductMaxAggregateInputType = {
   slug?: true
   description?: true
   shortSpecification?: true
+  pricingMode?: true
   costPrice?: true
   publicMarginType?: true
   publicMarginValue?: true
@@ -244,6 +249,7 @@ export type ProductCountAggregateInputType = {
   description?: true
   shortSpecification?: true
   specifications?: true
+  pricingMode?: true
   costPrice?: true
   publicMarginType?: true
   publicMarginValue?: true
@@ -363,6 +369,7 @@ export type ProductGroupByOutputType = {
   description: string
   shortSpecification: string | null
   specifications: runtime.JsonValue | null
+  pricingMode: string | null
   costPrice: runtime.Decimal
   publicMarginType: $Enums.MarginType
   publicMarginValue: runtime.Decimal
@@ -418,6 +425,7 @@ export type ProductWhereInput = {
   description?: Prisma.StringFilter<"Product"> | string
   shortSpecification?: Prisma.StringNullableFilter<"Product"> | string | null
   specifications?: Prisma.JsonNullableFilter<"Product">
+  pricingMode?: Prisma.StringNullableFilter<"Product"> | string | null
   costPrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFilter<"Product"> | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -456,6 +464,7 @@ export type ProductOrderByWithRelationInput = {
   description?: Prisma.SortOrder
   shortSpecification?: Prisma.SortOrderInput | Prisma.SortOrder
   specifications?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricingMode?: Prisma.SortOrderInput | Prisma.SortOrder
   costPrice?: Prisma.SortOrder
   publicMarginType?: Prisma.SortOrder
   publicMarginValue?: Prisma.SortOrder
@@ -498,6 +507,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringFilter<"Product"> | string
   shortSpecification?: Prisma.StringNullableFilter<"Product"> | string | null
   specifications?: Prisma.JsonNullableFilter<"Product">
+  pricingMode?: Prisma.StringNullableFilter<"Product"> | string | null
   costPrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFilter<"Product"> | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -536,6 +546,7 @@ export type ProductOrderByWithAggregationInput = {
   description?: Prisma.SortOrder
   shortSpecification?: Prisma.SortOrderInput | Prisma.SortOrder
   specifications?: Prisma.SortOrderInput | Prisma.SortOrder
+  pricingMode?: Prisma.SortOrderInput | Prisma.SortOrder
   costPrice?: Prisma.SortOrder
   publicMarginType?: Prisma.SortOrder
   publicMarginValue?: Prisma.SortOrder
@@ -576,6 +587,7 @@ export type ProductScalarWhereWithAggregatesInput = {
   description?: Prisma.StringWithAggregatesFilter<"Product"> | string
   shortSpecification?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   specifications?: Prisma.JsonNullableWithAggregatesFilter<"Product">
+  pricingMode?: Prisma.StringNullableWithAggregatesFilter<"Product"> | string | null
   costPrice?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeWithAggregatesFilter<"Product"> | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -608,11 +620,12 @@ export type ProductCreateInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -644,11 +657,12 @@ export type ProductUncheckedCreateInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -680,6 +694,7 @@ export type ProductUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -716,6 +731,7 @@ export type ProductUncheckedUpdateInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -752,11 +768,12 @@ export type ProductCreateManyInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -784,6 +801,7 @@ export type ProductUpdateManyMutationInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -814,6 +832,7 @@ export type ProductUncheckedUpdateManyInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -862,6 +881,7 @@ export type ProductCountOrderByAggregateInput = {
   description?: Prisma.SortOrder
   shortSpecification?: Prisma.SortOrder
   specifications?: Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
   costPrice?: Prisma.SortOrder
   publicMarginType?: Prisma.SortOrder
   publicMarginValue?: Prisma.SortOrder
@@ -906,6 +926,7 @@ export type ProductMaxOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   description?: Prisma.SortOrder
   shortSpecification?: Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
   costPrice?: Prisma.SortOrder
   publicMarginType?: Prisma.SortOrder
   publicMarginValue?: Prisma.SortOrder
@@ -937,6 +958,7 @@ export type ProductMinOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   description?: Prisma.SortOrder
   shortSpecification?: Prisma.SortOrder
+  pricingMode?: Prisma.SortOrder
   costPrice?: Prisma.SortOrder
   publicMarginType?: Prisma.SortOrder
   publicMarginValue?: Prisma.SortOrder
@@ -1162,11 +1184,12 @@ export type ProductCreateWithoutCategoryInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1197,11 +1220,12 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1261,6 +1285,7 @@ export type ProductScalarWhereInput = {
   description?: Prisma.StringFilter<"Product"> | string
   shortSpecification?: Prisma.StringNullableFilter<"Product"> | string | null
   specifications?: Prisma.JsonNullableFilter<"Product">
+  pricingMode?: Prisma.StringNullableFilter<"Product"> | string | null
   costPrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFilter<"Product"> | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1293,11 +1318,12 @@ export type ProductCreateWithoutBrandInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1328,11 +1354,12 @@ export type ProductUncheckedCreateWithoutBrandInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1389,11 +1416,12 @@ export type ProductCreateWithoutImagesInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1424,11 +1452,12 @@ export type ProductUncheckedCreateWithoutImagesInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1475,6 +1504,7 @@ export type ProductUpdateWithoutImagesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1510,6 +1540,7 @@ export type ProductUncheckedUpdateWithoutImagesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1545,11 +1576,12 @@ export type ProductCreateWithoutFlashSaleProductsInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1580,11 +1612,12 @@ export type ProductUncheckedCreateWithoutFlashSaleProductsInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1631,6 +1664,7 @@ export type ProductUpdateWithoutFlashSaleProductsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1666,6 +1700,7 @@ export type ProductUncheckedUpdateWithoutFlashSaleProductsInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1701,11 +1736,12 @@ export type ProductCreateWithoutVouchersInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1736,11 +1772,12 @@ export type ProductUncheckedCreateWithoutVouchersInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1787,6 +1824,7 @@ export type ProductUpdateWithoutVouchersInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1822,6 +1860,7 @@ export type ProductUncheckedUpdateWithoutVouchersInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1857,11 +1896,12 @@ export type ProductCreateWithoutWhatsappInquiriesInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1892,11 +1932,12 @@ export type ProductUncheckedCreateWithoutWhatsappInquiriesInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -1943,6 +1984,7 @@ export type ProductUpdateWithoutWhatsappInquiriesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1978,6 +2020,7 @@ export type ProductUncheckedUpdateWithoutWhatsappInquiriesInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -2013,11 +2056,12 @@ export type ProductCreateManyCategoryInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2044,6 +2088,7 @@ export type ProductUpdateWithoutCategoryInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -2079,6 +2124,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -2114,6 +2160,7 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -2145,11 +2192,12 @@ export type ProductCreateManyBrandInput = {
   description: string
   shortSpecification?: string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  publicMarginType: $Enums.MarginType
-  publicMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  retailMarginType: $Enums.MarginType
-  retailMarginValue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  pricingMode?: string | null
+  costPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  publicMarginType?: $Enums.MarginType
+  publicMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  retailMarginType?: $Enums.MarginType
+  retailMarginValue?: runtime.Decimal | runtime.DecimalJsLike | number | string
   publicPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
   retailPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   marginPercent?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
@@ -2176,6 +2224,7 @@ export type ProductUpdateWithoutBrandInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -2211,6 +2260,7 @@ export type ProductUncheckedUpdateWithoutBrandInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -2246,6 +2296,7 @@ export type ProductUncheckedUpdateManyWithoutBrandInput = {
   description?: Prisma.StringFieldUpdateOperationsInput | string
   shortSpecification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   specifications?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  pricingMode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   publicMarginType?: Prisma.EnumMarginTypeFieldUpdateOperationsInput | $Enums.MarginType
   publicMarginValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -2335,6 +2386,7 @@ export type ProductSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   description?: boolean
   shortSpecification?: boolean
   specifications?: boolean
+  pricingMode?: boolean
   costPrice?: boolean
   publicMarginType?: boolean
   publicMarginValue?: boolean
@@ -2376,6 +2428,7 @@ export type ProductSelectScalar = {
   description?: boolean
   shortSpecification?: boolean
   specifications?: boolean
+  pricingMode?: boolean
   costPrice?: boolean
   publicMarginType?: boolean
   publicMarginValue?: boolean
@@ -2400,7 +2453,7 @@ export type ProductSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "sku" | "slug" | "description" | "shortSpecification" | "specifications" | "costPrice" | "publicMarginType" | "publicMarginValue" | "retailMarginType" | "retailMarginValue" | "publicPrice" | "retailPrice" | "marginPercent" | "stockQuantity" | "stockStatus" | "status" | "isRecommended" | "isFeatured" | "warrantyInfo" | "primaryImageUrl" | "categoryId" | "brandId" | "viewCount" | "clickCount" | "inquiryCount" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+export type ProductOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "sku" | "slug" | "description" | "shortSpecification" | "specifications" | "pricingMode" | "costPrice" | "publicMarginType" | "publicMarginValue" | "retailMarginType" | "retailMarginValue" | "publicPrice" | "retailPrice" | "marginPercent" | "stockQuantity" | "stockStatus" | "status" | "isRecommended" | "isFeatured" | "warrantyInfo" | "primaryImageUrl" | "categoryId" | "brandId" | "viewCount" | "clickCount" | "inquiryCount" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
 export type ProductInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
   brand?: boolean | Prisma.BrandDefaultArgs<ExtArgs>
@@ -2429,6 +2482,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     description: string
     shortSpecification: string | null
     specifications: runtime.JsonValue | null
+    pricingMode: string | null
     costPrice: runtime.Decimal
     publicMarginType: $Enums.MarginType
     publicMarginValue: runtime.Decimal
@@ -2833,6 +2887,7 @@ export interface ProductFieldRefs {
   readonly description: Prisma.FieldRef<"Product", 'String'>
   readonly shortSpecification: Prisma.FieldRef<"Product", 'String'>
   readonly specifications: Prisma.FieldRef<"Product", 'Json'>
+  readonly pricingMode: Prisma.FieldRef<"Product", 'String'>
   readonly costPrice: Prisma.FieldRef<"Product", 'Decimal'>
   readonly publicMarginType: Prisma.FieldRef<"Product", 'MarginType'>
   readonly publicMarginValue: Prisma.FieldRef<"Product", 'Decimal'>

@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 
 import { hashPassword, verifyPassword } from "@better-auth/utils/password";
+import { logAdminActivity } from "@/lib/activity-log";
+import { requireSuperAdminSession, toUserRole } from "@/lib/admin-auth";
 import { getDb } from "@/lib/db";
-import { requireSuperAdminSession } from "@/lib/admin-auth";
 
 export type AdminUserActionResult = {
   success: boolean;
@@ -12,20 +13,41 @@ export type AdminUserActionResult = {
   error?: string;
 };
 
+async function verifyCurrentAdminPassword(
+  db: ReturnType<typeof getDb>,
+  adminUserId: string,
+  currentPassword: string,
+) {
+  if (!currentPassword) return false;
+
+  const adminAccount = await db.account.findFirst({
+    where: { userId: adminUserId, providerId: "credential" },
+    select: { password: true },
+  });
+
+  if (!adminAccount?.password) return false;
+  return verifyPassword(adminAccount.password, currentPassword);
+}
+
 export async function changeUserRole(_prevState: AdminUserActionResult, formData: FormData): Promise<AdminUserActionResult> {
   const session = await requireSuperAdminSession();
   const db = getDb();
 
   const userId = formData.get("userId") as string;
   const newRole = formData.get("role") as string;
+  const currentPassword = String(formData.get("currentPassword") ?? "");
 
   if (!userId || !newRole) return { success: false, message: "", error: "Data tidak lengkap" };
+  if (!currentPassword) return { success: false, message: "", error: "Password saat ini wajib diisi" };
   if (newRole !== "USER" && newRole !== "ADMIN" && newRole !== "SUPER_ADMIN") {
     return { success: false, message: "", error: "Role tidak valid" };
   }
   if (userId === session.user.id && newRole !== "SUPER_ADMIN") {
     return { success: false, message: "", error: "Tidak dapat menurunkan role sendiri" };
   }
+
+  const passwordValid = await verifyCurrentAdminPassword(db, session.user.id, currentPassword);
+  if (!passwordValid) return { success: false, message: "", error: "Password saat ini salah" };
 
   const targetUser = await db.user.findUnique({ where: { id: userId }, select: { role: true } });
   if (!targetUser) return { success: false, message: "", error: "User tidak ditemukan" };
@@ -36,6 +58,17 @@ export async function changeUserRole(_prevState: AdminUserActionResult, formData
   }
 
   await db.user.update({ where: { id: userId }, data: { role: newRole } });
+
+  await logAdminActivity({
+    actorId: session.user.id,
+    actorRole: toUserRole(session.user.role),
+    action: "User role changed",
+    targetType: "User",
+    targetId: userId,
+    risk: "HIGH",
+    metadata: { from: targetUser.role, to: newRole },
+  });
+
   revalidatePath("/super-admin/admin-users");
 
   return { success: true, message: "Role berhasil diubah" };
@@ -70,6 +103,15 @@ export async function resetUserPassword(_prevState: AdminUserActionResult, formD
   });
   await db.session.deleteMany({ where: { userId } });
 
+  await logAdminActivity({
+    actorId: session.user.id,
+    actorRole: toUserRole(session.user.role),
+    action: "User password reset",
+    targetType: "User",
+    targetId: userId,
+    risk: "HIGH",
+  });
+
   return { success: true, message: "Password berhasil direset" };
 }
 
@@ -78,8 +120,13 @@ export async function deleteUser(_prevState: AdminUserActionResult, formData: Fo
   const db = getDb();
 
   const userId = formData.get("userId") as string;
+  const currentPassword = String(formData.get("currentPassword") ?? "");
   if (!userId) return { success: false, message: "", error: "Data tidak lengkap" };
+  if (!currentPassword) return { success: false, message: "", error: "Password saat ini wajib diisi" };
   if (userId === session.user.id) return { success: false, message: "", error: "Tidak dapat menghapus akun sendiri" };
+
+  const passwordValid = await verifyCurrentAdminPassword(db, session.user.id, currentPassword);
+  if (!passwordValid) return { success: false, message: "", error: "Password saat ini salah" };
 
   const targetUser = await db.user.findUnique({ where: { id: userId }, select: { role: true } });
   if (!targetUser) return { success: false, message: "", error: "User tidak ditemukan" };
@@ -90,6 +137,17 @@ export async function deleteUser(_prevState: AdminUserActionResult, formData: Fo
   }
 
   await db.user.delete({ where: { id: userId } });
+
+  await logAdminActivity({
+    actorId: session.user.id,
+    actorRole: toUserRole(session.user.role),
+    action: "User deleted",
+    targetType: "User",
+    targetId: userId,
+    risk: "HIGH",
+    metadata: { role: targetUser.role },
+  });
+
   revalidatePath("/super-admin/admin-users");
 
   return { success: true, message: "User berhasil dihapus" };

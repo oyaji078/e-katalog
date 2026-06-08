@@ -2,7 +2,6 @@
 
 import { ImagePlus, Star, Trash2, Upload } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { startTransition, useActionState, useCallback, useEffect, useRef, useState } from "react";
 
 import { formatIndonesianNumber, parseIndonesianNumber } from "@/lib/currency";
@@ -15,10 +14,12 @@ type ProductImageRecord = {
   sortOrder?: number;
 };
 
+type BrandOption = { id: string; name: string; isActive: boolean; logoUrl?: string | null };
+
 type ProductFormClientProps = {
   mode: "create" | "edit";
   categories: { id: string; name: string }[];
-  brands: { id: string; name: string }[];
+  brands: BrandOption[];
   product?: {
     id: string;
     name: string;
@@ -26,6 +27,7 @@ type ProductFormClientProps = {
     description: string;
     warrantyInfo: string | null;
     primaryImageUrl: string | null;
+    pricingMode: string | null;
     costPrice: string;
     publicMarginValue: string;
     retailMarginValue: string;
@@ -109,7 +111,6 @@ function formatSpecifications(value: unknown) {
 }
 
 export default function ProductFormClient({ mode, categories, brands, product }: ProductFormClientProps) {
-  const router = useRouter();
   const action = mode === "create" ? createProductAction : updateProductAction;
   const [state, formAction, isPending] = useActionState(action, initialState);
 
@@ -122,15 +123,46 @@ export default function ProductFormClient({ mode, categories, brands, product }:
 
   const [validationError, setValidationError] = useState("");
 
+  const inferPricingMode = () => {
+    if (!product) return "ONE_PRICE";
+    if (
+      product.pricingMode === "ONE_PRICE" ||
+      product.pricingMode === "MARGIN_BASED" ||
+      product.pricingMode === "MANUAL_DUAL_PRICE"
+    ) {
+      return product.pricingMode;
+    }
+    const cp = Number(product.costPrice);
+    const pp = Number(product.publicPrice);
+    const rp = product.retailPrice ? Number(product.retailPrice) : pp;
+    if (cp > 0) return "MARGIN_BASED";
+    if (pp === rp) return "ONE_PRICE";
+    return "MANUAL_DUAL_PRICE";
+  };
+
+  const initialMode = inferPricingMode();
+  const [pricingMode, setPricingMode] = useState(initialMode);
+  const [hargaJual, setHargaJual] = useState(
+    product && initialMode === "ONE_PRICE" ? product.publicPrice : "",
+  );
+  const [hargaPublik, setHargaPublik] = useState(
+    product && initialMode === "MANUAL_DUAL_PRICE" ? product.publicPrice : "",
+  );
+  const [hargaRitel, setHargaRitel] = useState(
+    product && initialMode === "MANUAL_DUAL_PRICE" && product.retailPrice ? product.retailPrice : "",
+  );
   const [hargaBarang, setHargaBarang] = useState(product?.costPrice ?? "");
   const [marginPublic, setMarginPublic] = useState(product?.publicMarginValue ?? "");
   const [marginRitel, setMarginRitel] = useState(product?.retailMarginValue ?? "");
 
+  const hj = parseIndonesianNumber(String(hargaJual));
+  const hp = parseIndonesianNumber(String(hargaPublik));
+  const hr = parseIndonesianNumber(String(hargaRitel));
   const hb = parseIndonesianNumber(String(hargaBarang));
   const mp = parseIndonesianNumber(String(marginPublic));
   const mr = parseIndonesianNumber(String(marginRitel));
-  const previewPublic = hb + mp;
-  const previewRitel = hb + mr;
+  const previewPublic = pricingMode === "ONE_PRICE" ? hj : pricingMode === "MANUAL_DUAL_PRICE" ? hp : hb + mp;
+  const previewRitel = pricingMode === "ONE_PRICE" ? hj : pricingMode === "MANUAL_DUAL_PRICE" ? hr : hb + mr;
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -143,18 +175,11 @@ export default function ProductFormClient({ mode, categories, brands, product }:
   useEffect(() => {
     if (state.success && state.message) {
       const timer = setTimeout(() => {
-        router.push("/admin/products");
+        window.location.href = "/admin/products";
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [state.success, state.message, router]);
-
-  const handlePriceInput = useCallback((setter: (v: string) => void) => {
-    return (e: React.ChangeEvent<HTMLInputElement>) => {
-      const raw = e.target.value.replace(/[^0-9]/g, "");
-      setter(raw);
-    };
-  }, []);
+  }, [state.success, state.message]);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setValidationError("");
@@ -277,9 +302,17 @@ export default function ProductFormClient({ mode, categories, brands, product }:
     }
 
     formData.set("primaryImageRef", primaryImageRef);
-    formData.set("hargaBarang", String(hb));
-    formData.set("marginPublic", String(mp));
-    formData.set("marginRitel", String(mr));
+    formData.set("pricingMode", pricingMode);
+    if (pricingMode === "ONE_PRICE") {
+      formData.set("hargaJual", String(hj));
+    } else if (pricingMode === "MANUAL_DUAL_PRICE") {
+      formData.set("hargaPublik", String(hp));
+      formData.set("hargaRitel", String(hr));
+    } else {
+      formData.set("hargaBarang", String(hb));
+      formData.set("marginPublic", String(mp));
+      formData.set("marginRitel", String(mr));
+    }
 
     startTransition(() => {
       formAction(formData);
@@ -352,18 +385,34 @@ export default function ProductFormClient({ mode, categories, brands, product }:
                     className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
                   >
                     <option value="">Pilih Merek</option>
-                    {brands.map((brd) => (
-                      <option key={brd.id} value={brd.id}>{brd.name}</option>
-                    ))}
+                    {brands
+                      .slice()
+                      .sort((a, b) => {
+                        if (a.isActive && !b.isActive) return -1;
+                        if (!a.isActive && b.isActive) return 1;
+                        return a.name.localeCompare(b.name);
+                      })
+                      .map((brd) => (
+                        <option key={brd.id} value={brd.id}>
+                          {brd.name}{!brd.isActive ? " (nonaktif)" : ""}
+                        </option>
+                      ))}
                   </select>
                 </div>
               </div>
               {product ? (
                 <div>
-                  <label className="block text-sm font-semibold text-brand-text">SKU</label>
+                  <label className="block text-sm font-semibold text-brand-text">Kode Produk</label>
                   <p className="mt-1 font-mono text-sm text-brand-muted">{product.sku}</p>
                 </div>
-              ) : null}
+              ) : (
+                <div>
+                  <label className="block text-sm font-semibold text-brand-text">Kode Produk</label>
+                  <p className="mt-1 text-xs text-brand-muted">
+                    Kode produk dibuat otomatis setelah produk disimpan.
+                  </p>
+                </div>
+              )}
             </div>
           </section>
 
@@ -488,50 +537,120 @@ export default function ProductFormClient({ mode, categories, brands, product }:
 
         <div className="space-y-5">
           <section className="rounded-2xl border border-brand-border bg-white p-5">
-            <h2 className="mb-4 text-base font-bold text-brand-text">Harga &amp; Margin</h2>
+            <h2 className="mb-4 text-base font-bold text-brand-text">Pengaturan Harga</h2>
+            <div className="mb-4 grid grid-cols-3 gap-2">
+              {(["ONE_PRICE", "MANUAL_DUAL_PRICE", "MARGIN_BASED"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setPricingMode(mode)}
+                  className={`rounded-xl border px-3 py-2.5 text-xs font-bold text-center transition ${
+                    pricingMode === mode
+                      ? "border-brand-primary bg-brand-primary/10 text-brand-primary"
+                      : "border-brand-border bg-white text-brand-muted hover:border-brand-primary"
+                  }`}
+                >
+                  {mode === "ONE_PRICE" ? "Satu Harga" : mode === "MANUAL_DUAL_PRICE" ? "Beda Harga" : "Gunakan Margin"}
+                </button>
+              ))}
+            </div>
+            <p className="mb-3 text-xs text-brand-muted">
+              {pricingMode === "ONE_PRICE"
+                ? "Gunakan harga yang sama untuk pelanggan umum dan ritel."
+                : pricingMode === "MANUAL_DUAL_PRICE"
+                  ? "Masukkan harga publik dan harga ritel secara manual."
+                  : "Hitung harga jual berdasarkan harga modal dan margin."}
+            </p>
             <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-brand-text">Harga Barang *</label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={formatPrice(String(hargaBarang))}
-                  onChange={handlePriceInput(setHargaBarang)}
-                  onFocus={(e) => { const raw = e.target.value.replace(/\./g, ""); setHargaBarang(raw); }}
-                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-brand-text">Margin Publik *</label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={formatPrice(String(marginPublic))}
-                  onChange={handlePriceInput(setMarginPublic)}
-                  onFocus={(e) => { const raw = e.target.value.replace(/\./g, ""); setMarginPublic(raw); }}
-                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
-                  placeholder="0"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-brand-text">Margin Ritel *</label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={formatPrice(String(marginRitel))}
-                  onChange={handlePriceInput(setMarginRitel)}
-                  onFocus={(e) => { const raw = e.target.value.replace(/\./g, ""); setMarginRitel(raw); }}
-                  className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
-                  placeholder="0"
-                />
-              </div>
+              {pricingMode === "ONE_PRICE" ? (
+                <div>
+                  <label className="block text-xs font-semibold text-brand-text">Harga Jual *</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={formatPrice(String(hargaJual))}
+                    onChange={(e) => { const raw = e.target.value.replace(/[^0-9]/g, ""); setHargaJual(raw); }}
+                    className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
+                    placeholder="0"
+                  />
+                </div>
+              ) : null}
+              {pricingMode === "MANUAL_DUAL_PRICE" ? (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-brand-text">Harga Publik *</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formatPrice(String(hargaPublik))}
+                      onChange={(e) => { const raw = e.target.value.replace(/[^0-9]/g, ""); setHargaPublik(raw); }}
+                      className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-brand-text">Harga Ritel *</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formatPrice(String(hargaRitel))}
+                      onChange={(e) => { const raw = e.target.value.replace(/[^0-9]/g, ""); setHargaRitel(raw); }}
+                      className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
+                      placeholder="0"
+                    />
+                    {hr > 0 && hr > hp ? (
+                      <p className="mt-1 text-xs text-warning">Harga ritel lebih tinggi dari harga publik.</p>
+                    ) : null}
+                  </div>
+                </>
+              ) : null}
+              {pricingMode === "MARGIN_BASED" ? (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-brand-text">Harga Modal *</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formatPrice(String(hargaBarang))}
+                      onChange={(e) => { const raw = e.target.value.replace(/[^0-9]/g, ""); setHargaBarang(raw); }}
+                      className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-brand-text">Margin Publik *</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formatPrice(String(marginPublic))}
+                      onChange={(e) => { const raw = e.target.value.replace(/[^0-9]/g, ""); setMarginPublic(raw); }}
+                      className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-brand-text">Margin Ritel *</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formatPrice(String(marginRitel))}
+                      onChange={(e) => { const raw = e.target.value.replace(/[^0-9]/g, ""); setMarginRitel(raw); }}
+                      className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm outline-none focus:border-brand-primary"
+                      placeholder="0"
+                    />
+                  </div>
+                </>
+              ) : null}
               <div className="rounded-xl border border-brand-accent/20 bg-brand-accent/5 p-3">
-                <p className="text-[10px] font-semibold text-brand-muted">Estimasi Harga Jual Publik</p>
+                <p className="text-[10px] font-semibold text-brand-muted">
+                  {pricingMode === "ONE_PRICE" ? "Harga Jual" : "Harga Publik"}
+                </p>
                 <p className="text-lg font-black text-brand-accent">Rp {formatIndonesianNumber(previewPublic)}</p>
               </div>
               <div className="rounded-xl border border-brand-secondary/20 bg-brand-secondary/5 p-3">
-                <p className="text-[10px] font-semibold text-brand-muted">Estimasi Harga Jual Ritel</p>
+                <p className="text-[10px] font-semibold text-brand-muted">
+                  {pricingMode === "ONE_PRICE" ? "Harga Jual" : "Harga Ritel"}
+                </p>
                 <p className="text-lg font-black text-brand-secondary">Rp {formatIndonesianNumber(previewRitel)}</p>
               </div>
             </div>

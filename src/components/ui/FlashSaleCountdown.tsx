@@ -37,10 +37,10 @@ export default function FlashSaleCountdown({
     <div className="flex items-center gap-1">
       {[t.h, t.m, t.s].map((v, i) => (
         <span key={i} className="contents">
-          <span className="rounded bg-brand-primary px-1.5 py-0.5 font-mono text-xs font-black text-white shadow-sm">
+          <span className="border border-brand-border bg-brand-soft-white px-1.5 py-0.5 font-mono text-xs font-black text-brand-text shadow-sm">
             {pad(v)}
           </span>
-          {i < 2 ? <span className="text-xs font-bold text-gray-400">:</span> : null}
+          {i < 2 ? <span className="text-xs font-bold text-brand-accent">:</span> : null}
         </span>
       ))}
     </div>

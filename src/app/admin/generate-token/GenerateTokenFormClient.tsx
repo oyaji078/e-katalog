@@ -26,6 +26,7 @@ export default function GenerateTokenFormClient({
   eligibleUsers: EligibleUser[];
 }) {
   const [selectedUserId, setSelectedUserId] = useState('');
+  const [copied, setCopied] = useState(false);
 
   const [state, formAction, isPending] = useActionState(
     generateTokenAction,
@@ -100,16 +101,27 @@ export default function GenerateTokenFormClient({
         {state.success && state.token ? (
           <div className="rounded-xl border border-success/20 bg-success/5 p-4">
             <h3 className="font-semibold text-success">
-              Token Berhasil Dibuat
+              OTP Berhasil Dibuat
             </h3>
 
-            <p className="mt-2 rounded-lg bg-white p-3 font-mono text-sm text-success">
-              {state.token}
-            </p>
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+              <p className="rounded-lg bg-white p-3 font-mono text-lg font-black tracking-[0.35em] text-success">
+                {state.token}
+              </p>
+              <button
+                type="button"
+                onClick={async () => {
+                  await navigator.clipboard.writeText(state.token);
+                  setCopied(true);
+                }}
+                className="rounded-lg border border-success/30 px-4 py-2 text-sm font-bold text-success"
+              >
+                {copied ? "Tersalin" : "Salin"}
+              </button>
+            </div>
 
             <p className="mt-2 text-sm text-brand-muted">
-              Token ini hanya ditampilkan sekali. Salin dan kirimkan ke user
-              melalui WhatsApp.
+              OTP ini hanya ditampilkan sekali dan berlaku 24 jam. Salin lalu kirimkan ke user melalui WhatsApp.
             </p>
           </div>
         ) : null}
@@ -123,7 +135,7 @@ export default function GenerateTokenFormClient({
           disabled={isPending || !selectedUserId}
           className="w-full rounded-xl bg-brand-primary px-4 py-3 text-sm font-bold text-white disabled:opacity-60"
         >
-          {isPending ? "Memproses..." : "Buat Token Aktivasi"}
+          {isPending ? "Memproses..." : "Buat OTP Aktivasi"}
         </button>
       </form>
     </section>

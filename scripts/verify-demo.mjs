@@ -35,7 +35,7 @@ console.log("=== Route Guard Tests ===\n");
 {
   const page = await browser.newPage();
   await page.setViewport({ width: 1366, height: 768 });
-  const resp = await page.goto(`${BASE}/admin/products`, { waitUntil: "load", timeout: 15000 });
+  await page.goto(`${BASE}/admin/products`, { waitUntil: "load", timeout: 15000 });
   await sleep(1000);
   const currentUrl = page.url();
   const onLoginPage = currentUrl.includes("/login");
@@ -48,7 +48,7 @@ console.log("=== Route Guard Tests ===\n");
 {
   const page = await browser.newPage();
   await page.setViewport({ width: 1366, height: 768 });
-  const resp = await page.goto(`${BASE}/super-admin`, { waitUntil: "load", timeout: 15000 });
+  await page.goto(`${BASE}/super-admin`, { waitUntil: "load", timeout: 15000 });
   await sleep(1000);
   const currentUrl = page.url();
   const onLoginPage = currentUrl.includes("/login");
@@ -116,7 +116,7 @@ console.log("=== Route Guard Tests ===\n");
   await page.evaluate(() => document.querySelector('button[type="submit"]')?.click());
   await sleep(3000);
 
-  const resp = await page.goto(`${BASE}/admin/products`, { waitUntil: "load", timeout: 15000 });
+  await page.goto(`${BASE}/admin/products`, { waitUntil: "load", timeout: 15000 });
   await sleep(1000);
   const currentUrl = page.url();
   const notOnAdmin = !currentUrl.includes("/admin");
@@ -142,7 +142,6 @@ console.log("=== Route Guard Tests ===\n");
   const body = await page.evaluate(() => document.body?.innerText ?? "");
   const hasLoginLink = body.includes("Masuk") && !body.includes("Logout");
   // Logged-in retail user should NOT see "Masuk" link (they should see logout)
-  const hasLogoutButton = body.includes("Logout") || body.includes("Keluar");
   report("route-guard", "Logged-in user header does not show Login", !hasLoginLink,
     hasLoginLink ? "Login link found in header" : "No login link (correct)");
   await page.close();

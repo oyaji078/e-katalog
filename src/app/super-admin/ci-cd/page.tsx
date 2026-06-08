@@ -15,8 +15,8 @@ export default async function CiCdPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-brand-text">CI/CD Configuration</h2>
+        <div className="rounded-lg border border-[#D7DEE8] bg-white p-5 text-[#111827] shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-[#111827]">CI/CD Configuration</h2>
           <dl className="grid gap-3 text-sm">
             <DeploymentField label="CI Provider" value="GitHub Actions" />
             <DeploymentField label="Deployment Target" value="Hostinger Managed Node.js" />
@@ -25,8 +25,8 @@ export default async function CiCdPage() {
           </dl>
         </div>
 
-        <div className="rounded-lg border border-brand-border bg-white p-5 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold text-brand-text">Branch Strategy</h2>
+        <div className="rounded-lg border border-[#D7DEE8] bg-white p-5 text-[#111827] shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-[#111827]">Branch Strategy</h2>
           <ul className="grid gap-3 text-sm">
             <li className="flex items-center gap-3">
               <span className="rounded-full bg-success/20 px-2 py-0.5 text-xs font-bold text-success">main</span>
@@ -52,8 +52,8 @@ export default async function CiCdPage() {
         </div>
       </div>
 
-      <div className="mt-6 rounded-lg border border-brand-border bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-lg font-bold text-brand-text">Continuous Integration (CI)</h2>
+      <div className="mt-6 rounded-lg border border-[#D7DEE8] bg-white p-5 text-[#111827] shadow-sm">
+        <h2 className="mb-3 text-lg font-bold text-[#111827]">Continuous Integration (CI)</h2>
         <p className="mb-3 text-sm text-brand-muted">
           A GitHub Actions workflow (<code className="rounded bg-bg-gray px-1.5 py-0.5 text-xs">.github/workflows/ci.yml</code>) runs on
           every push and pull request to <strong>main</strong> and <strong>develop</strong>. It validates:
@@ -77,8 +77,8 @@ export default async function CiCdPage() {
         </p>
       </div>
 
-      <div className="mt-6 rounded-lg border border-brand-border bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-lg font-bold text-brand-text">Continuous Deployment (CD) — Not Configured</h2>
+      <div className="mt-6 rounded-lg border border-[#D7DEE8] bg-white p-5 text-[#111827] shadow-sm">
+        <h2 className="mb-3 text-lg font-bold text-[#111827]">Continuous Deployment (CD) — Not Configured</h2>
         <p className="mb-3 text-sm text-brand-muted">
           Automated deployment to Hostinger is <strong>not yet implemented</strong>. Deployment is currently a manual process:
         </p>
@@ -100,8 +100,8 @@ export default async function CiCdPage() {
 function DeploymentField({ label, value }: { label: string; value: string }) {
   return (
     <div className="grid grid-cols-[160px_1fr] gap-3">
-      <dt className="font-semibold text-brand-text">{label}</dt>
-      <dd className="text-brand-muted">{value}</dd>
+      <dt className="font-semibold text-[#111827]">{label}</dt>
+      <dd className="text-[#5B6472]">{value}</dd>
     </div>
   );
 }

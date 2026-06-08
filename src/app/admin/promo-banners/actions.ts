@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { getAdminSession } from "@/lib/admin-auth";
+import { logAdminActivity } from "@/lib/activity-log";
+import { getAdminSession, toUserRole } from "@/lib/admin-auth";
 import { getDb } from "@/lib/db";
 import {
   deletePromoBannerImage,
@@ -247,6 +248,8 @@ export async function createPromoBannerAction(formData: FormData): Promise<Banne
     return buildErrorState(fields, fieldErrors);
   }
 
+  const session = await getAdminSession();
+
   try {
     const imageUrl = await resolveImageUrl(formData, fields);
     const db = getDb();
@@ -260,7 +263,7 @@ export async function createPromoBannerAction(formData: FormData): Promise<Banne
 
     const isLinkedToVoucher = Boolean(linkedVoucher);
 
-    await db.promoBanner.create({
+    const created = await db.promoBanner.create({
       data: {
         title: isLinkedToVoucher ? fields.title || linkedVoucher!.title : fields.title,
         subtitle: nullableText(fields.subtitle),
@@ -276,6 +279,16 @@ export async function createPromoBannerAction(formData: FormData): Promise<Banne
         linkType: isLinkedToVoucher ? "VOUCHER" : "STANDALONE",
         voucherId: isLinkedToVoucher ? fields.voucherId : null,
       },
+    });
+
+    await logAdminActivity({
+      actorId: session?.user.id ?? null,
+      actorRole: toUserRole(session?.user.role ?? null),
+      action: "Promo banner created",
+      targetType: "PromoBanner",
+      targetId: created.id,
+      risk: "MEDIUM",
+      metadata: { title: created.title, linkType: isLinkedToVoucher ? "VOUCHER" : "STANDALONE" },
     });
   } catch (error) {
     if (error instanceof BannerValidationError) {
@@ -314,6 +327,8 @@ export async function updatePromoBannerAction(id: string, formData: FormData): P
   if (Object.keys(fieldErrors).length > 0 || sortOrder === null) {
     return buildErrorState(fields, fieldErrors);
   }
+
+  const session = await getAdminSession();
 
   try {
     const db = getDb();
@@ -368,6 +383,16 @@ export async function updatePromoBannerAction(id: string, formData: FormData): P
     ) {
       deletePromoBannerImage(existing.imageUrl);
     }
+
+    await logAdminActivity({
+      actorId: session?.user.id ?? null,
+      actorRole: toUserRole(session?.user.role ?? null),
+      action: "Promo banner updated",
+      targetType: "PromoBanner",
+      targetId: id,
+      risk: "MEDIUM",
+      metadata: { title: fields.title, linkType: isLinkedToVoucher ? "VOUCHER" : "STANDALONE" },
+    });
   } catch (error) {
     if (error instanceof BannerValidationError) {
       return buildErrorState(fields, { imageUrl: error.message });
@@ -409,6 +434,16 @@ export async function toggleBannerAction(
     const db = getDb();
     isActive = actionValue === "activate";
     await db.promoBanner.update({ where: { id }, data: { isActive } });
+
+    await logAdminActivity({
+      actorId: session.user.id,
+      actorRole: toUserRole(session.user.role),
+      action: isActive ? "Promo banner activated" : "Promo banner deactivated",
+      targetType: "PromoBanner",
+      targetId: id,
+      risk: "MEDIUM",
+      metadata: { isActive },
+    });
   } catch {
     return { ...initialBannerFormState, error: "Gagal memperbarui status banner." };
   }
@@ -445,6 +480,15 @@ export async function deletePromoBannerAction(id: string): Promise<DeleteResult>
     if (existing.imageUrl && isLocalPromoBannerUploadPath(existing.imageUrl)) {
       deletePromoBannerImage(existing.imageUrl);
     }
+
+    await logAdminActivity({
+      actorId: session.user.id,
+      actorRole: toUserRole(session.user.role),
+      action: "Promo banner deleted",
+      targetType: "PromoBanner",
+      targetId: id,
+      risk: "HIGH",
+    });
   } catch {
     return { success: false, error: "Banner promo gagal dihapus. Silakan coba lagi." };
   }

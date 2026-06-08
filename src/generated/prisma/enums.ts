@@ -154,3 +154,18 @@ export const PromoBannerAudience = {
 } as const
 
 export type PromoBannerAudience = (typeof PromoBannerAudience)[keyof typeof PromoBannerAudience]
+
+
+export const AnalyticsEventType = {
+  PAGE_VIEW: 'PAGE_VIEW',
+  PRODUCT_VIEW: 'PRODUCT_VIEW',
+  WHATSAPP_CLICK: 'WHATSAPP_CLICK',
+  RETAIL_REGISTER: 'RETAIL_REGISTER',
+  RETAIL_APPROVED: 'RETAIL_APPROVED',
+  LOGIN: 'LOGIN',
+  LOGOUT: 'LOGOUT',
+  SAVED_PRODUCT: 'SAVED_PRODUCT',
+  UNSAVED_PRODUCT: 'UNSAVED_PRODUCT'
+} as const
+
+export type AnalyticsEventType = (typeof AnalyticsEventType)[keyof typeof AnalyticsEventType]

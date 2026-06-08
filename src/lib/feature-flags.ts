@@ -1,5 +1,27 @@
+import { cache } from "react";
+
 import type { AdminActionRisk, Prisma, UserRole } from "@/generated/prisma/client";
 import { getDb } from "@/lib/db";
+
+/**
+ * Load all feature flags once per request and memoize via React cache().
+ * Every isFeatureEnabled / getFeatureFlags call in the same request then shares
+ * a single `findMany` instead of issuing one query per flag (pages check 4-5).
+ * Fails closed: any DB error yields an empty map (all flags treated disabled).
+ */
+export const getAllFeatureFlags = cache(async (): Promise<Record<string, boolean>> => {
+  try {
+    const db = getDb();
+    const flags = await db.featureFlag.findMany({ select: { key: true, enabled: true } });
+    const result: Record<string, boolean> = {};
+    for (const flag of flags) {
+      result[flag.key] = flag.enabled;
+    }
+    return result;
+  } catch {
+    return {};
+  }
+});
 
 /**
  * Check if a feature flag is enabled.
@@ -7,15 +29,22 @@ import { getDb } from "@/lib/db";
  * Database errors fail closed (treated as disabled).
  */
 export async function isFeatureEnabled(key: string): Promise<boolean> {
-  try {
-    const db = getDb();
-    const flag = await db.featureFlag.findUnique({
-      where: { key },
-    });
-    return flag?.enabled ?? false;
-  } catch {
-    return false;
+  const flags = await getAllFeatureFlags();
+  return flags[key] ?? false;
+}
+
+/**
+ * Get multiple feature flags. Backed by the per-request cached map above, so
+ * this no longer issues its own query.
+ * Missing flags default to false. Database errors default all to false.
+ */
+export async function getFeatureFlags(keys: string[]): Promise<Record<string, boolean>> {
+  const all = await getAllFeatureFlags();
+  const result: Record<string, boolean> = {};
+  for (const key of keys) {
+    result[key] = all[key] ?? false;
   }
+  return result;
 }
 
 /**

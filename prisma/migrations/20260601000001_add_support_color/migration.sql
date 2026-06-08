@@ -1,0 +1,2 @@
+﻿-- AlterTable
+ALTER TABLE SiteSetting ADD COLUMN supportColor VARCHAR(7) NULL DEFAULT '#478B8D';

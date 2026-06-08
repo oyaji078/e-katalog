@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getAdminSession } from "@/lib/admin-auth";
+import { logAdminActivity } from "@/lib/activity-log";
+import { getAdminSession, toUserRole } from "@/lib/admin-auth";
 import { getDb } from "@/lib/db";
 
 export type FlashSaleFormState = {
@@ -233,6 +234,16 @@ export async function createFlashSaleAction(
     })),
   });
 
+  await logAdminActivity({
+    actorId: session.user.id,
+    actorRole: toUserRole(session.user.role),
+    action: "Flash sale created",
+    targetType: "FlashSale",
+    targetId: flashSale.id,
+    risk: "MEDIUM",
+    metadata: { name: validation.data.name, productCount: validation.data.products.length },
+  });
+
   revalidateFlashSalePaths();
   return { success: true, message: "Flash sale berhasil dibuat." };
 }
@@ -270,6 +281,16 @@ export async function updateFlashSaleAction(
     })),
   });
 
+  await logAdminActivity({
+    actorId: session.user.id,
+    actorRole: toUserRole(session.user.role),
+    action: "Flash sale updated",
+    targetType: "FlashSale",
+    targetId: id,
+    risk: "MEDIUM",
+    metadata: { name: validation.data.name, productCount: validation.data.products.length },
+  });
+
   revalidateFlashSalePaths();
   return { success: true, message: "Flash sale berhasil diperbarui." };
 }
@@ -293,6 +314,16 @@ export async function toggleFlashSaleAction(
     data: { isActive: action === "activate" },
   });
 
+  await logAdminActivity({
+    actorId: session.user.id,
+    actorRole: toUserRole(session.user.role),
+    action: action === "activate" ? "Flash sale activated" : "Flash sale deactivated",
+    targetType: "FlashSale",
+    targetId: id,
+    risk: "MEDIUM",
+    metadata: { isActive: action === "activate" },
+  });
+
   revalidateFlashSalePaths();
   return {
     success: true,
@@ -312,6 +343,15 @@ export async function deleteFlashSaleAction(
   if (!id) return failure("ID flash sale diperlukan.");
 
   await db.flashSale.delete({ where: { id } });
+
+  await logAdminActivity({
+    actorId: session.user.id,
+    actorRole: toUserRole(session.user.role),
+    action: "Flash sale deleted",
+    targetType: "FlashSale",
+    targetId: id,
+    risk: "HIGH",
+  });
 
   revalidateFlashSalePaths();
   return { success: true, message: "Flash sale berhasil dihapus." };

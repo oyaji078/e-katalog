@@ -1,25 +1,46 @@
 import { BadgePercent, CheckCircle, Clock, TicketPercent } from "lucide-react";
+import { redirect } from "next/navigation";
 
-import FigmaFooter from "@/components/layout/FigmaFooter";
-import FigmaSiteHeader from "@/components/layout/FigmaSiteHeader";
+import PublicNavbar from "@/components/layout/PublicNavbar";
+import PublicFooter from "@/components/ui/PublicFooter";
 import VoucherBanner from "@/components/ui/VoucherBanner";
 import VoucherCard from "@/components/ui/VoucherCard";
 import { canUseRetailVoucher, formatRupiah, voucherLabel } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { getCurrentUser } from "@/lib/session";
+import { getPublicSiteSettings } from "@/lib/site-settings";
+import { getStoreWhatsappNumberFromDB } from "@/lib/store-settings";
+import { buildWhatsappUrl } from "@/lib/whatsapp";
 
 export const dynamic = "force-dynamic";
 
 export default async function VouchersPage() {
   const db = getDb();
-  const [user, publicVoucherEnabled, retailVoucherEnabled] = await Promise.all([
-    getCurrentUser().catch(() => null),
-    isFeatureEnabled("enable_public_voucher"),
-    isFeatureEnabled("enable_retail_voucher"),
-  ]);
+  const [user, publicVoucherEnabled, retailVoucherEnabled, settings, waNumber, topCategories] =
+    await Promise.all([
+      getCurrentUser().catch(() => null),
+      isFeatureEnabled("enable_public_voucher"),
+      isFeatureEnabled("enable_retail_voucher"),
+      getPublicSiteSettings(),
+      getStoreWhatsappNumberFromDB(),
+      db.category.findMany({
+        where: { isActive: true },
+        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+        select: { id: true, name: true, slug: true, logoUrl: true },
+        take: 8,
+      }),
+    ]);
+
+  if (user?.role === "ADMIN") redirect("/admin");
+  if (user?.role === "SUPER_ADMIN") redirect("/super-admin");
+
   const canSeeRetailVouchers = canUseRetailVoucher(user);
   const now = new Date();
+  const generalWaUrl = buildWhatsappUrl({
+    message: "Halo Admin, saya ingin bertanya tentang voucher yang tersedia di katalog.",
+    whatsappNumber: waNumber,
+  });
 
   const vouchers = await db.voucher.findMany({
     where: {
@@ -58,19 +79,23 @@ export default async function VouchersPage() {
   const expiredCount = displayVouchers.filter((voucher) => voucher.endsAt < now).length;
 
   return (
-    <main className="min-h-screen bg-brand-bg pb-8 text-brand-text">
-      <FigmaSiteHeader />
+    <main className="min-h-screen bg-[var(--color-page)] text-[var(--color-text)]">
+      <PublicNavbar
+        whatsappUrl={generalWaUrl}
+        session={user}
+        announcementText={settings.announcementEnabled ? settings.announcementText : ""}
+      />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-        <section className="rounded-3xl bg-gradient-to-br from-brand-primary to-brand-accent p-5 text-white shadow-sm sm:p-6">
+        <section className="rounded-2xl bg-[var(--color-brand)] p-5 text-white shadow-sm sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wide text-brand-secondary">
+              <p className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/60">
                 <TicketPercent className="size-4" />
                 Voucher katalog
               </p>
-              <h1 className="mt-2 text-3xl font-black leading-tight">Voucher Promo WhatsApp</h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/80">
+              <h1 className="mt-2 text-3xl font-bold leading-tight">Voucher Promo WhatsApp</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/75">
                 Klaim voucher yang tersedia, lalu voucher akan ikut masuk ke inquiry WhatsApp untuk
                 diverifikasi admin.
               </p>
@@ -100,7 +125,7 @@ export default async function VouchersPage() {
               }
               isAuthenticated={!!user}
               isClaimed={claimedIds.has(highlightedVoucher.id)}
-              canClaim={true}
+              canClaim
               ctaLabel="Klaim Sekarang"
             />
           </div>
@@ -109,13 +134,13 @@ export default async function VouchersPage() {
         <section id="voucher-list" className="mt-6">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-wide text-brand-accent">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-accent)]">
                 Daftar voucher
               </p>
-              <h2 className="mt-1 text-2xl font-black text-brand-text">Pilih Promo Katalog</h2>
+              <h2 className="mt-1 text-2xl font-bold text-[var(--color-text)]">Pilih Promo Katalog</h2>
             </div>
             {!canSeeRetailVouchers && retailVoucherEnabled ? (
-              <div className="rounded-2xl border border-brand-secondary/30 bg-white px-4 py-3 text-xs font-bold text-brand-primary shadow-sm">
+              <div className="rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-xs font-semibold text-[var(--color-text-muted)] shadow-sm">
                 Voucher ritel bisa diklaim setelah akun ritel aktif.
               </div>
             ) : null}
@@ -160,19 +185,27 @@ export default async function VouchersPage() {
               })}
             </div>
           ) : (
-            <div className="rounded-2xl border border-brand-border bg-white p-10 text-center shadow-sm">
-              <h2 className="text-lg font-black text-brand-text">Voucher belum tersedia</h2>
-              <p className="mt-2 text-sm text-brand-muted">
+            <div className="rounded-2xl border border-[var(--color-border)] bg-white p-10 text-center shadow-sm">
+              <h2 className="text-lg font-semibold text-[var(--color-text)]">Voucher belum tersedia</h2>
+              <p className="mt-2 text-sm text-[var(--color-text-muted)]">
                 Feature flag voucher mungkin nonaktif atau admin belum menerbitkan voucher.
               </p>
             </div>
           )}
         </section>
       </div>
-      <FigmaFooter />
+
+      <PublicFooter
+        whatsappUrl={generalWaUrl}
+        storeName={settings.storeName}
+        storeAddress={settings.address}
+        publicVoucherEnabled={publicVoucherEnabled}
+        topCategories={topCategories}
+      />
     </main>
   );
 }
+
 function Metric({
   label,
   value,
@@ -186,9 +219,9 @@ function Metric({
 
   return (
     <div className="rounded-2xl bg-white/10 px-4 py-3 ring-1 ring-white/20">
-      <Icon className="mx-auto size-5 text-brand-secondary" />
-      <p className="mt-1 text-xl font-black">{value}</p>
-      <p className="text-[11px] font-bold text-white/80">{label}</p>
+      <Icon className="mx-auto size-5 text-white/80" />
+      <p className="mt-1 text-xl font-bold">{value}</p>
+      <p className="text-[11px] font-semibold text-white/70">{label}</p>
     </div>
   );
 }

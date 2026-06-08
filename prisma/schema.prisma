@@ -106,6 +106,7 @@ model User {
   targetedFeatureFlags  FeatureFlag[]        @relation("FeatureFlagUserTarget")
   voucherClaims         VoucherClaim[]
 
+  @@index([retailStatus])
   @@map("user")
 }
 
@@ -162,6 +163,8 @@ model Category {
   slug        String   @unique
   description String?  @db.Text
   icon        String?  @default("tag")
+  logoUrl     String?  @db.Text
+  iconUrl     String?  @db.Text
   isActive    Boolean  @default(true)
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
@@ -200,11 +203,12 @@ model Product {
   description        String        @db.Text
   shortSpecification String?
   specifications     Json?
-  costPrice          Decimal       @db.Decimal(14, 2)
-  publicMarginType   MarginType
-  publicMarginValue  Decimal       @db.Decimal(10, 2)
-  retailMarginType   MarginType
-  retailMarginValue  Decimal       @db.Decimal(10, 2)
+  pricingMode        String?       @default("ONE_PRICE")
+  costPrice          Decimal       @default(0) @db.Decimal(14, 2)
+  publicMarginType   MarginType    @default(FIXED_AMOUNT)
+  publicMarginValue  Decimal       @default(0) @db.Decimal(10, 2)
+  retailMarginType   MarginType    @default(FIXED_AMOUNT)
+  retailMarginValue  Decimal       @default(0) @db.Decimal(10, 2)
   publicPrice        Decimal       @db.Decimal(14, 2)
   retailPrice        Decimal?      @db.Decimal(14, 2)
   marginPercent      Decimal?      @db.Decimal(5, 2)
@@ -233,6 +237,13 @@ model Product {
   @@index([categoryId])
   @@index([brandId])
   @@index([status, stockStatus])
+  // Composite indexes matching public catalog query shapes (filter by status,
+  // then sort by popularity / price / recency, or scope by category/brand).
+  @@index([status, createdAt])
+  @@index([status, inquiryCount, clickCount])
+  @@index([status, publicPrice])
+  @@index([categoryId, status])
+  @@index([brandId, status])
 }
 
 model ProductImage {
@@ -322,6 +333,10 @@ model Voucher {
   products        ProductVoucher[]
   voucherClaims   VoucherClaim[]
   promoBanners    PromoBanner[]
+
+  // Public catalog filters vouchers by active window + status (see /api/products/saved,
+  // category & product pages): isActive + status + startsAt<=now<=endsAt.
+  @@index([isActive, status, startsAt, endsAt])
 }
 
 model ProductVoucher {
@@ -476,20 +491,29 @@ model StoreSetting {
 model SiteSetting {
   id                String   @id @default(cuid())
   singletonKey      String   @unique @default("default")
-  siteName          String   @default("Rama Computer Katalog")
-  storeName         String   @default("Rama Komputer")
-  tagline           String   @default("Katalog komputer dan aksesoris elektronik dengan alur inquiry WhatsApp.") @db.Text
+  siteName          String   @default("RAMA COMPUTER")
+  storeName         String   @default("RAMA COMPUTER")
+  tagline           String?  @db.Text
   logoUrl           String?  @db.Text
   faviconUrl        String?  @db.Text
-  primaryColor      String   @default("#1A3D6A") @db.VarChar(7)
-  secondaryColor    String   @default("#2E4E79") @db.VarChar(7)
-  accentColor       String   @default("#C8A91E") @db.VarChar(7)
+  primaryColor      String   @default("#0D0B61") @db.VarChar(7)
+  secondaryColor    String   @default("#294669") @db.VarChar(7)
+  accentColor       String   @default("#E4D329") @db.VarChar(7)
+  textColor         String   @default("#F8FAFC") @db.VarChar(7)
+   mutedColor        String   @default("#DDE7EF") @db.VarChar(7)
+    borderColor       String   @default("#FFFFFF") @db.VarChar(7)
+    supportColor      String?  @default("#478B8D") @db.VarChar(7)
+    whatsappColor     String   @default("#22C55E") @db.VarChar(7)
   whatsappNumber    String   @default("6280000000000") @db.VarChar(32)
   email             String?
   address           String?  @db.Text
   googleMapsUrl     String?  @db.Text
   businessHours     String?  @db.Text
-  footerDescription String   @default("Katalog komputer dan aksesoris elektronik dengan alur inquiry WhatsApp.") @db.Text
+  footerDescription String?  @db.Text
+  announcementEnabled Boolean @default(true)
+  announcementText    String? @db.Text
+  announcementSpeed   Int     @default(30)
+  announcementLink    String? @db.Text
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 }
@@ -511,5 +535,33 @@ model AdminActivityLog {
 
   @@index([actorId])
   @@index([targetType, targetId])
+  @@index([createdAt])
+}
+
+enum AnalyticsEventType {
+  PAGE_VIEW
+  PRODUCT_VIEW
+  WHATSAPP_CLICK
+  RETAIL_REGISTER
+  RETAIL_APPROVED
+  LOGIN
+  LOGOUT
+  SAVED_PRODUCT
+  UNSAVED_PRODUCT
+}
+
+model AnalyticsEvent {
+  id          String             @id @default(cuid())
+  type        AnalyticsEventType
+  path        String?
+  productId   String?
+  productName String?
+  userId      String?
+  phone       String?            @db.VarChar(32)
+  metadata    Json?
+  createdAt   DateTime           @default(now())
+
+  @@index([type, createdAt])
+  @@index([productId])
   @@index([createdAt])
 }

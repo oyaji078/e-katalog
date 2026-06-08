@@ -59,7 +59,7 @@ export default function VoucherBanner({
       <div className="grid gap-5 p-5 sm:grid-cols-[1fr_auto] sm:items-center lg:p-6">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-brand-accent px-3 py-1 text-xs font-black text-white">
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand-accent px-3 py-1 text-xs font-black text-brand-on-accent">
               <BadgePercent className="size-4" />
               {discountLabel}
             </span>

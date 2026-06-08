@@ -7,7 +7,7 @@ export const activeFlashSaleProductSelect = {
   flashSaleRetailPrice: true,
   flashSaleStock: true,
   sortOrder: true,
-  flashSale: { select: { showForPublic: true, showForRetail: true } },
+  flashSale: { select: { showForPublic: true, showForRetail: true, endsAt: true } },
   product: { select: productCardSelect },
 } satisfies Prisma.FlashSaleProductSelect;
 
@@ -20,6 +20,7 @@ export type ActiveFlashSaleItem = {
   flashSale: {
     showForPublic: boolean;
     showForRetail: boolean;
+    endsAt?: Date;
   };
 };
 

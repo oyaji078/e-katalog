@@ -1,92 +1,68 @@
-"use client";
+'use client';
 
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
-  BadgePercent,
-  Grid3X3,
   Home,
-  KeyRound,
-  LayoutDashboard,
-  Package,
-  UserRound,
-} from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+  Grid,
+  Bookmark,
+  User,
+  Gift,
+} from 'lucide-react';
 
 type MobileBottomNavProps = {
-  user?: {
-    role: string | null;
-    retailStatus: string | null;
-  } | null;
+  publicVoucherEnabled?: boolean;
+  isLoggedIn?: boolean;
 };
 
-export default function MobileBottomNav({ user }: MobileBottomNavProps) {
+export default function MobileBottomNav({
+  publicVoucherEnabled = false,
+  isLoggedIn = false,
+}: MobileBottomNavProps) {
   const pathname = usePathname();
-  const accountItem = getAccountItem(user);
-  const items = [
-    { label: "Beranda", href: "/", icon: Home },
-    { label: "Kategori", href: "/#kategori", icon: Grid3X3 },
-    { label: "Voucher", href: "/vouchers", icon: BadgePercent },
-    { label: "Produk", href: "/products", icon: Package },
-    accountItem,
+
+  const isActive = (path: string) => {
+    if (path === '/') return pathname === '/';
+    return pathname.startsWith(path);
+  };
+
+  const navItems = [
+    { href: '/', icon: Home, label: 'Beranda' },
+    { href: '/products', icon: Grid, label: 'Katalog' },
+    ...(publicVoucherEnabled
+      ? [{ href: '/vouchers', icon: Gift, label: 'Voucher' }]
+      : []),
+    { href: '/produk-tersimpan', icon: Bookmark, label: 'Simpan' },
+    { href: isLoggedIn ? '/account' : '/login', icon: User, label: 'Akun' },
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-brand-border bg-white/95 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur lg:hidden">
-      <div className="mx-auto grid max-w-md grid-cols-5 px-2 py-2">
-        {items.map((item) => {
-          const Icon = item.icon;
-          const pathOnly = item.href.split(/[?#]/)[0] || "/";
-          const isActive = item.href.includes("#")
-            ? false
-            : pathOnly === "/"
-              ? pathname === "/"
-              : pathname.startsWith(pathOnly);
+    <>
+      {/* Bottom nav container - only visible on mobile (< lg) */}
+      <nav className="fixed bottom-0 left-0 right-0 lg:hidden z-50 bg-white border-t border-[var(--color-border)] safe-area-inset-bottom">
+        <div className="flex items-center justify-around h-[56px] sm:h-[60px]">
+          {navItems.map(({ href, icon: Icon, label }) => {
+            const active = isActive(href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex flex-col items-center justify-center flex-1 h-full gap-1 transition ${
+                  active
+                    ? 'text-[var(--color-accent)]'
+                    : 'text-[var(--color-text-light)]'
+                }`}
+              >
+                <Icon size={24} strokeWidth={active ? 2.5 : 2} />
+                <span className="text-xs font-medium">{label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
 
-          return (
-            <Link
-              key={`${item.label}-${item.href}`}
-              href={item.href}
-              className={`flex min-w-0 flex-col items-center gap-1 rounded-2xl px-2 py-1.5 text-[11px] font-black transition ${
-                isActive
-                  ? "bg-brand-primary text-white"
-                  : "text-brand-muted hover:bg-brand-bg hover:text-brand-primary"
-              }`}
-            >
-              <span className="relative">
-                <Icon className="size-5" />
-                {item.badge ? (
-                  <span className="absolute -right-2 -top-1 size-2 rounded-full bg-brand-secondary" />
-                ) : null}
-              </span>
-              <span className="max-w-full truncate">{item.label}</span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+      {/* Spacer to avoid content overlap - only visible on mobile */}
+      <div className="h-[56px] sm:h-[60px] lg:hidden" />
+    </>
   );
-}
-
-function getAccountItem(user: MobileBottomNavProps["user"]) {
-  if (!user) {
-    return { label: "Login", href: "/login", icon: UserRound };
-  }
-
-  if (user.role === "SUPER_ADMIN") {
-    return { label: "Super", href: "/super-admin", icon: LayoutDashboard };
-  }
-
-  if (user.role === "ADMIN") {
-    return { label: "Admin", href: "/admin", icon: LayoutDashboard };
-  }
-
-  if (user.retailStatus === "RETAIL_ACTIVE") {
-    return { label: "Akun Ritel", href: "/products", icon: UserRound, badge: true };
-  }
-
-  if (user.retailStatus === "PENDING_RETAIL") {
-    return { label: "Aktivasi", href: "/retail/activate", icon: KeyRound };
-  }
-
-  return { label: "Token", href: "/retail/request-token", icon: KeyRound };
 }

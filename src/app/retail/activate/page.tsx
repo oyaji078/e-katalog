@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session";
 import ActivationForm from "./activation-form";
 
+export const dynamic = "force-dynamic";
+
 export default async function RetailActivationPage() {
   const user = await getCurrentUser();
 
@@ -26,7 +28,7 @@ export default async function RetailActivationPage() {
       <main className="min-h-screen bg-brand-bg px-4 py-10 text-brand-text">
         <section className="mx-auto max-w-md rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
           <Link href="/" className="text-sm font-semibold text-brand-primary">
-            E-Katalog Komputer
+            RAMA COMPUTER
           </Link>
           <h1 className="mt-6 text-2xl font-bold">Aktivasi Retail</h1>
           <div className="mt-6 rounded-2xl border border-danger/20 bg-danger/5 p-4">
@@ -48,7 +50,7 @@ export default async function RetailActivationPage() {
     <main className="min-h-screen bg-brand-bg px-4 py-10 text-brand-text">
       <section className="mx-auto max-w-md rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
         <Link href="/" className="text-sm font-semibold text-brand-primary">
-          E-Katalog Komputer
+          RAMA COMPUTER
         </Link>
         <h1 className="mt-6 text-2xl font-bold">Aktivasi Akun Ritel</h1>
         <p className="mt-2 text-sm leading-6 text-brand-muted">

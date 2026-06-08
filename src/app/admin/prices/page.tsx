@@ -5,7 +5,27 @@ import { getDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminPricesPage() {
+const DEFAULT_PAGE_SIZE = 50;
+const MAX_PAGE_SIZE = 100;
+
+type AdminPricesPageProps = {
+  searchParams: Promise<{ page?: string; limit?: string }>;
+};
+
+function parsePositiveInt(value: string | undefined, fallback: number) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 1) return fallback;
+  return Math.floor(parsed);
+}
+
+function pricesPageHref(page: number, limit: number) {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("limit", String(limit));
+  return `/admin/prices?${params.toString()}`;
+}
+
+export default async function AdminPricesPage({ searchParams }: AdminPricesPageProps) {
   const session = await getAdminSession();
 
   if (!session) {
@@ -21,13 +41,21 @@ export default async function AdminPricesPage() {
     );
   }
 
+  const params = await searchParams;
+  const requestedPage = parsePositiveInt(params.page, 1);
+  const limit = Math.min(parsePositiveInt(params.limit, DEFAULT_PAGE_SIZE), MAX_PAGE_SIZE);
   const db = getDb();
-  const [products] = await Promise.all([
-    db.product.findMany({
-      include: { brand: true, category: true },
-      orderBy: [{ updatedAt: "desc" }],
-    }),
-  ]);
+  const totalCount = await db.product.count();
+  const totalPages = Math.max(1, Math.ceil(totalCount / limit));
+  const page = Math.min(requestedPage, totalPages);
+  const products = await db.product.findMany({
+    include: { brand: true, category: true },
+    orderBy: [{ updatedAt: "desc" }],
+    take: limit,
+    skip: (page - 1) * limit,
+  });
+  const firstItem = totalCount === 0 ? 0 : (page - 1) * limit + 1;
+  const lastItem = Math.min(page * limit, totalCount);
 
   return (
     <main className="min-h-screen bg-brand-bg px-4 py-10 text-brand-text">
@@ -47,7 +75,7 @@ export default async function AdminPricesPage() {
         <div className="overflow-hidden rounded-lg border border-brand-border bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-brand-border text-sm">
-              <thead className="bg-brand-primary/5 text-xs uppercase tracking-wide text-brand-primary">
+              <thead className="bg-[#EEF4F7] text-xs uppercase tracking-wide text-[#111827]">
                 <tr>
                   <th className="px-4 py-3 text-left">Produk</th>
                   <th className="px-4 py-3 text-left">SKU</th>
@@ -106,6 +134,32 @@ export default async function AdminPricesPage() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 text-sm text-brand-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            Menampilkan {firstItem}-{lastItem} dari {totalCount} produk
+          </p>
+          {totalPages > 1 ? (
+            <div className="flex gap-2">
+              {page > 1 ? (
+                <Link
+                  href={pricesPageHref(page - 1, limit)}
+                  className="rounded-lg border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
+                >
+                  Sebelumnya
+                </Link>
+              ) : null}
+              {page < totalPages ? (
+                <Link
+                  href={pricesPageHref(page + 1, limit)}
+                  className="rounded-lg border border-brand-border bg-white px-3 py-1.5 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
+                >
+                  Selanjutnya
+                </Link>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
     </main>

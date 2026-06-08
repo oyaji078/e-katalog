@@ -569,6 +569,23 @@ export type EnumAdminActionRiskWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumAdminActionRiskFilter<$PrismaModel>
 }
 
+export type EnumAnalyticsEventTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.AnalyticsEventType | Prisma.EnumAnalyticsEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AnalyticsEventType[]
+  notIn?: $Enums.AnalyticsEventType[]
+  not?: Prisma.NestedEnumAnalyticsEventTypeFilter<$PrismaModel> | $Enums.AnalyticsEventType
+}
+
+export type EnumAnalyticsEventTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AnalyticsEventType | Prisma.EnumAnalyticsEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AnalyticsEventType[]
+  notIn?: $Enums.AnalyticsEventType[]
+  not?: Prisma.NestedEnumAnalyticsEventTypeWithAggregatesFilter<$PrismaModel> | $Enums.AnalyticsEventType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAnalyticsEventTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAnalyticsEventTypeFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[]
@@ -1112,6 +1129,23 @@ export type NestedEnumAdminActionRiskWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumAdminActionRiskFilter<$PrismaModel>
   _max?: Prisma.NestedEnumAdminActionRiskFilter<$PrismaModel>
+}
+
+export type NestedEnumAnalyticsEventTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.AnalyticsEventType | Prisma.EnumAnalyticsEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AnalyticsEventType[]
+  notIn?: $Enums.AnalyticsEventType[]
+  not?: Prisma.NestedEnumAnalyticsEventTypeFilter<$PrismaModel> | $Enums.AnalyticsEventType
+}
+
+export type NestedEnumAnalyticsEventTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.AnalyticsEventType | Prisma.EnumAnalyticsEventTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.AnalyticsEventType[]
+  notIn?: $Enums.AnalyticsEventType[]
+  not?: Prisma.NestedEnumAnalyticsEventTypeWithAggregatesFilter<$PrismaModel> | $Enums.AnalyticsEventType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAnalyticsEventTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAnalyticsEventTypeFilter<$PrismaModel>
 }
 
 

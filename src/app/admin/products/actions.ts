@@ -6,7 +6,7 @@ import type { ProductStatus, StockStatus } from "@/generated/prisma/client";
 import { getAdminSession, toUserRole } from "@/lib/admin-auth";
 import { logAdminActivity } from "@/lib/activity-log";
 import { getDb } from "@/lib/db";
-import { generateProductSku } from "@/lib/sku";
+import { generateUniqueProductSku } from "@/lib/sku";
 import { createProductSlug } from "@/lib/slug";
 import { deleteProductImage, isLocalUploadPath, saveProductImage } from "@/lib/upload/storage";
 
@@ -254,20 +254,46 @@ export async function createProductAction(
   const stockQuantity = Number(text(formData, "stockQuantity") || "0");
   const stockStatus = parseStockStatus(formData.get("stockStatus"));
   const status = parseProductStatus(formData.get("status"));
-  const hargaBarang = parseMoney(text(formData, "hargaBarang"));
-  const marginPublic = parseMoney(text(formData, "marginPublic"));
-  const marginRitel = parseMoney(text(formData, "marginRitel"));
+  const pricingMode = text(formData, "pricingMode") || "ONE_PRICE";
   const specifications = parseSpecifications(text(formData, "specifications"));
 
   if (!name) return failure("Nama produk harus diisi.");
   if (!categoryId) return failure("Kategori harus dipilih.");
   if (!brandId) return failure("Merek harus dipilih.");
   if (!description) return failure("Deskripsi produk harus diisi.");
-  if (hargaBarang < 0) return failure("Harga barang tidak boleh negatif.");
-  if (marginPublic < 0) return failure("Margin publik tidak boleh negatif.");
-  if (marginRitel < 0) return failure("Margin ritel tidak boleh negatif.");
 
-  // Generate SKU
+  let costPrice = 0;
+  let publicMarginValue = 0;
+  let retailMarginValue = 0;
+  let publicPrice = 0;
+  let retailPrice = 0;
+
+  if (pricingMode === "ONE_PRICE") {
+    const hargaJual = parseMoney(text(formData, "hargaJual"));
+    if (hargaJual <= 0) return failure("Harga jual harus lebih dari 0.");
+    publicPrice = hargaJual;
+    retailPrice = hargaJual;
+  } else if (pricingMode === "MANUAL_DUAL_PRICE") {
+    const hargaPublik = parseMoney(text(formData, "hargaPublik"));
+    const hargaRitel = parseMoney(text(formData, "hargaRitel"));
+    if (hargaPublik <= 0) return failure("Harga publik harus lebih dari 0.");
+    if (hargaRitel <= 0) return failure("Harga ritel harus lebih dari 0.");
+    publicPrice = hargaPublik;
+    retailPrice = hargaRitel;
+  } else {
+    costPrice = parseMoney(text(formData, "hargaBarang"));
+    publicMarginValue = parseMoney(text(formData, "marginPublic"));
+    retailMarginValue = parseMoney(text(formData, "marginRitel"));
+    if (costPrice < 0) return failure("Harga barang tidak boleh negatif.");
+    if (publicMarginValue < 0) return failure("Margin publik tidak boleh negatif.");
+    if (retailMarginValue < 0) return failure("Margin ritel tidak boleh negatif.");
+    publicPrice = costPrice + publicMarginValue;
+    retailPrice = costPrice + retailMarginValue;
+    if (publicPrice <= 0) return failure("Harga publik (harga barang + margin publik) harus lebih dari 0.");
+    if (retailPrice <= 0) return failure("Harga ritel (harga barang + margin ritel) harus lebih dari 0.");
+  }
+
+  // Generate SKU with retry
   const category = await db.category.findUnique({ where: { id: categoryId }, select: { name: true } });
   const brand = await db.brand.findUnique({ where: { id: brandId }, select: { name: true } });
   if (!category) return failure("Kategori tidak ditemukan.");
@@ -275,13 +301,10 @@ export async function createProductAction(
 
   let sku: string;
   try {
-    sku = await generateProductSku(category.name, brand.name);
-  } catch {
-    return failure("Gagal menghasilkan SKU. Periksa kategori dan merek.");
+    sku = await generateUniqueProductSku(category.name, brand.name);
+  } catch (e) {
+    return failure(e instanceof Error ? e.message : "Gagal membuat kode produk unik. Coba simpan kembali.");
   }
-
-  const publicPrice = hargaBarang + marginPublic;
-  const retailPrice = hargaBarang + marginRitel;
 
   let slug = createProductSlug(name);
   const existingSlug = await db.product.findUnique({ where: { slug } });
@@ -312,11 +335,12 @@ export async function createProductAction(
         warrantyInfo,
         specifications,
         primaryImageUrl: gallery.primaryImageUrl,
-        costPrice: hargaBarang,
+        pricingMode,
+        costPrice,
         publicMarginType: "FIXED_AMOUNT",
-        publicMarginValue: marginPublic,
+        publicMarginValue,
         retailMarginType: "FIXED_AMOUNT",
-        retailMarginValue: marginRitel,
+        retailMarginValue,
         publicPrice,
         retailPrice,
         stockQuantity: Number.isFinite(stockQuantity) ? stockQuantity : 0,
@@ -380,21 +404,53 @@ export async function updateProductAction(
   const stockQuantity = Number(text(formData, "stockQuantity") || "0");
   const stockStatus = parseStockStatus(formData.get("stockStatus"));
   const status = parseProductStatus(formData.get("status"));
-  const hargaBarang = parseMoney(text(formData, "hargaBarang"));
-  const marginPublic = parseMoney(text(formData, "marginPublic"));
-  const marginRitel = parseMoney(text(formData, "marginRitel"));
+  let pricingMode = text(formData, "pricingMode");
+  if (!pricingMode) {
+    const hargaJualField = text(formData, "hargaJual");
+    const hargaPublikField = text(formData, "hargaPublik");
+    if (hargaJualField || !hargaPublikField) {
+      pricingMode = existingProduct.pricingMode || "ONE_PRICE";
+    } else {
+      pricingMode = "MANUAL_DUAL_PRICE";
+    }
+  }
   const specifications = parseSpecifications(text(formData, "specifications"));
 
   if (!name) return failure("Nama produk harus diisi.");
   if (!categoryId) return failure("Kategori harus dipilih.");
   if (!brandId) return failure("Merek harus dipilih.");
   if (!description) return failure("Deskripsi produk harus diisi.");
-  if (hargaBarang < 0) return failure("Harga barang tidak boleh negatif.");
-  if (marginPublic < 0) return failure("Margin publik tidak boleh negatif.");
-  if (marginRitel < 0) return failure("Margin ritel tidak boleh negatif.");
 
-  const publicPrice = hargaBarang + marginPublic;
-  const retailPrice = hargaBarang + marginRitel;
+  let costPrice = 0;
+  let publicMarginValue = 0;
+  let retailMarginValue = 0;
+  let publicPrice = 0;
+  let retailPrice = 0;
+
+  if (pricingMode === "ONE_PRICE") {
+    const hargaJual = parseMoney(text(formData, "hargaJual"));
+    if (hargaJual <= 0) return failure("Harga jual harus lebih dari 0.");
+    publicPrice = hargaJual;
+    retailPrice = hargaJual;
+  } else if (pricingMode === "MANUAL_DUAL_PRICE") {
+    const hargaPublik = parseMoney(text(formData, "hargaPublik"));
+    const hargaRitel = parseMoney(text(formData, "hargaRitel"));
+    if (hargaPublik <= 0) return failure("Harga publik harus lebih dari 0.");
+    if (hargaRitel <= 0) return failure("Harga ritel harus lebih dari 0.");
+    publicPrice = hargaPublik;
+    retailPrice = hargaRitel;
+  } else {
+    costPrice = parseMoney(text(formData, "hargaBarang"));
+    publicMarginValue = parseMoney(text(formData, "marginPublic"));
+    retailMarginValue = parseMoney(text(formData, "marginRitel"));
+    if (costPrice < 0) return failure("Harga barang tidak boleh negatif.");
+    if (publicMarginValue < 0) return failure("Margin publik tidak boleh negatif.");
+    if (retailMarginValue < 0) return failure("Margin ritel tidak boleh negatif.");
+    publicPrice = costPrice + publicMarginValue;
+    retailPrice = costPrice + retailMarginValue;
+    if (publicPrice <= 0) return failure("Harga publik (harga barang + margin publik) harus lebih dari 0.");
+    if (retailPrice <= 0) return failure("Harga ritel (harga barang + margin ritel) harus lebih dari 0.");
+  }
 
   let slug = existingProduct.slug;
   if (name !== existingProduct.name) {
@@ -431,11 +487,12 @@ export async function updateProductAction(
           warrantyInfo,
           specifications,
           primaryImageUrl: gallery.primaryImageUrl,
-          costPrice: hargaBarang,
+          pricingMode,
+          costPrice,
           publicMarginType: "FIXED_AMOUNT",
-          publicMarginValue: marginPublic,
+          publicMarginValue,
           retailMarginType: "FIXED_AMOUNT",
-          retailMarginValue: marginRitel,
+          retailMarginValue,
           publicPrice,
           retailPrice,
           stockQuantity: Number.isFinite(stockQuantity) ? stockQuantity : 0,

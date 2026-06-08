@@ -71,7 +71,8 @@ export const ModelName = {
   FeatureFlag: 'FeatureFlag',
   StoreSetting: 'StoreSetting',
   SiteSetting: 'SiteSetting',
-  AdminActivityLog: 'AdminActivityLog'
+  AdminActivityLog: 'AdminActivityLog',
+  AnalyticsEvent: 'AnalyticsEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -160,6 +161,8 @@ export const CategoryScalarFieldEnum = {
   slug: 'slug',
   description: 'description',
   icon: 'icon',
+  logoUrl: 'logoUrl',
+  iconUrl: 'iconUrl',
   isActive: 'isActive',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
@@ -192,6 +195,7 @@ export const ProductScalarFieldEnum = {
   description: 'description',
   shortSpecification: 'shortSpecification',
   specifications: 'specifications',
+  pricingMode: 'pricingMode',
   costPrice: 'costPrice',
   publicMarginType: 'publicMarginType',
   publicMarginValue: 'publicMarginValue',
@@ -424,12 +428,21 @@ export const SiteSettingScalarFieldEnum = {
   primaryColor: 'primaryColor',
   secondaryColor: 'secondaryColor',
   accentColor: 'accentColor',
+  textColor: 'textColor',
+  mutedColor: 'mutedColor',
+  borderColor: 'borderColor',
+  supportColor: 'supportColor',
+  whatsappColor: 'whatsappColor',
   whatsappNumber: 'whatsappNumber',
   email: 'email',
   address: 'address',
   googleMapsUrl: 'googleMapsUrl',
   businessHours: 'businessHours',
   footerDescription: 'footerDescription',
+  announcementEnabled: 'announcementEnabled',
+  announcementText: 'announcementText',
+  announcementSpeed: 'announcementSpeed',
+  announcementLink: 'announcementLink',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -452,6 +465,21 @@ export const AdminActivityLogScalarFieldEnum = {
 } as const
 
 export type AdminActivityLogScalarFieldEnum = (typeof AdminActivityLogScalarFieldEnum)[keyof typeof AdminActivityLogScalarFieldEnum]
+
+
+export const AnalyticsEventScalarFieldEnum = {
+  id: 'id',
+  type: 'type',
+  path: 'path',
+  productId: 'productId',
+  productName: 'productName',
+  userId: 'userId',
+  phone: 'phone',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type AnalyticsEventScalarFieldEnum = (typeof AnalyticsEventScalarFieldEnum)[keyof typeof AnalyticsEventScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -532,7 +560,9 @@ export const CategoryOrderByRelevanceFieldEnum = {
   name: 'name',
   slug: 'slug',
   description: 'description',
-  icon: 'icon'
+  icon: 'icon',
+  logoUrl: 'logoUrl',
+  iconUrl: 'iconUrl'
 } as const
 
 export type CategoryOrderByRelevanceFieldEnum = (typeof CategoryOrderByRelevanceFieldEnum)[keyof typeof CategoryOrderByRelevanceFieldEnum]
@@ -573,6 +603,7 @@ export const ProductOrderByRelevanceFieldEnum = {
   slug: 'slug',
   description: 'description',
   shortSpecification: 'shortSpecification',
+  pricingMode: 'pricingMode',
   warrantyInfo: 'warrantyInfo',
   primaryImageUrl: 'primaryImageUrl',
   categoryId: 'categoryId',
@@ -721,12 +752,19 @@ export const SiteSettingOrderByRelevanceFieldEnum = {
   primaryColor: 'primaryColor',
   secondaryColor: 'secondaryColor',
   accentColor: 'accentColor',
+  textColor: 'textColor',
+  mutedColor: 'mutedColor',
+  borderColor: 'borderColor',
+  supportColor: 'supportColor',
+  whatsappColor: 'whatsappColor',
   whatsappNumber: 'whatsappNumber',
   email: 'email',
   address: 'address',
   googleMapsUrl: 'googleMapsUrl',
   businessHours: 'businessHours',
-  footerDescription: 'footerDescription'
+  footerDescription: 'footerDescription',
+  announcementText: 'announcementText',
+  announcementLink: 'announcementLink'
 } as const
 
 export type SiteSettingOrderByRelevanceFieldEnum = (typeof SiteSettingOrderByRelevanceFieldEnum)[keyof typeof SiteSettingOrderByRelevanceFieldEnum]
@@ -743,4 +781,16 @@ export const AdminActivityLogOrderByRelevanceFieldEnum = {
 } as const
 
 export type AdminActivityLogOrderByRelevanceFieldEnum = (typeof AdminActivityLogOrderByRelevanceFieldEnum)[keyof typeof AdminActivityLogOrderByRelevanceFieldEnum]
+
+
+export const AnalyticsEventOrderByRelevanceFieldEnum = {
+  id: 'id',
+  path: 'path',
+  productId: 'productId',
+  productName: 'productName',
+  userId: 'userId',
+  phone: 'phone'
+} as const
+
+export type AnalyticsEventOrderByRelevanceFieldEnum = (typeof AnalyticsEventOrderByRelevanceFieldEnum)[keyof typeof AnalyticsEventOrderByRelevanceFieldEnum]
 
