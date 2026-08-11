@@ -21,7 +21,7 @@ export default function ActivationForm() {
   return (
     <form action={formAction} className="mt-6 space-y-4">
       <div>
-        <label className="text-sm font-semibold" htmlFor="token">
+        <label className="text-sm font-semibold text-gray-900" htmlFor="token">
           Token Aktivasi
         </label>
         <input
@@ -33,7 +33,7 @@ export default function ActivationForm() {
           maxLength={6}
           placeholder="Masukkan 6 digit OTP"
           required
-          className="mt-2 w-full rounded-xl border border-brand-border px-3 py-3 text-sm outline-none focus:border-brand-primary"
+          className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm text-gray-900 placeholder:text-slate-400 outline-none focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20"
         />
       </div>
 

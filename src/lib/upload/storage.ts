@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { unlinkSync, existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
@@ -27,16 +27,6 @@ export function validateImageFile(file: File): string | null {
   return null;
 }
 
-export function validateSiteImageFile(file: File): string | null {
-  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-    return "Tipe file tidak didukung. Gunakan JPG, PNG, atau WebP.";
-  }
-  if (file.size > MAX_SITE_UPLOAD_SIZE) {
-    return "Ukuran file maksimal 2 MB.";
-  }
-  return null;
-}
-
 // Magic-byte signatures for the allowed image types. file.type (the declared
 // MIME) is client-controlled, so we also verify the real file header before
 // writing/processing. The subsequent sharp re-encode is a second line of defense.
@@ -57,34 +47,24 @@ export function assertImageMagicBytes(buffer: Buffer, declaredType: string): voi
   }
 }
 
-export function sanitizeFilename(original: string): string {
-  const ext = path.extname(original).toLowerCase();
-  const base = path.basename(original, ext)
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  const suffix = randomBytes(4).toString("hex");
-  return `${base}-${suffix}${ext}`;
-}
-
-export async function saveProductImage(file: File): Promise<string> {
-  return saveImageFile(file, PRODUCT_UPLOAD_DIR, "/uploads/products");
-}
-
-export async function savePromoBannerImage(file: File): Promise<string> {
-  return saveImageFile(file, PROMO_BANNER_UPLOAD_DIR, "/uploads/promo-banners");
-}
-
-export async function saveSiteImage(file: File, kind: "logo" | "favicon"): Promise<string> {
-  const error = validateSiteImageFile(file);
+async function saveImageAsWebp(
+  file: File,
+  uploadDir: string,
+  publicBasePath: string,
+  prefix: string,
+  maxSize: number,
+): Promise<string> {
+  const error = validateImageFile(file);
   if (error) throw new Error(error);
+  if (file.size > maxSize) {
+    throw new Error("Ukuran file terlalu besar.");
+  }
 
-  ensureUploadDirectory(SITE_UPLOAD_DIR);
+  ensureUploadDirectory(uploadDir);
 
   const suffix = randomBytes(4).toString("hex");
-  const fileName = `${kind}-${suffix}.webp`;
-  const filePath = path.join(/*turbopackIgnore: true*/ SITE_UPLOAD_DIR, fileName);
+  const fileName = `${prefix}-${suffix}.webp`;
+  const filePath = path.join(/*turbopackIgnore: true*/ uploadDir, fileName);
   const buffer = Buffer.from(await file.arrayBuffer());
   assertImageMagicBytes(buffer, file.type);
 
@@ -96,32 +76,19 @@ export async function saveSiteImage(file: File, kind: "logo" | "favicon"): Promi
     throw new Error("Gambar gagal diproses. Pastikan file gambar valid.");
   }
 
-  return `/uploads/site/${fileName}`;
+  return `${publicBasePath}/${fileName}`;
 }
 
-async function saveImageFile(file: File, uploadDir: string, publicBasePath: string): Promise<string> {
-  const error = validateImageFile(file);
-  if (error) throw new Error(error);
+export async function saveProductImage(file: File): Promise<string> {
+  return saveImageAsWebp(file, PRODUCT_UPLOAD_DIR, "/uploads/products", "product", MAX_UPLOAD_SIZE);
+}
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  assertImageMagicBytes(buffer, file.type);
+export async function savePromoBannerImage(file: File): Promise<string> {
+  return saveImageAsWebp(file, PROMO_BANNER_UPLOAD_DIR, "/uploads/promo-banners", "promo", MAX_UPLOAD_SIZE);
+}
 
-  ensureUploadDirectory(uploadDir);
-
-  const sanitized = sanitizeFilename(file.name);
-  const filePath = path.join(/*turbopackIgnore: true*/ uploadDir, sanitized);
-
-  if (existsSync(/*turbopackIgnore: true*/ filePath)) {
-    const hash = createHash("md5").update(randomBytes(8)).digest("hex").substring(0, 8);
-    const ext = path.extname(sanitized);
-    const base = path.basename(sanitized, ext);
-    const deduped = path.join(/*turbopackIgnore: true*/ uploadDir, `${base}-${hash}${ext}`);
-    writeFileSync(/*turbopackIgnore: true*/ deduped, buffer);
-    return `${publicBasePath}/${path.basename(deduped)}`;
-  }
-
-  writeFileSync(/*turbopackIgnore: true*/ filePath, buffer);
-  return `${publicBasePath}/${sanitized}`;
+export async function saveSiteImage(file: File, kind: "logo" | "favicon"): Promise<string> {
+  return saveImageAsWebp(file, SITE_UPLOAD_DIR, "/uploads/site", kind, MAX_SITE_UPLOAD_SIZE);
 }
 
 export function deleteProductImage(publicPath: string): void {
@@ -151,26 +118,7 @@ export function deletePromoBannerImage(publicPath: string): void {
 const CATEGORY_UPLOAD_DIR = path.join(/*turbopackIgnore: true*/ PUBLIC_UPLOAD_DIR, "categories");
 
 export async function saveCategoryImage(file: File): Promise<string> {
-  const error = validateSiteImageFile(file);
-  if (error) throw new Error(error);
-
-  ensureUploadDirectory(CATEGORY_UPLOAD_DIR);
-
-  const suffix = randomBytes(4).toString("hex");
-  const fileName = `category-${suffix}.webp`;
-  const filePath = path.join(/*turbopackIgnore: true*/ CATEGORY_UPLOAD_DIR, fileName);
-  const buffer = Buffer.from(await file.arrayBuffer());
-  assertImageMagicBytes(buffer, file.type);
-
-  try {
-    const sharp = (await import("sharp")).default;
-    const webp = await sharp(buffer).webp({ quality: 90 }).toBuffer();
-    writeFileSync(/*turbopackIgnore: true*/ filePath, webp);
-  } catch {
-    throw new Error("Gambar gagal diproses. Pastikan file gambar valid.");
-  }
-
-  return `/uploads/categories/${fileName}`;
+  return saveImageAsWebp(file, CATEGORY_UPLOAD_DIR, "/uploads/categories", "category", MAX_SITE_UPLOAD_SIZE);
 }
 
 export function deleteCategoryImage(publicPath: string): void {
@@ -193,26 +141,7 @@ function isLocalCategoryUploadPath(value: string): boolean {
 const BRAND_UPLOAD_DIR = path.join(/*turbopackIgnore: true*/ PUBLIC_UPLOAD_DIR, "brands");
 
 export async function saveBrandImage(file: File): Promise<string> {
-  const error = validateSiteImageFile(file);
-  if (error) throw new Error(error);
-
-  ensureUploadDirectory(BRAND_UPLOAD_DIR);
-
-  const suffix = randomBytes(4).toString("hex");
-  const fileName = `brand-${suffix}.webp`;
-  const filePath = path.join(/*turbopackIgnore: true*/ BRAND_UPLOAD_DIR, fileName);
-  const buffer = Buffer.from(await file.arrayBuffer());
-  assertImageMagicBytes(buffer, file.type);
-
-  try {
-    const sharp = (await import("sharp")).default;
-    const webp = await sharp(buffer).webp({ quality: 90 }).toBuffer();
-    writeFileSync(/*turbopackIgnore: true*/ filePath, webp);
-  } catch {
-    throw new Error("Gambar gagal diproses. Pastikan file gambar valid.");
-  }
-
-  return `/uploads/brands/${fileName}`;
+  return saveImageAsWebp(file, BRAND_UPLOAD_DIR, "/uploads/brands", "brand", MAX_SITE_UPLOAD_SIZE);
 }
 
 export function deleteBrandImage(publicPath: string): void {

@@ -30,6 +30,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  compress: true,
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-mariadb", "mariadb", "sharp"],
   experimental: {
     serverActions: {
@@ -39,7 +40,7 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    // All rendered image srcs are site-relative (/uploads/...) — see safeImageSrc
+    // All rendered image srcs are site-relative (/uploads/...) -- see safeImageSrc
     // and isRenderablePromoBannerImageUrl, both of which reject non-local URLs.
     // No remote hosts are needed, so the previous `https://**` wildcard (an
     // image-optimizer open-proxy / SSRF surface) is removed. Localhost kept for dev.
@@ -47,12 +48,52 @@ const nextConfig: NextConfig = {
       { protocol: "http", hostname: "localhost" },
       { protocol: "http", hostname: "127.0.0.1" },
     ],
+    // Disable the image optimizer in production builds to eliminate SSRF surface
+    // and avoid per-request CPU cost. Images are optimized at upload time instead
+    // (saveProductImage / savePromoBannerImage etc. convert to WebP).
+    unoptimized: !isDev,
   },
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      // Cache public uploads aggressively (product images, banners, logos).
+      // These are already optimized to WebP at upload time.
+      {
+        source: "/uploads/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      // Cache Next.js build artifacts (JS, CSS, fonts) with immutable flag.
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      // Do not cache admin pages.
+      {
+        source: "/admin/:path*",
+        headers: [
+          { key: "Cache-Control", value: "private, no-cache, no-store, must-revalidate" },
+        ],
+      },
+      // Do not cache API responses.
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "Cache-Control", value: "private, no-cache, no-store, must-revalidate" },
+        ],
+      },
+      // Do not cache auth pages.
+      {
+        source: "/(login|register|retail/:path*)",
+        headers: [
+          { key: "Cache-Control", value: "private, no-cache, no-store, must-revalidate" },
+        ],
       },
     ];
   },

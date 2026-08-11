@@ -43,13 +43,13 @@ function getBadgeStyles(badge: string | undefined) {
 function getStockStyles(status: ProductCardProps["stockStatus"]) {
   switch (status) {
     case 'READY':
-      return { bg: 'bg-green-50', text: 'text-green-700', label: 'Ready' };
+      return { bg: 'bg-green-50', text: 'text-green-700', label: 'Tersedia' };
     case 'LOW_STOCK':
       return { bg: 'bg-amber-50', text: 'text-amber-900', label: 'Stok Terbatas' };
     case 'OUT_OF_STOCK':
-      return { bg: 'bg-red-50', text: 'text-red-700', label: 'Out of Stock' };
+      return { bg: 'bg-red-50', text: 'text-red-700', label: 'Stok Habis' };
     case 'PREORDER':
-      return { bg: 'bg-blue-50', text: 'text-blue-700', label: 'Preorder' };
+      return { bg: 'bg-blue-50', text: 'text-blue-700', label: 'Pre-order' };
     default:
       return null;
   }
@@ -72,7 +72,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const badgeStyles = getBadgeStyles(badge);
   const stockStyles = getStockStyles(stockStatus);
-  const showStockChip = stockStatus && stockStatus !== 'READY';
+  const showStockChip = Boolean(stockStatus);
 
   return (
     <article className="group bg-white rounded-2xl border border-[var(--color-border)] shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 overflow-hidden flex flex-col h-full">
@@ -110,7 +110,6 @@ export default function ProductCard({
           </span>
         )}
 
-        {/* Stock Chip - bottom-left */}
         {showStockChip && stockStyles && (
           <span
             className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-md text-[11px] font-semibold ${stockStyles.bg} ${stockStyles.text}`}
@@ -118,6 +117,7 @@ export default function ProductCard({
             {stockStyles.label}
           </span>
         )}
+
       </div>
 
       {/* Card Body */}

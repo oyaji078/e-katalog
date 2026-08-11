@@ -1,8 +1,9 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { HERO_BANNER_CACHE_TAG } from "@/lib/cache-tags";
 import { logAdminActivity } from "@/lib/activity-log";
 import { getAdminSession, toUserRole } from "@/lib/admin-auth";
 import { getDb } from "@/lib/db";
@@ -288,6 +289,7 @@ export async function createHeroBannerAction(formData: FormData): Promise<HeroBa
     };
   }
 
+  updateTag(HERO_BANNER_CACHE_TAG);
   revalidatePath("/");
   revalidatePath("/admin/hero-banners");
   redirect("/admin/hero-banners");
@@ -378,6 +380,7 @@ export async function updateHeroBannerAction(id: string, formData: FormData): Pr
     };
   }
 
+  updateTag(HERO_BANNER_CACHE_TAG);
   revalidatePath("/");
   revalidatePath("/admin/hero-banners");
   redirect("/admin/hero-banners");
@@ -422,6 +425,7 @@ export async function deleteHeroBannerAction(id: string): Promise<DeleteResult> 
     return { success: false, error: "Hero banner gagal dihapus. Silakan coba lagi." };
   }
 
+  updateTag(HERO_BANNER_CACHE_TAG);
   revalidatePath("/");
   revalidatePath("/admin/hero-banners");
   return { success: true, error: "" };

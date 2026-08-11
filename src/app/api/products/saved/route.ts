@@ -10,6 +10,7 @@ import {
 } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { logger } from "@/lib/logger";
 import { toProductCardProps } from "@/lib/product-card-mapper";
 import { applyRateLimitHeaders, checkRateLimit, RATE_LIMITS, tooManyRequests } from "@/lib/ratelimit";
 import { getCurrentUser } from "@/lib/session";
@@ -111,7 +112,8 @@ export async function POST(request: NextRequest) {
       }),
       rateLimit,
     );
-  } catch {
+  } catch (error) {
+    logger.error({ err: error, route: "products/saved" }, "Saved products fetch failed");
     return applyRateLimitHeaders(NextResponse.json({ products: [] }), rateLimit);
   }
 }

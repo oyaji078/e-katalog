@@ -54,7 +54,7 @@
   --sidebar-text:         rgba(255,255,255,0.65);  /* readable on #0A0E1A */
   --sidebar-text-hover:   rgba(255,255,255,0.92);
   --sidebar-hover-text:   rgba(255,255,255,0.92); /* legacy alias used by SidebarLink */
-  --sidebar-hover-bg:     rgba(255,255,255,0.07);
+  --sidebar-hover-bg:     rgba(59,130,246,0.12);   /* accent-tinted, clearly distinct from --sidebar-active-bg */
   --sidebar-active-bg:    rgba(59,130,246,0.18);  /* subtle blue tint */
   --sidebar-active-accent:#3B82F6;                /* solid left-border accent */
   --sidebar-active-text:  #FFFFFF;

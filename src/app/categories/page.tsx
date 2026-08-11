@@ -10,8 +10,6 @@ import { getPublicSiteSettings } from "@/lib/site-settings";
 import { getStoreWhatsappNumberFromDB } from "@/lib/store-settings";
 import { buildWhatsappUrl } from "@/lib/whatsapp";
 
-export const dynamic = "force-dynamic";
-
 export default async function CategoriesIndexPage() {
   const db = getDb();
 
@@ -50,6 +48,9 @@ export default async function CategoriesIndexPage() {
         whatsappUrl={generalWaUrl}
         session={user}
         announcementText={settings.announcementEnabled ? settings.announcementText : ""}
+        announcementSpeed={settings.announcementSpeed}
+        announcementLink={settings.announcementEnabled ? settings.announcementLink : null}
+        topCategories={topCategories}
       />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">

@@ -74,6 +74,80 @@ export async function changeUserRole(_prevState: AdminUserActionResult, formData
   return { success: true, message: "Role berhasil diubah" };
 }
 
+function generateAdminUserCode() {
+  return `USR-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+}
+
+export async function createAdminUser(_prevState: AdminUserActionResult, formData: FormData): Promise<AdminUserActionResult> {
+  const session = await requireSuperAdminSession();
+  const db = getDb();
+
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const role = String(formData.get("role") ?? "USER");
+  const password = String(formData.get("password") ?? "");
+  const currentPassword = String(formData.get("currentPassword") ?? "");
+
+  if (!name || !email || !password || !currentPassword) {
+    return { success: false, message: "", error: "Data tidak lengkap." };
+  }
+  if (!email.includes("@")) {
+    return { success: false, message: "", error: "Email tidak valid." };
+  }
+  if (!["USER", "ADMIN", "SUPER_ADMIN"].includes(role)) {
+    return { success: false, message: "", error: "Role tidak valid." };
+  }
+  if (password.length < 8) {
+    return { success: false, message: "", error: "Password minimal 8 karakter." };
+  }
+
+  const passwordValid = await verifyCurrentAdminPassword(db, session.user.id, currentPassword);
+  if (!passwordValid) {
+    return { success: false, message: "", error: "Password saat ini salah." };
+  }
+
+  const existingUser = await db.user.findUnique({ where: { email } });
+  if (existingUser) {
+    return { success: false, message: "", error: "Email sudah digunakan oleh akun lain." };
+  }
+
+  const hashedPassword = await hashPassword(password);
+  const userCode = generateAdminUserCode();
+
+  await db.user.create({
+    data: {
+      id: crypto.randomUUID(),
+      name,
+      email,
+      role: role as "USER" | "ADMIN" | "SUPER_ADMIN",
+      emailVerified: true,
+      userCode,
+      accounts: {
+        create: {
+          id: crypto.randomUUID(),
+          accountId: email,
+          providerId: "credential",
+          password: hashedPassword,
+        },
+      },
+    },
+  });
+
+  await logAdminActivity({
+    actorId: session.user.id,
+    actorRole: toUserRole(session.user.role),
+    action: "User created",
+    targetType: "User",
+    targetId: email,
+    risk: "HIGH",
+    metadata: { role },
+  });
+
+  revalidatePath("/super-admin/admin-users");
+
+  return { success: true, message: "User baru berhasil ditambahkan." };
+}
+
 export async function resetUserPassword(_prevState: AdminUserActionResult, formData: FormData): Promise<AdminUserActionResult> {
   const session = await requireSuperAdminSession();
   const db = getDb();

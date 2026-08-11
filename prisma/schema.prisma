@@ -462,6 +462,11 @@ model FeatureFlag {
   key             String           @unique
   name            String
   description     String           @db.Text
+  // NOTE: The runtime evaluator (src/lib/feature-flags.ts) currently reads ONLY
+  // `enabled` and treats every flag as a GLOBAL switch. `scope`, `roleTarget`
+  // and `userTargetId` are reserved for future scoped evaluation and are not yet
+  // consulted. Public/retail voucher targeting is handled by Voucher.showForPublic
+  // / showForRetail, not by these columns.
   scope           FeatureFlagScope @default(GLOBAL)
   enabled         Boolean          @default(false)
   roleTarget      UserRole?

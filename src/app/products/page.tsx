@@ -21,8 +21,6 @@ import { getCurrentUser } from "@/lib/session";
 import { getPublicSiteSettings } from "@/lib/site-settings";
 import { buildWhatsappUrl } from "@/lib/whatsapp";
 
-export const dynamic = "force-dynamic";
-
 type ProductsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -139,6 +137,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         whatsappUrl={generalWaUrl}
         session={user}
         announcementText={settings.announcementEnabled ? settings.announcementText : ""}
+        announcementSpeed={settings.announcementSpeed}
+        announcementLink={settings.announcementEnabled ? settings.announcementLink : null}
+        topCategories={categories}
       />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
@@ -340,6 +341,8 @@ async function ProductResults({
   listParams: UrlParams;
 }) {
   const db = getDb();
+  const isRetailActive = user?.retailStatus === "RETAIL_ACTIVE" || user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
+  const canSeeAnyVoucher = isRetailActive ? retailVoucherEnabled : publicVoucherEnabled;
   const [products, vouchers, activeFlashSaleProducts] = await Promise.all([
     db.product.findMany({
       where: productWhere,
@@ -348,11 +351,14 @@ async function ProductResults({
       take: PAGE_SIZE,
       skip,
     }),
-    db.voucher.findMany({
-      where: { isActive: true, status: "ACTIVE" },
-      select: voucherWithScopeSelect,
-      orderBy: { createdAt: "desc" },
-    }),
+    canSeeAnyVoucher
+      ? db.voucher.findMany({
+          where: { isActive: true, status: "ACTIVE" },
+          select: voucherWithScopeSelect,
+          orderBy: { createdAt: "desc" },
+          take: 50,
+        })
+      : Promise.resolve([]),
     flashSaleEnabled
       ? db.flashSaleProduct.findMany({
           where: {
@@ -702,6 +708,13 @@ function buildProductFilters({
   const searchQ = trimmedQ.length >= MIN_SEARCH_LENGTH ? trimmedQ : "";
 
   if (searchQ) {
+    // Catalog search uses LIKE %term% across name, sku, brand name and category
+    // name. This is adequate at the current catalog size and is bounded by
+    // PAGE_SIZE pagination. The leading-wildcard `contains` is non-sargable, so it
+    // cannot use a plain B-tree index — if the product table grows large enough
+    // that this scan becomes slow, migrate to a MySQL FULLTEXT index on
+    // (name, sku, description) queried via MATCH ... AGAINST, or move search to a
+    // dedicated engine (Meilisearch/Typesense).
     filters.push({
       OR: [
         { name: { contains: searchQ } },

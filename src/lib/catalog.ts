@@ -173,7 +173,7 @@ export function productImage(product: {
   primaryImageUrl?: string | null;
   images?: Array<{ url: string }>;
 }) {
-  return product.primaryImageUrl || product.images?.[0]?.url || "";
+  return product.primaryImageUrl || product.images?.[0]?.url || "/file.svg";
 }
 
 export function productHoverImage(product: {
@@ -259,9 +259,9 @@ export function productBadge(product: Pick<Product, "stockStatus" | "viewCount" 
 export function stockLabel(
   product: Pick<Product, "stockStatus" | "stockQuantity">,
 ) {
-  if (product.stockStatus === "READY") return `Ready ${product.stockQuantity} unit`;
+  if (product.stockStatus === "READY") return `Tersedia ${product.stockQuantity} unit`;
   if (product.stockStatus === "LOW_STOCK") return `Stok terbatas ${product.stockQuantity} unit`;
-  if (product.stockStatus === "PREORDER") return "Preorder";
+  if (product.stockStatus === "PREORDER") return "Pre-order";
   return "Stok habis";
 }
 

@@ -1,4 +1,4 @@
-import type { ProductCardProps } from "@/components/ui/ProductCard";
+﻿import type { ProductCardProps } from "@/components/ui/ProductCard";
 import {
   canSeeRetailPrice,
   canUseRetailVoucher,
@@ -68,3 +68,4 @@ export function toProductCardProps(
     flashSaleStock: options.flashSaleStock,
   };
 }
+

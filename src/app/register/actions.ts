@@ -45,12 +45,19 @@ export async function registerUserAction(formData: FormData): Promise<RegisterSt
 
   try {
     const hdrs = await headers();
+    // Pass the retail profile fields directly to Better Auth so the user row is
+    // created complete in a single transaction. A separate post-signup update
+    // left a window where the account existed without its profile data and
+    // added an extra query on every registration.
     const result = await auth.api.signUpEmail({
       body: {
         name,
         email,
         password,
-      },
+        whatsappNumber,
+        storeName,
+        address,
+      } as NonNullable<Parameters<typeof auth.api.signUpEmail>[0]>["body"],
       headers: hdrs,
       asResponse: false,
     });
@@ -58,12 +65,6 @@ export async function registerUserAction(formData: FormData): Promise<RegisterSt
     if (!result?.user) {
       return { success: false, error: "Registrasi gagal. Silakan coba lagi." };
     }
-
-    const db = (await import("@/lib/db")).getDb();
-    await db.user.update({
-      where: { id: result.user.id },
-      data: { whatsappNumber, storeName, address },
-    });
 
     await trackAnalyticsEvent({
       type: AnalyticsEventType.RETAIL_REGISTER,

@@ -64,7 +64,12 @@ function LoginForm() {
         window.location.href = "/";
         return;
       }
-      const user = await userRes.json();
+      const data = await userRes.json();
+      const user = data?.user ?? null;
+      if (!user) {
+        window.location.href = "/";
+        return;
+      }
       window.location.href = getRoleRedirect(user.role, user.retailStatus, callbackUrl);
     } catch {
       window.location.href = "/";

@@ -42,8 +42,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const dynamic = "force-dynamic";
-
 function isAuthPage(pathname: string) {
   return (
     pathname.startsWith("/login") ||
@@ -90,13 +88,14 @@ export default async function RootLayout({
     // Fail open — allow access if maintenance check fails
   }
 
+  const isAuthRoute = isAuthPage(pathname);
   const [user, settings, publicVoucherEnabled, retailVoucherEnabled] = await Promise.all([
-    getCurrentUser().catch(() => null),
+    isAuthRoute ? Promise.resolve(null) : getCurrentUser().catch(() => null),
     getPublicSiteSettings(),
     isFeatureEnabled("enable_public_voucher"),
     isFeatureEnabled("enable_retail_voucher"),
   ]);
-  const hideBottomNav = isAuthPage(pathname);
+  const hideBottomNav = isAuthRoute;
 
   const isAdminUser = user?.role === "ADMIN" || user?.role === "SUPER_ADMIN";
   const showPublicBottomNav = !hideBottomNav && !isAdminUser;
@@ -104,7 +103,7 @@ export default async function RootLayout({
     user?.retailStatus === "RETAIL_ACTIVE" ? retailVoucherEnabled : publicVoucherEnabled;
 
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`} style={buildSiteThemeStyle(settings)}>
+    <html lang="id" className={`${inter.variable} h-full antialiased`} style={buildSiteThemeStyle(settings)}>
       <body className={`min-h-full flex flex-col ${showPublicBottomNav ? "pb-16 lg:pb-0" : ""}`}>
         {showMaintenance ? (
           <div className="flex min-h-screen items-center justify-center bg-brand-bg px-4">

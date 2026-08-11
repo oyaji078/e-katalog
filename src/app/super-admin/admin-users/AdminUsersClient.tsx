@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { changeUserRole, resetUserPassword, deleteUser, type AdminUserActionResult } from "./actions";
+import { changeUserRole, resetUserPassword, deleteUser, createAdminUser, type AdminUserActionResult } from "./actions";
 
 type AdminUser = {
   id: string;
@@ -16,17 +16,27 @@ type AdminUser = {
 const roleInitialState: AdminUserActionResult = { success: false, message: "" };
 const passwordInitialState: AdminUserActionResult = { success: false, message: "" };
 const deleteInitialState: AdminUserActionResult = { success: false, message: "" };
+const createInitialState: AdminUserActionResult = { success: false, message: "" };
 
 export default function AdminUsersClient({ users, currentUserId }: { users: AdminUser[]; currentUserId: string }) {
+  const [createOpen, setCreateOpen] = useState(false);
+
   return (
     <main>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-brand-text">Admin Users</h1>
           <p className="mt-1 text-sm text-brand-muted">
             Manage admin and super admin accounts.
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setCreateOpen(true)}
+          className="inline-flex items-center justify-center rounded-lg bg-brand-accent px-4 py-2 text-sm font-bold text-brand-on-accent transition hover:bg-brand-accent-hover"
+        >
+          Tambah User
+        </button>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-brand-border bg-white shadow-sm">
@@ -61,6 +71,7 @@ export default function AdminUsersClient({ users, currentUserId }: { users: Admi
           </tbody>
         </table>
       </div>
+      <CreateUserModal open={createOpen} onClose={() => setCreateOpen(false)} />
     </main>
   );
 }
@@ -307,6 +318,156 @@ function DeleteConfirmForm({ user, onDone }: { user: AdminUser; onDone: () => vo
           </div>
         </form>
       )}
+    </div>
+  );
+}
+
+function CreateUserModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const router = useRouter();
+  const [state, formAction, isPending] = useActionState(createAdminUser, createInitialState);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<AdminUser["role"]>("ADMIN");
+  const [password, setPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+
+  // Reset the form fields synchronously during render (rather than in an
+  // effect) exactly once per new action-state object, matching React's
+  // "adjusting state when a prop changes" pattern — avoids the extra
+  // post-paint render a setState-in-effect would trigger.
+  const [handledState, setHandledState] = useState(state);
+  if (state !== handledState) {
+    setHandledState(state);
+    if (state.success) {
+      setName("");
+      setEmail("");
+      setRole("ADMIN");
+      setPassword("");
+      setCurrentPassword("");
+    }
+  }
+
+  useEffect(() => {
+    if (state.success) {
+      router.refresh();
+      const timer = setTimeout(onClose, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [state.success, onClose, router]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+      <div className="mx-4 w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-base font-bold text-brand-text">Tambah Admin User</h3>
+            <p className="mt-1 text-sm text-brand-muted">Buat akun admin baru dengan role dan password.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-brand-border p-2 text-brand-muted transition hover:bg-brand-bg"
+          >
+            ×
+          </button>
+        </div>
+
+        {state.error ? (
+          <p className="mt-4 rounded-lg bg-danger/5 p-3 text-xs text-danger">{state.error}</p>
+        ) : null}
+
+        {state.success ? (
+          <div className="mt-4 rounded-lg bg-success/5 p-3 text-sm text-success">
+            {state.message}
+          </div>
+        ) : null}
+
+        <form action={formAction} className="mt-4 grid gap-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs font-semibold text-brand-text">
+              Nama lengkap
+              <input
+                name="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-3 py-2 text-sm outline-none focus:border-brand-primary"
+              />
+            </label>
+            <label className="block text-xs font-semibold text-brand-text">
+              Email
+              <input
+                name="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-3 py-2 text-sm outline-none focus:border-brand-primary"
+              />
+            </label>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs font-semibold text-brand-text">
+              Role
+              <select
+                name="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value as AdminUser["role"])}
+                className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-3 py-2 text-sm outline-none focus:border-brand-primary"
+              >
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+              </select>
+            </label>
+            <label className="block text-xs font-semibold text-brand-text">
+              Password baru
+              <input
+                name="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={8}
+                className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-3 py-2 text-sm outline-none focus:border-brand-primary"
+              />
+            </label>
+          </div>
+
+          <label className="block text-xs font-semibold text-brand-text">
+            Password Anda Saat Ini
+            <input
+              name="currentPassword"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              required
+              className="mt-1 w-full rounded-xl border border-brand-border bg-brand-bg px-3 py-2 text-sm outline-none focus:border-brand-primary"
+            />
+          </label>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border border-brand-border px-4 py-2 text-xs font-semibold text-brand-muted hover:bg-brand-bg"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="rounded-xl bg-brand-accent px-4 py-2 text-xs font-bold text-brand-on-accent disabled:opacity-60"
+            >
+              {isPending ? "Menyimpan..." : "Tambah User"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

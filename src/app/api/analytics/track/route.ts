@@ -1,59 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
-import { AnalyticsEventType, type AnalyticsEventType as AnalyticsEventTypeValue } from "@/generated/prisma/client";
+import { AnalyticsEventType } from "@/generated/prisma/client";
 import { trackAnalyticsEvent } from "@/lib/analytics";
+import { logger } from "@/lib/logger";
 import { applyRateLimitHeaders, checkRateLimit, RATE_LIMITS, tooManyRequests } from "@/lib/ratelimit";
 
-// Node.js runtime: the in-memory rate-limit store requires a persistent process.
 export const runtime = "nodejs";
 
-const PUBLIC_ANALYTICS_TYPES: AnalyticsEventTypeValue[] = [
-  AnalyticsEventType.PAGE_VIEW,
-  AnalyticsEventType.PRODUCT_VIEW,
-  AnalyticsEventType.WHATSAPP_CLICK,
-  AnalyticsEventType.SAVED_PRODUCT,
-  AnalyticsEventType.UNSAVED_PRODUCT,
-];
-
-function isPublicAnalyticsType(value: unknown): value is AnalyticsEventTypeValue {
-  return typeof value === "string" && PUBLIC_ANALYTICS_TYPES.includes(value as AnalyticsEventTypeValue);
-}
-
-function optionalString(value: unknown) {
-  return typeof value === "string" ? value : undefined;
-}
-
-function optionalMetadata(value: unknown) {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
-  return value as Record<string, unknown>;
-}
+const trackSchema = z.object({
+  type: z.nativeEnum(AnalyticsEventType),
+  path: z.string().optional(),
+  productId: z.string().optional(),
+  productName: z.string().optional(),
+  phone: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
 
 export async function POST(request: NextRequest) {
   const rateLimit = await checkRateLimit(request, RATE_LIMITS.analyticsTrack);
   if (!rateLimit.success) return tooManyRequests(rateLimit);
 
   try {
-    const body = (await request.json()) as Record<string, unknown>;
-    const type = body.type;
-
-    if (!isPublicAnalyticsType(type)) {
+    let json: unknown;
+    try {
+      json = await request.json();
+    } catch {
       return applyRateLimitHeaders(
-        NextResponse.json({ ok: false, error: "Invalid event type" }, { status: 400 }),
+        NextResponse.json({ ok: false, error: "Invalid request body" }, { status: 400 }),
         rateLimit,
       );
     }
 
-    await trackAnalyticsEvent({
-      type,
-      path: optionalString(body.path),
-      productId: optionalString(body.productId),
-      productName: optionalString(body.productName),
-      phone: optionalString(body.phone),
-      metadata: optionalMetadata(body.metadata),
-    });
+    const parsed = trackSchema.safeParse(json);
+    if (!parsed.success) {
+      return applyRateLimitHeaders(
+        NextResponse.json({ ok: false, error: "Invalid event type or payload" }, { status: 400 }),
+        rateLimit,
+      );
+    }
+
+    await trackAnalyticsEvent(parsed.data);
 
     return applyRateLimitHeaders(NextResponse.json({ ok: true }), rateLimit);
-  } catch {
+  } catch (error) {
+    logger.error({ err: error, route: "analytics/track" }, "Analytics track failed");
     return applyRateLimitHeaders(
       NextResponse.json({ ok: false, error: "Invalid analytics request" }, { status: 400 }),
       rateLimit,

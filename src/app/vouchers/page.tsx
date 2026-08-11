@@ -6,6 +6,7 @@ import PublicFooter from "@/components/ui/PublicFooter";
 import VoucherBanner from "@/components/ui/VoucherBanner";
 import VoucherCard from "@/components/ui/VoucherCard";
 import { canUseRetailVoucher, formatRupiah, voucherLabel } from "@/lib/catalog";
+import { getActiveCategories } from "@/lib/categories";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { getCurrentUser } from "@/lib/session";
@@ -13,24 +14,18 @@ import { getPublicSiteSettings } from "@/lib/site-settings";
 import { getStoreWhatsappNumberFromDB } from "@/lib/store-settings";
 import { buildWhatsappUrl } from "@/lib/whatsapp";
 
-export const dynamic = "force-dynamic";
-
 export default async function VouchersPage() {
   const db = getDb();
-  const [user, publicVoucherEnabled, retailVoucherEnabled, settings, waNumber, topCategories] =
+  const [user, publicVoucherEnabled, retailVoucherEnabled, settings, waNumber, allCategories] =
     await Promise.all([
       getCurrentUser().catch(() => null),
       isFeatureEnabled("enable_public_voucher"),
       isFeatureEnabled("enable_retail_voucher"),
       getPublicSiteSettings(),
       getStoreWhatsappNumberFromDB(),
-      db.category.findMany({
-        where: { isActive: true },
-        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-        select: { id: true, name: true, slug: true, logoUrl: true },
-        take: 8,
-      }),
+      getActiveCategories(),
     ]);
+  const topCategories = allCategories.slice(0, 8);
 
   if (user?.role === "ADMIN") redirect("/admin");
   if (user?.role === "SUPER_ADMIN") redirect("/super-admin");
@@ -84,6 +79,9 @@ export default async function VouchersPage() {
         whatsappUrl={generalWaUrl}
         session={user}
         announcementText={settings.announcementEnabled ? settings.announcementText : ""}
+        announcementSpeed={settings.announcementSpeed}
+        announcementLink={settings.announcementEnabled ? settings.announcementLink : null}
+        topCategories={topCategories}
       />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">

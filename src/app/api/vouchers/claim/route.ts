@@ -1,25 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { logger } from "@/lib/logger";
 import { applyRateLimitHeaders, checkRateLimit, RATE_LIMITS, tooManyRequests } from "@/lib/ratelimit";
 import { getCurrentUser } from "@/lib/session";
 
-// Node.js runtime: the in-memory rate-limit store requires a persistent process.
 export const runtime = "nodejs";
 
+const claimSchema = z.object({
+  voucherId: z.string().min(1, "Voucher ID is required"),
+});
+
 export async function POST(request: NextRequest) {
-  // IP-based throttle (3/min). Per-user/voucher idempotency ("1 claim per user
-  // per voucher") is enforced atomically below by the @@unique([voucherId,
-  // userId]) constraint inside the FOR UPDATE transaction — the correct place
-  // for that guarantee, since it must survive restarts and multiple instances.
   const rateLimit = await checkRateLimit(request, RATE_LIMITS.vouchersClaim);
   if (!rateLimit.success) return tooManyRequests(rateLimit);
 
   try {
-    let body: { voucherId?: string };
+    let json: unknown;
     try {
-      body = await request.json();
+      json = await request.json();
     } catch {
       return applyRateLimitHeaders(
         NextResponse.json({ status: "error", message: "Invalid request body" }, { status: 400 }),
@@ -27,13 +28,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { voucherId } = body;
-    if (!voucherId) {
+    const parsed = claimSchema.safeParse(json);
+    if (!parsed.success) {
       return applyRateLimitHeaders(
-        NextResponse.json({ status: "error", message: "Voucher ID is required" }, { status: 400 }),
+        NextResponse.json({ status: "error", message: parsed.error.issues[0]?.message ?? "Invalid request" }, { status: 400 }),
         rateLimit,
       );
     }
+
+    const { voucherId } = parsed.data;
 
     const user = await getCurrentUser();
     if (!user) {
@@ -76,35 +79,38 @@ export async function POST(request: NextRequest) {
 
     const isRetailUser = user.retailStatus === "RETAIL_ACTIVE";
 
-    if (voucher.showForPublic && !isRetailUser && !publicVoucherEnabled) {
-      return applyRateLimitHeaders(
-        NextResponse.json({ status: "error", message: "Voucher publik sedang tidak tersedia." }, { status: 403 }),
-        rateLimit,
-      );
-    }
-
-    if (voucher.showForRetail || isRetailUser) {
-      if (voucher.showForRetail && !retailVoucherEnabled) {
+    // Gate on the audience the CURRENT user belongs to, not on the voucher's
+    // flags in isolation — a voucher can be showForPublic AND showForRetail
+    // at once, and each audience must be checked independently against it.
+    if (isRetailUser) {
+      if (!voucher.showForRetail) {
+        return applyRateLimitHeaders(
+          NextResponse.json({ status: "error", message: "Voucher ini tidak berlaku untuk akun retail." }, { status: 403 }),
+          rateLimit,
+        );
+      }
+      if (!retailVoucherEnabled) {
         return applyRateLimitHeaders(
           NextResponse.json({ status: "error", message: "Voucher retail sedang tidak tersedia." }, { status: 403 }),
           rateLimit,
         );
       }
-      if (voucher.showForRetail && !isRetailUser) {
+    } else {
+      if (!voucher.showForPublic) {
         return applyRateLimitHeaders(
           NextResponse.json({ status: "error", message: "Voucher retail hanya untuk akun retail aktif." }, { status: 403 }),
           rateLimit,
         );
       }
+      if (!publicVoucherEnabled) {
+        return applyRateLimitHeaders(
+          NextResponse.json({ status: "error", message: "Voucher publik sedang tidak tersedia." }, { status: 403 }),
+          rateLimit,
+        );
+      }
     }
 
-    // Atomic claim: serialize concurrent claims for this voucher via a row
-    // lock so the quota check and the insert cannot race. Duplicate per-user
-    // claims are additionally guarded by the @@unique([voucherId, userId])
-    // constraint. No order/checkout logic — a claim is purely informational.
     const outcome = await db.$transaction(async (tx) => {
-      // Lock the voucher row for the duration of the transaction. Parameterized
-      // (voucherId is bound, not interpolated) — no injection surface.
       await tx.$queryRaw`SELECT id FROM \`Voucher\` WHERE id = ${voucherId} FOR UPDATE`;
 
       const existingClaim = await tx.voucherClaim.findUnique({
@@ -163,7 +169,8 @@ export async function POST(request: NextRequest) {
       }),
       rateLimit,
     );
-  } catch {
+  } catch (error) {
+    logger.error({ err: error, route: "vouchers/claim" }, "Voucher claim failed");
     return applyRateLimitHeaders(
       NextResponse.json({ status: "error", message: "Terjadi kesalahan. Silakan coba lagi." }, { status: 500 }),
       rateLimit,

@@ -15,29 +15,29 @@ export default async function RetailRequestTokenPage() {
   const canRequest = isLoggedIn && isRetailUser && (retailStatus === "REGISTERED" || retailStatus === "PENDING_RETAIL");
 
   return (
-    <main className="min-h-screen bg-brand-bg px-4 py-10 text-brand-text">
-      <section className="mx-auto max-w-md rounded-2xl border border-brand-border bg-white p-6 shadow-sm">
+    <main className="min-h-screen bg-brand-bg px-4 py-10">
+      <section className="mx-auto max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-gray-900">
         <Link href="/" className="text-sm font-semibold text-brand-primary">
           RAMA COMPUTER
         </Link>
         <h1 className="mt-6 text-2xl font-bold">Minta Token Retail</h1>
 
         {!isLoggedIn ? (
-          <div className="mt-6 rounded-2xl border border-brand-border bg-brand-bg/50 p-4">
-            <p className="text-sm text-brand-muted">
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-sm text-slate-600">
               Silakan <Link href="/login" className="font-semibold text-brand-primary">login</Link> terlebih dahulu untuk meminta token retail.
             </p>
           </div>
         ) : !isRetailUser ? (
-          <div className="mt-6 rounded-2xl border border-brand-border bg-brand-bg/50 p-4">
-            <p className="text-sm text-brand-muted">
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p className="text-sm text-slate-600">
               Halaman ini hanya untuk akun retail.
             </p>
           </div>
         ) : retailStatus === "RETAIL_ACTIVE" ? (
-          <div className="mt-6 rounded-2xl border border-success/30 bg-success/5 p-4">
-            <p className="font-semibold text-success">Akun ritel Anda sudah aktif.</p>
-            <p className="mt-2 text-sm text-brand-muted">
+          <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+            <p className="font-semibold text-emerald-700">Akun ritel Anda sudah aktif.</p>
+            <p className="mt-2 text-sm text-slate-600">
               Anda dapat melihat harga ritel dan voucher ritel.
             </p>
             <Link
@@ -48,15 +48,15 @@ export default async function RetailRequestTokenPage() {
             </Link>
           </div>
         ) : retailStatus === "SUSPENDED" ? (
-          <div className="mt-6 rounded-2xl border border-danger/20 bg-danger/5 p-4">
-            <p className="font-semibold text-danger">Akun ritel Anda ditangguhkan.</p>
-            <p className="mt-2 text-sm text-brand-muted">
+          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4">
+            <p className="font-semibold text-red-700">Akun ritel Anda ditangguhkan.</p>
+            <p className="mt-2 text-sm text-slate-600">
               Silakan hubungi admin untuk informasi lebih lanjut.
             </p>
           </div>
         ) : (
           <>
-            <ol className="mt-6 space-y-3 text-sm text-brand-muted">
+            <ol className="mt-6 space-y-3 text-sm text-slate-700">
               <li className="flex items-start gap-2">
                 <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-white">1</span>
                 <span>Hubungi admin melalui WhatsApp untuk meminta OTP aktivasi.</span>
@@ -72,9 +72,9 @@ export default async function RetailRequestTokenPage() {
             </ol>
 
             {retailStatus === "PENDING_RETAIL" ? (
-              <div className="mt-4 rounded-2xl border border-warning/20 bg-warning/5 p-4">
-                <p className="text-sm font-semibold text-warning">Token sudah diminta.</p>
-                <p className="mt-1 text-sm text-brand-muted">
+              <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                <p className="text-sm font-semibold text-amber-700">Token sudah diminta.</p>
+                <p className="mt-1 text-sm text-slate-600">
                   Jika admin sudah mengirim token, masukkan token di halaman aktivasi.
                 </p>
               </div>

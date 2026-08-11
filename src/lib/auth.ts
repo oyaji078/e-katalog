@@ -17,6 +17,13 @@ function getTrustedOrigins(): string[] {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (betterAuthUrl) origins.add(betterAuthUrl.replace(/\/$/, ""));
   if (appUrl) origins.add(appUrl.replace(/\/$/, ""));
+  // Next.js auto-picks a fallback port (3001, 3002, ...) whenever 3000 is
+  // already taken, which otherwise trips better-auth's origin/CSRF check with
+  // a 403 on every sign-in. Trust any local port outside production.
+  if (process.env.NODE_ENV !== "production") {
+    origins.add("http://localhost:*");
+    origins.add("http://127.0.0.1:*");
+  }
   return Array.from(origins);
 }
 

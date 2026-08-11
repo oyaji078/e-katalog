@@ -1,4 +1,8 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
+
 import { getDb } from "@/lib/db";
+import { SITE_SETTINGS_CACHE_TAG } from "@/lib/site-settings-constants";
 import { resolveStoreWhatsappNumber } from "@/lib/whatsapp";
 
 /**
@@ -21,27 +25,15 @@ export async function getStoreSetting(key: string): Promise<string | null> {
  * → env var → default dummy number. Matches the per-product inquiry route so
  * public catalog links and inquiry links use the same number.
  */
-export async function getStoreWhatsappNumberFromDB(): Promise<string> {
-  return resolveStoreWhatsappNumber(getDb());
-}
+const loadStoreWhatsappNumberCached = unstable_cache(
+  () => resolveStoreWhatsappNumber(getDb()),
+  ["store-whatsapp-number"],
+  { tags: [SITE_SETTINGS_CACHE_TAG], revalidate: 300 },
+);
 
-/**
- * Get store name with fallback to environment.
- */
-export async function getStoreNameFromDB(): Promise<string> {
-  const dbValue = await getStoreSetting("store_name");
-  if (dbValue) return dbValue;
-  return process.env.STORE_NAME ?? "Rama Computer";
-}
-
-/**
- * Get store announcement text with fallback.
- */
-export async function getStoreAnnouncementFromDB(): Promise<string> {
-  const dbValue = await getStoreSetting("store_announcement_text");
-  if (dbValue) return dbValue;
-  return "Katalog komputer & aksesoris — tanya harga via WhatsApp";
-}
+export const getStoreWhatsappNumberFromDB = cache(
+  (): Promise<string> => loadStoreWhatsappNumberCached(),
+);
 
 /**
  * Get store address with fallback.

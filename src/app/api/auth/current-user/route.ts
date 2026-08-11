@@ -5,18 +5,20 @@ import { getCurrentUser } from "@/lib/session";
 export async function GET() {
   const user = await getCurrentUser();
 
-  if (!user) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401, headers: { "Cache-Control": "no-store" } },
-    );
-  }
+  const body = user
+    ? {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          retailStatus: user.retailStatus,
+        },
+      }
+    : { user: null };
 
-  return NextResponse.json({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    retailStatus: user.retailStatus,
-  }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json(body, {
+    status: 200,
+    headers: { "Cache-Control": "no-store" },
+  });
 }

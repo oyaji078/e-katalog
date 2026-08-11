@@ -18,13 +18,14 @@ async function loginViaUi(page: Page, email: string, password: string) {
 }
 
 test.describe("auth flow", () => {
-  test("login then logout clears the session (current-user 401)", async ({ page }) => {
+  test("login then logout clears the session (current-user returns user: null)", async ({ page }) => {
     const loggedIn = await loginViaUi(page, RETAIL_USER.email, RETAIL_USER.password);
     test.skip(!loggedIn, "Demo retail user not available; skipping");
 
     const before = await page.request.get("/api/auth/current-user");
-    test.skip(before.status() === 401, "Demo retail user not seeded; skipping");
-    expect(before.ok()).toBeTruthy();
+    const beforeBody = await before.json();
+    test.skip(!beforeBody.user, "Demo retail user not seeded; skipping");
+    expect(beforeBody.user).toBeTruthy();
 
     // P1B: logout uses authClient.signOut() -> better-auth /api/auth/sign-out.
     // Issue it as a same-origin BROWSER fetch so the Origin header satisfies
@@ -42,7 +43,8 @@ test.describe("auth flow", () => {
     expect(status).toBe(200);
 
     const after = await page.request.get("/api/auth/current-user");
-    expect(after.status()).toBe(401);
+    const afterBody = await after.json();
+    expect(afterBody.user).toBeNull();
   });
 
   test("regular user cannot reach /admin", async ({ page }) => {
@@ -50,7 +52,8 @@ test.describe("auth flow", () => {
     test.skip(!loggedIn, "Demo retail user not available; skipping");
 
     const probe = await page.request.get("/api/auth/current-user");
-    test.skip(probe.status() === 401, "Demo retail user not seeded; skipping");
+    const probeBody = await probe.json();
+    test.skip(!probeBody.user, "Demo retail user not seeded; skipping");
 
     await page.goto("/admin", { waitUntil: "load" });
     await page.waitForTimeout(1000);

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { badRequest } from "@/lib/api-response";
 import { getDb } from "@/lib/db";
+import { logger } from "@/lib/logger";
 import { applyRateLimitHeaders, checkRateLimit, RATE_LIMITS, tooManyRequests } from "@/lib/ratelimit";
 
 // Node.js runtime: the in-memory rate-limit store requires a persistent process.
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
       rateLimit,
     );
   } catch (error) {
-    console.error("Batch fetch error:", error);
+    logger.error({ err: error, route: "products/batch" }, "Batch fetch failed");
     return applyRateLimitHeaders(
       NextResponse.json({ error: "Failed to fetch products" }, { status: 500 }),
       rateLimit,

@@ -11,6 +11,7 @@ import {
 } from "@/lib/catalog";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
+import { logger } from "@/lib/logger";
 import { applyRateLimitHeaders, checkRateLimit, RATE_LIMITS, tooManyRequests } from "@/lib/ratelimit";
 import { getCurrentUser } from "@/lib/session";
 import {
@@ -264,13 +265,11 @@ export async function POST(request: NextRequest) {
     }
 
     return applyRateLimitHeaders(NextResponse.json({ waUrl }), rateLimit);
-  } catch {
-    const fallbackNumber = await resolveStoreWhatsappNumber(getDb()).catch(() => undefined);
-    const fallbackMessage = "Halo Admin, saya tertarik dengan produk dari katalog.";
-    const fallbackUrl = buildWhatsappUrl({
-      message: fallbackMessage,
-      whatsappNumber: fallbackNumber,
-    });
-    return applyRateLimitHeaders(NextResponse.json({ waUrl: fallbackUrl }), rateLimit);
+  } catch (error) {
+    logger.error({ err: error, route: "inquiries/whatsapp" }, "Inquiry endpoint error");
+    return applyRateLimitHeaders(
+      NextResponse.json({ error: "Terjadi kesalahan. Silakan coba lagi." }, { status: 500 }),
+      rateLimit,
+    );
   }
 }

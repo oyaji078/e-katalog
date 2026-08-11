@@ -20,6 +20,7 @@ import {
   safeImageSrc,
   voucherWithScopeSelect,
 } from "@/lib/catalog";
+import { getActiveCategories } from "@/lib/categories";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { buildActiveFlashSaleMap, getFlashSaleDisplayForViewer } from "@/lib/flash-sale";
@@ -28,8 +29,6 @@ import { getCurrentUser } from "@/lib/session";
 import { getPublicSiteSettings } from "@/lib/site-settings";
 import { getStoreWhatsappNumberFromDB } from "@/lib/store-settings";
 import { buildWhatsappUrl } from "@/lib/whatsapp";
-
-export const dynamic = "force-dynamic";
 
 type ProductDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -129,7 +128,7 @@ export default async function ProductDetailPage({ params, searchParams }: Produc
     activeFlashSaleProducts,
     settings,
     waNumber,
-    topCategories,
+    allCategories,
   ] = await Promise.all([
     db.voucher.findMany({
       where: {
@@ -178,13 +177,9 @@ export default async function ProductDetailPage({ params, searchParams }: Produc
       : Promise.resolve([]),
     getPublicSiteSettings(),
     getStoreWhatsappNumberFromDB(),
-    db.category.findMany({
-      where: { isActive: true },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-      select: { id: true, name: true, slug: true, logoUrl: true },
-      take: 8,
-    }),
+    getActiveCategories(),
   ]);
+  const topCategories = allCategories.slice(0, 8);
 
   const showRetail = canSeeRetailPrice(user, retailPriceEnabled);
   const canSeeRetailVouchers = canUseRetailVoucher(user);
@@ -233,6 +228,9 @@ export default async function ProductDetailPage({ params, searchParams }: Produc
         whatsappUrl={generalWaUrl}
         session={user}
         announcementText={settings.announcementEnabled ? settings.announcementText : ""}
+        announcementSpeed={settings.announcementSpeed}
+        announcementLink={settings.announcementEnabled ? settings.announcementLink : null}
+        topCategories={topCategories}
       />
 
       <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">

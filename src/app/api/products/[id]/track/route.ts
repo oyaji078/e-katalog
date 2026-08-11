@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 import { getDb } from "@/lib/db";
+import { logger } from "@/lib/logger";
 import { applyRateLimitHeaders, checkRateLimit, RATE_LIMITS, tooManyRequests } from "@/lib/ratelimit";
 
-// Node.js runtime: the in-memory rate-limit store requires a persistent process.
 export const runtime = "nodejs";
 
-type TrackEvent = "view" | "click";
-
-function parseEvent(value: unknown): TrackEvent | null {
-  return value === "view" || value === "click" ? value : null;
-}
+const trackSchema = z.object({
+  event: z.enum(["view", "click"]),
+});
 
 export async function POST(
   request: NextRequest,
@@ -28,22 +27,27 @@ export async function POST(
       );
     }
 
-    let body: { event?: unknown } = {};
+    let json: unknown;
     try {
-      body = await request.json();
+      json = await request.json();
     } catch {
-      body = {};
+      return applyRateLimitHeaders(
+        NextResponse.json({ ok: false, error: "Invalid request body" }, { status: 400 }),
+        rateLimit,
+      );
     }
 
-    const event = parseEvent(body.event);
-    if (!event) {
+    const parsed = trackSchema.safeParse(json);
+    if (!parsed.success) {
       return applyRateLimitHeaders(
         NextResponse.json({ ok: false, error: "Event tidak valid." }, { status: 400 }),
         rateLimit,
       );
     }
 
+    const { event } = parsed.data;
     const db = getDb();
+
     const product = await db.product.findFirst({
       where: {
         status: "ACTIVE",
@@ -67,7 +71,8 @@ export async function POST(
     });
 
     return applyRateLimitHeaders(NextResponse.json({ ok: true }), rateLimit);
-  } catch {
+  } catch (error) {
+    logger.error({ err: error, route: "products/track" }, "Product track failed");
     return applyRateLimitHeaders(
       NextResponse.json({ ok: false, error: "Gagal memproses permintaan." }, { status: 500 }),
       rateLimit,

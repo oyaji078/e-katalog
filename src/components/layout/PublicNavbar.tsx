@@ -2,16 +2,29 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Search, BookmarkIcon, LogOut, ChevronDown } from 'lucide-react';
+import { Search, BookmarkIcon, LogOut, ChevronDown, Grid3X3 } from 'lucide-react';
 import type { CurrentUser } from '@/lib/session';
 import { signOut } from '@/lib/auth-client';
 import type { CSSProperties } from 'react';
+
+type CategoryItem = {
+  id: string;
+  name: string;
+  slug: string;
+};
 
 type PublicNavbarProps = {
   whatsappUrl: string;
   session?: CurrentUser | null;
   announcementText?: string;
+  announcementSpeed?: number;
+  announcementLink?: string | null;
+  topCategories?: CategoryItem[];
 };
+
+function isInternalPath(url: string) {
+  return url.startsWith("/") && !url.startsWith("//");
+}
 
 function retailStatusBadge(status: string | null | undefined) {
   if (status === "RETAIL_ACTIVE") {
@@ -45,12 +58,20 @@ export default function PublicNavbar({
   whatsappUrl,
   session,
   announcementText = "Katalog komputer & aksesoris - tanya harga via WhatsApp",
+  announcementSpeed = 30,
+  announcementLink = null,
+  topCategories = [],
 }: PublicNavbarProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [resolvedSession, setResolvedSession] = useState<CurrentUser | null | undefined>(undefined);
 
+  // Only refresh session once on mount if no session was provided server-side.
+  // Removed focus/pageshow listeners — they caused redundant network calls on
+  // every tab switch or bfcache restore, hammering /api/auth/current-user.
   useEffect(() => {
+    if (session !== undefined) return;
     let active = true;
 
     async function refreshSession() {
@@ -60,27 +81,41 @@ export default function PublicNavbar({
           credentials: "same-origin",
         });
         if (!active) return;
-        if (!response.ok) {
-          setResolvedSession(null);
-          return;
-        }
-        const user = (await response.json()) as CurrentUser;
-        setResolvedSession(user);
+        const body = (await response.json()) as { user: CurrentUser | null };
+        setResolvedSession(body.user ?? null);
       } catch {
-        if (active) setResolvedSession(session ?? null);
+        if (active) setResolvedSession(null);
       }
     }
 
     refreshSession();
-    window.addEventListener("focus", refreshSession);
-    window.addEventListener("pageshow", refreshSession);
 
     return () => {
       active = false;
-      window.removeEventListener("focus", refreshSession);
-      window.removeEventListener("pageshow", refreshSession);
     };
   }, [session]);
+
+  // Close dropdowns on outside click or Escape key.  Both dropdown container
+  // divs call stopPropagation so the opener buttons and menus themselves don't
+  // trigger the click handler.
+  useEffect(() => {
+    function handleOutsideClick() {
+      setIsUserMenuOpen(false);
+      setIsCategoryMenuOpen(false);
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setIsUserMenuOpen(false);
+        setIsCategoryMenuOpen(false);
+      }
+    }
+    window.addEventListener("click", handleOutsideClick);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("click", handleOutsideClick);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   async function handleLogout() {
     setIsLoggingOut(true);
@@ -115,16 +150,40 @@ export default function PublicNavbar({
         >
           <div
             className="public-announcement-track flex whitespace-nowrap"
-            style={{ '--announcement-duration': `${Math.max(24, normalizedAnnouncement.length / 2)}s` } as CSSProperties}
+            style={{ '--announcement-duration': `${announcementSpeed}s` } as CSSProperties}
           >
-            {[normalizedAnnouncement, normalizedAnnouncement, normalizedAnnouncement].map((message, index) => (
-              <span
-                key={`${message}-${index}`}
-                className="inline-block px-10 text-xs font-bold uppercase text-white/75 md:px-14"
-              >
-                {message}
-              </span>
-            ))}
+            {/* Exactly 2 copies, each auto-sized to the same content width:
+                a -50% translateX then loops back seamlessly. */}
+            {[0, 1].map((index) =>
+              announcementLink ? (
+                isInternalPath(announcementLink) ? (
+                  <Link
+                    key={index}
+                    href={announcementLink}
+                    className="inline-block shrink-0 px-10 text-xs font-bold uppercase text-white/75 transition-colors hover:text-white md:px-14"
+                  >
+                    {normalizedAnnouncement}
+                  </Link>
+                ) : (
+                  <a
+                    key={index}
+                    href={announcementLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block shrink-0 px-10 text-xs font-bold uppercase text-white/75 transition-colors hover:text-white md:px-14"
+                  >
+                    {normalizedAnnouncement}
+                  </a>
+                )
+              ) : (
+                <span
+                  key={index}
+                  className="inline-block shrink-0 px-10 text-xs font-bold uppercase text-white/75 md:px-14"
+                >
+                  {normalizedAnnouncement}
+                </span>
+              ),
+            )}
           </div>
         </div>
       ) : null}
@@ -155,6 +214,58 @@ export default function PublicNavbar({
               RAMA COMPUTER
             </span>
           </Link>
+
+          {/* Center left: Category Menu */}
+          {topCategories.length > 0 ? (
+            <div
+              className="relative hidden sm:block"
+              onMouseEnter={() => setIsCategoryMenuOpen(true)}
+              onMouseLeave={() => setIsCategoryMenuOpen(false)}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsCategoryMenuOpen((prev) => !prev);
+                }}
+                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition hover:bg-white/10"
+                style={{ color: 'rgba(255,255,255,0.75)' }}
+                aria-expanded={isCategoryMenuOpen}
+                aria-label="Menu kategori"
+              >
+                <Grid3X3 size={16} />
+                <span className="hidden lg:inline">Kategori</span>
+                <ChevronDown size={14} style={{ opacity: 0.5 }} />
+              </button>
+
+              {isCategoryMenuOpen ? (
+                <div
+                  className="absolute left-0 z-50 mt-1 w-56 rounded-xl border bg-white p-2 shadow-lg"
+                  style={{ borderColor: 'var(--color-border)' }}
+                >
+                  <Link
+                    href="/products"
+                    className="block rounded-lg px-3 py-2 text-sm font-medium text-[var(--color-text)] transition hover:bg-[var(--color-page)]"
+                    onClick={() => setIsCategoryMenuOpen(false)}
+                  >
+                    Semua Kategori
+                  </Link>
+                  <div className="my-1 border-t border-[var(--color-border)]" />
+                  {topCategories.map((cat) => (
+                    <Link
+                      key={cat.id}
+                      href={`/categories/${cat.slug}`}
+                      className="block rounded-lg px-3 py-2 text-sm text-[var(--color-text-muted)] transition hover:bg-[var(--color-page)] hover:text-[var(--color-text)]"
+                      onClick={() => setIsCategoryMenuOpen(false)}
+                    >
+                      {cat.name}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
           {/* Center: Search */}
           <form action="/products" method="get" className="hidden flex-1 sm:flex" style={{ maxWidth: 480 }}>
@@ -209,10 +320,13 @@ export default function PublicNavbar({
 
             {/* Auth */}
             {user ? (
-              <div className="relative">
+              <div className="relative" onClick={(e) => e.stopPropagation()}>
                 <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-2 rounded-lg p-1.5 transition hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsUserMenuOpen((prev) => !prev);
+                  }}
+                  className="flex items-center gap-2 rounded-lg p-1.5 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80"
                   aria-expanded={isUserMenuOpen}
                   aria-label="Menu akun"
                 >
@@ -276,14 +390,14 @@ export default function PublicNavbar({
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="hidden rounded-lg px-3 py-2 text-sm transition hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 sm:block"
+                  className="hidden rounded-lg px-3 py-2 text-sm transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80 sm:block"
                   style={{ color: 'rgba(255,255,255,0.7)' }}
                 >
                   Masuk
                 </Link>
                 <Link
                   href="/register"
-                  className="rounded-lg text-sm transition hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80"
+                  className="rounded-lg text-sm transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/80"
                   style={{
                     border: '1px solid rgba(255,255,255,0.2)',
                     color: 'rgba(255,255,255,0.85)',

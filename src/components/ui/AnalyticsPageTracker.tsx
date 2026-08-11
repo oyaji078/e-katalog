@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import type { AnalyticsEventType } from "@/generated/prisma/client";
 
@@ -24,10 +24,24 @@ export default function AnalyticsPageTracker({
   productName,
   metadata,
 }: AnalyticsPageTrackerProps) {
+  // Track exactly once per unique (type, path, product) view. A ref keyed on
+  // that identity is the dedupe guard so we don't emit duplicate events from:
+  //   - React StrictMode's double effect invocation in development,
+  //   - re-renders that pass a fresh `metadata` object literal (new reference),
+  //   - any unrelated parent re-render.
+  // A genuine client-side navigation to a different path unmounts this tracker
+  // and remounts it with a new key, so real page views are still counted.
+  const trackedKey = useRef<string | null>(null);
+
   useEffect(() => {
+    const resolvedPath = path ?? currentPath();
+    const key = `${type}::${resolvedPath}::${productId ?? ""}`;
+    if (trackedKey.current === key) return;
+    trackedKey.current = key;
+
     const payload = JSON.stringify({
       type,
-      path: path ?? currentPath(),
+      path: resolvedPath,
       productId,
       productName,
       metadata,

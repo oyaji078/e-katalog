@@ -65,7 +65,7 @@ function GuestNav({ pathname, voucherEnabled }: { pathname: string; voucherEnabl
     { id: "products", href: "/products", icon: Grid3X3, label: "Katalog" },
     voucherEnabled
       ? { id: "vouchers", href: "/vouchers", icon: BadgePercent, label: "Voucher" }
-      : { id: "categories", href: "/products#kategori", icon: Package, label: "Kategori" },
+      : { id: "categories", href: "/categories", icon: Package, label: "Kategori" },
     { id: "saved", href: "/produk-tersimpan", icon: Bookmark, label: "Simpan" },
     { id: "login", href: "/login", icon: User, label: "Masuk" },
   ];
@@ -111,7 +111,7 @@ function RetailNav({
     { id: "products", href: "/products", icon: Grid3X3, label: "Katalog" },
     voucherEnabled
       ? { id: "vouchers", href: "/vouchers", icon: BadgePercent, label: "Voucher" }
-      : { id: "categories", href: "/products#kategori", icon: Package, label: "Kategori" },
+      : { id: "categories", href: "/categories", icon: Package, label: "Kategori" },
     { id: "saved", href: "/produk-tersimpan", icon: Bookmark, label: "Simpan" },
     { id: "account", href: user.retailStatus === "RETAIL_ACTIVE" ? "/products" : "/retail/request-token", icon: User, label: user.retailStatus === "RETAIL_ACTIVE" ? "Akun" : "Akun" },
   ];

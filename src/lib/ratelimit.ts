@@ -7,17 +7,9 @@ import { NextResponse } from "next/server";
  * key). The window boundary maps cleanly onto the `X-RateLimit-Reset` header,
  * which is why it is preferred here over a sliding log.
  *
- * Storage: an in-memory `Map` by default. This is correct for a single
- * long-lived Node process (`next start`) but does NOT share state across
- * multiple instances or serverless invocations.
- *
- * ┌─────────────────────────────────────────────────────────────────────────┐
- * │ PRODUCTION NOTE: For multi-instance / serverless deployments, replace the │
- * │ in-memory store with a shared backend (Redis / Upstash). The seam is the  │
- * │ `RateLimitStore` interface below — implement `increment()` against Redis  │
- * │ (e.g. INCR + PEXPIRE, or @upstash/ratelimit) and swap `getStore()`. The   │
- * │ rest of this module (headers, 429 shape, abuse logging) stays unchanged.  │
- * └─────────────────────────────────────────────────────────────────────────┘
+ * Storage: Redis (via ioredis) when REDIS_URL is set; otherwise falls back to
+ * an in-memory Map.  The in-memory store is correct for a single Node process
+ * (`next start`) but does NOT share state across multiple instances.
  *
  * These routes run on the Node.js runtime (see `export const runtime` in each
  * handler) because the in-memory store requires a persistent process.
@@ -30,11 +22,11 @@ interface Bucket {
 }
 
 /**
- * Pluggable storage seam. Implement this against Redis/Upstash for production
+ * Pluggable storage seam. Implement this against Redis for production
  * multi-instance deployments; the in-memory implementation is the default.
  */
 interface RateLimitStore {
-  increment(key: string, windowMs: number, now: number): Bucket;
+  increment(key: string, windowMs: number, now: number): Promise<Bucket>;
 }
 
 export interface RateLimitConfig {
@@ -63,45 +55,71 @@ export interface RateLimitResult {
 
 /** Per-endpoint limits. Centralised so the rules live in one place. */
 export const RATE_LIMITS = {
-  /** POST /api/analytics/track — high-volume client telemetry. */
   analyticsTrack: { name: "analytics/track", limit: 30, windowMs: 60_000 },
-  /** POST /api/products/[id]/track — view/click counters. */
   productTrack: { name: "products/track", limit: 20, windowMs: 60_000 },
-  /** POST /api/inquiries/whatsapp — sensitive, generates WhatsApp links + logs. */
   inquiriesWhatsapp: { name: "inquiries/whatsapp", limit: 5, windowMs: 60_000 },
-  /** POST /api/vouchers/claim — sensitive write; per-user/voucher idempotency
-   *  is additionally enforced atomically at the DB layer (unique constraint). */
   vouchersClaim: { name: "vouchers/claim", limit: 3, windowMs: 60_000 },
-  /** POST /api/products/saved — public batch lookup of saved-product cards. */
   savedProducts: { name: "products/saved", limit: 60, windowMs: 60_000 },
-  /** POST /api/products/batch — public batch lookup by id/slug/sku. */
   productsBatch: { name: "products/batch", limit: 60, windowMs: 60_000 },
-  /** POST /api/retail/request-whatsapp — sensitive (mutates retail status + builds OTP request link). */
   retailWhatsapp: { name: "retail/request-whatsapp", limit: 5, windowMs: 60_000 },
+  retailActivation: { name: "retail/activate", limit: 5, windowMs: 60_000 },
 } as const satisfies Record<string, RateLimitConfig>;
 
 const SWEEP_INTERVAL_MS = 60_000;
-/** Hard cap on tracked keys; protects against unbounded growth under a flood of unique IPs. */
 const MAX_KEYS = 100_000;
-/** Shared bucket that absorbs new keys once MAX_KEYS is reached (fail-closed, bounds memory). */
 const OVERFLOW_KEY = "__overflow__";
 
 // Persist the store across dev hot-reloads (mirrors the Prisma singleton in db.ts).
 const globalForRateLimit = globalThis as typeof globalThis & {
   __rateLimitStore?: Map<string, Bucket>;
   __rateLimitSweeperStarted?: boolean;
+  __redisClient?: import("ioredis").Redis;
+  __redisLastAttempt?: number;
 };
 
-// TODO: replace with Redis for multi-instance/serverless production.
-if (process.env.NODE_ENV === "production" && !process.env.REDIS_URL) {
-  console.warn("[rate-limit] WARNING: using in-memory store. Set REDIS_URL for production.");
+/* ------------------------------------------------------------------ */
+/*  Redis client                                                      */
+/* ------------------------------------------------------------------ */
+
+const REDIS_RETRY_MS = 5_000;
+
+function getRedisClient(): import("ioredis").Redis | null {
+  const url = process.env.REDIS_URL || process.env.REDIS_TLS_URL;
+  if (!url) return null;
+  if (globalForRateLimit.__redisClient) return globalForRateLimit.__redisClient;
+
+  // Throttle reconnect attempts so a dead Redis does not hammer on every request.
+  if (globalForRateLimit.__redisLastAttempt && Date.now() - globalForRateLimit.__redisLastAttempt < REDIS_RETRY_MS) {
+    return null;
+  }
+  globalForRateLimit.__redisLastAttempt = Date.now();
+
+  try {
+    // Dynamic import so ioredis is not loaded when REDIS_URL is absent.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const IORedis = require("ioredis") as typeof import("ioredis").default;
+    const client = new IORedis(url, {
+      maxRetriesPerRequest: 1,
+      retryStrategy: () => null, // do not auto-reconnect, fail fast
+      lazyConnect: true,
+      enableOfflineQueue: false,
+    });
+    globalForRateLimit.__redisClient = client;
+    return client;
+  } catch {
+    console.warn("[rate-limit] Redis unavailable, falling back to in-memory store.");
+    return null;
+  }
 }
+
+/* ------------------------------------------------------------------ */
+/*  In-memory store (fallback)                                        */
+/* ------------------------------------------------------------------ */
 
 function startSweeper(map: Map<string, Bucket>): void {
   if (globalForRateLimit.__rateLimitSweeperStarted) return;
   globalForRateLimit.__rateLimitSweeperStarted = true;
 
-  // Periodically evict expired windows so the map does not grow forever.
   const timer = setInterval(() => {
     const now = Date.now();
     for (const [key, bucket] of map) {
@@ -109,7 +127,6 @@ function startSweeper(map: Map<string, Bucket>): void {
     }
   }, SWEEP_INTERVAL_MS);
 
-  // Do not keep the Node process alive solely for the sweeper.
   (timer as { unref?: () => void }).unref?.();
 }
 
@@ -121,18 +138,9 @@ function getMap(): Map<string, Bucket> {
   return globalForRateLimit.__rateLimitStore;
 }
 
-/** Default in-memory fixed-window store. */
 const memoryStore: RateLimitStore = {
-  increment(key, windowMs, now) {
+  async increment(key, windowMs, now) {
     const map = getMap();
-
-    // Capacity guard: only a *new* key can grow the map (replacing an existing
-    // or expired key via map.set keeps size constant). When at capacity, first
-    // evict expired windows; if that does not free a slot (e.g. a flood of many
-    // simultaneous unique IPs), collapse further new keys into one shared
-    // overflow bucket. This bounds memory at MAX_KEYS+1 and fails CLOSED —
-    // excess distinct clients share a single conservative limit rather than
-    // each getting an un-counted free pass.
     if (!map.has(key) && map.size >= MAX_KEYS) {
       for (const [k, b] of map) {
         if (b.resetAt <= now) map.delete(k);
@@ -141,55 +149,89 @@ const memoryStore: RateLimitStore = {
         key = OVERFLOW_KEY;
       }
     }
-
     let bucket = map.get(key);
-
-    // Start a fresh window if none exists or the previous one has expired.
     if (!bucket || bucket.resetAt <= now) {
       bucket = { count: 0, resetAt: now + windowMs };
       map.set(key, bucket);
     }
-
     bucket.count += 1;
     return bucket;
   },
 };
 
-/** Swap this to a Redis-backed store for production multi-instance deployments. */
-function getStore(): RateLimitStore {
+/* ------------------------------------------------------------------ */
+/*  Redis store                                                        */
+/* ------------------------------------------------------------------ */
+
+const redisStore: RateLimitStore = {
+  async increment(key, windowMs, now) {
+    const client = getRedisClient();
+    if (!client) {
+      // Redis configured but connectivity failed — fall back to memory for this call.
+      return memoryStore.increment(key, windowMs, now);
+    }
+    try {
+      const prefixed = `ratelimit:${key}`;
+      const count = await client.incr(prefixed);
+      if (count === 1) {
+        // First request in this window — set expiry.
+        await client.pexpire(prefixed, windowMs).catch(() => {});
+      }
+      // Retrieve the remaining TTL to calculate resetAt.
+      const ttl = await client.pttl(prefixed).catch(() => windowMs);
+      const resetAt = ttl > 0 ? now + ttl : now + windowMs;
+      return { count, resetAt };
+    } catch {
+      // Redis error — fall back to in-memory for this request.
+      console.warn("[rate-limit] Redis error, falling back to in-memory.");
+      return memoryStore.increment(key, windowMs, now);
+    }
+  },
+};
+
+/* ------------------------------------------------------------------ */
+/*  Store resolution                                                   */
+/* ------------------------------------------------------------------ */
+
+async function getStore(): Promise<RateLimitStore> {
+  const url = process.env.REDIS_URL || process.env.REDIS_TLS_URL;
+  if (url) {
+    const client = getRedisClient();
+    if (client) {
+      try {
+        await client.ping();
+        return redisStore;
+      } catch {
+        // ping failed — will retry after REDIS_RETRY_MS
+      }
+    }
+  }
   return memoryStore;
 }
 
 /**
  * Extract the client IP from proxy headers. Works behind Nginx / Vercel /
  * Cloudflare. Falls back to a shared "unknown" bucket (fail-closed) when no
- * forwarding header is present, so requests without an identifiable source
- * still share a single conservative limit rather than bypassing the limiter.
+ * forwarding header is present.
  */
 export function getClientIp(request: { headers: Headers }): string {
   const forwardedFor = request.headers.get("x-forwarded-for");
   if (forwardedFor) {
-    // The left-most entry is the originating client.
     const first = forwardedFor.split(",")[0]?.trim();
     if (first) return first;
   }
-
   const realIp = request.headers.get("x-real-ip");
   if (realIp?.trim()) return realIp.trim();
-
   const cfIp = request.headers.get("cf-connecting-ip");
   if (cfIp?.trim()) return cfIp.trim();
-
   return "unknown";
 }
 
-/** Set to "true"/"1" to disable rate limiting (e.g. local dev, integration tests). */
 function isDisabled(): boolean {
   const flag = process.env.RATE_LIMIT_DISABLED;
   return flag === "true" || flag === "1";
 }
 
-/** Structured abuse log for monitoring/alerting (IP + endpoint + timestamp). */
 function logRateLimitAbuse(info: { ip: string; endpoint: string; limit: number; windowMs: number }): void {
   console.warn(
     `[ratelimit] BLOCKED ip=${info.ip} endpoint=${info.endpoint} ` +
@@ -199,8 +241,6 @@ function logRateLimitAbuse(info: { ip: string; endpoint: string; limit: number; 
 
 /**
  * Check (and consume) one unit of the rate limit for the given request.
- *
- * Async so a future Redis-backed store can be awaited without touching callers.
  *
  * @param request    Anything carrying request `headers` (NextRequest / Request).
  * @param config     One of `RATE_LIMITS`, or a custom `RateLimitConfig`.
@@ -219,7 +259,8 @@ export async function checkRateLimit(
 
   const now = Date.now();
   const key = `${config.name}:${identifier ?? ip}`;
-  const bucket = getStore().increment(key, config.windowMs, now);
+  const store = await getStore();
+  const bucket = await store.increment(key, config.windowMs, now);
 
   const success = bucket.count <= config.limit;
   const remaining = Math.max(0, config.limit - bucket.count);
@@ -234,7 +275,6 @@ export async function checkRateLimit(
 
 /**
  * Attach the standard rate-limit headers to any response.
- * `X-RateLimit-Reset` is expressed as a UTC epoch in **seconds** (GitHub convention).
  */
 export function applyRateLimitHeaders<T extends Response>(
   response: T,
@@ -252,7 +292,7 @@ export function applyRateLimitHeaders<T extends Response>(
 
 /**
  * Build the 429 response: JSON `{ error, retryAfter }` plus rate-limit and
- * `Retry-After` headers. Return this directly from a route when `success` is false.
+ * `Retry-After` headers.
  */
 export function tooManyRequests(result: RateLimitResult): NextResponse {
   const response = NextResponse.json(

@@ -1,30 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 import { getCurrentUser } from "@/lib/session";
 import { getDb } from "@/lib/db";
 import { safeLogAdminActivity } from "@/lib/feature-flags";
+import { logger } from "@/lib/logger";
+
+const toggleSchema = z.object({
+  flagKey: z.string().min(1, "flagKey is required"),
+  enabled: z.boolean(),
+  flagId: z.string().nullable().optional(),
+});
 
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser();
-
     if (!user || user.role !== "SUPER_ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    let body: { flagKey: string; enabled: boolean; flagId?: string | null };
+    let json: unknown;
     try {
-      body = await request.json();
+      json = await request.json();
     } catch {
       return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
     }
 
-    const { flagKey, enabled, flagId } = body;
-
-    if (!flagKey) {
-      return NextResponse.json({ error: "flagKey is required" }, { status: 400 });
+    const parsed = toggleSchema.safeParse(json);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid request" }, { status: 400 });
     }
 
+    const { flagKey, enabled, flagId } = parsed.data;
     const db = getDb();
 
     if (flagId) {
@@ -54,7 +61,8 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true, enabled });
-  } catch {
+  } catch (error) {
+    logger.error({ err: error, route: "admin/feature-flags/toggle" }, "Feature flag toggle failed");
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

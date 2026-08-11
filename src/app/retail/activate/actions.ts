@@ -1,11 +1,13 @@
 "use server";
 
 import { createHash } from "node:crypto";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { getCurrentSession } from "@/lib/session";
+import { checkRateLimit, RATE_LIMITS } from "@/lib/ratelimit";
 
 export type ActivationState = {
   status: "idle" | "success" | "error";
@@ -25,7 +27,7 @@ export async function activateRetailToken(
   if (!featureEnabled) {
     return {
       status: "error",
-      message: "Retail token activation is currently disabled.",
+      message: "Aktivasi token ritel sedang dinonaktifkan.",
     };
   }
 
@@ -35,7 +37,18 @@ export async function activateRetailToken(
   if (!userId) {
     return {
       status: "error",
-      message: "Please log in before activating retail access.",
+      message: "Silakan masuk terlebih dahulu sebelum mengaktifkan akses ritel.",
+    };
+  }
+
+  // The OTP is only 6 digits (1,000,000 combinations) and is scoped to this
+  // user's own account, so without a per-user cap a logged-in user could
+  // script repeated guesses and brute-force past admin approval.
+  const rateLimit = await checkRateLimit({ headers: await headers() }, RATE_LIMITS.retailActivation, userId);
+  if (!rateLimit.success) {
+    return {
+      status: "error",
+      message: "Terlalu banyak percobaan. Silakan coba lagi dalam beberapa menit.",
     };
   }
 
@@ -49,7 +62,7 @@ export async function activateRetailToken(
   if (!user || (user.retailStatus !== "REGISTERED" && user.retailStatus !== "PENDING_RETAIL")) {
     return {
       status: "error",
-      message: `Your account status "${user?.retailStatus ?? "unknown"}" does not allow token activation. Only registered retail accounts can activate.`,
+      message: `Status akun Anda "${user?.retailStatus ?? "tidak diketahui"}" tidak mengizinkan aktivasi token. Hanya akun ritel terdaftar yang dapat melakukan aktivasi.`,
     };
   }
 
@@ -86,7 +99,7 @@ export async function activateRetailToken(
   if (!tokenRecord) {
     return {
       status: "error",
-      message: "The token is invalid, already used, expired, revoked, or not assigned to your account.",
+      message: "Token tidak valid, sudah dipakai, kedaluwarsa, dicabut, atau tidak ditujukan untuk akun Anda.",
     };
   }
 
@@ -125,7 +138,7 @@ export async function activateRetailToken(
     // Do not reveal whether the token exists — same message as a bad token.
     return {
       status: "error",
-      message: "The token is invalid, already used, expired, revoked, or not assigned to your account.",
+      message: "Token tidak valid, sudah dipakai, kedaluwarsa, dicabut, atau tidak ditujukan untuk akun Anda.",
     };
   }
 
@@ -133,6 +146,6 @@ export async function activateRetailToken(
 
   return {
     status: "success",
-    message: "Your retail account has been activated. You can now view retail prices and retail vouchers.",
+    message: "Akun ritel Anda berhasil diaktifkan. Anda kini dapat melihat harga dan voucher ritel.",
   };
 }

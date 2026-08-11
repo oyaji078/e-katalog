@@ -56,10 +56,8 @@ const adminMenus: NavGroup[] = [
   {
     label: "Promosi",
     items: [
+      { href: "/admin/promo-vouchers", label: "Promosi & Voucher", icon: TicketPercent },
       { href: "/admin/flash-sales", label: "Flash Sale", icon: Zap },
-      { href: "/admin/vouchers", label: "Voucher", icon: TicketPercent },
-      { href: "/admin/promo-vouchers", label: "Promo & Voucher", icon: TicketPercent },
-      { href: "/admin/promo-banners", label: "Promo Banner", icon: Image },
       { href: "/admin/hero-banners", label: "Hero Banner", icon: Image },
     ],
   },
@@ -156,7 +154,7 @@ export default function AdminSidebar({ role, brandName = "RAMA COMPUTER", logoUr
           <button
             type="button"
             onClick={toggle}
-            className="flex min-w-0 items-center gap-2.5 rounded-lg transition hover:bg-white/5"
+            className="flex min-w-0 items-center gap-2.5 rounded-lg transition hover:bg-white/10"
             style={{ padding: collapsed ? "4px" : "4px 8px" }}
             title={collapsed ? "Perluas sidebar" : "Ciutkan sidebar"}
           >

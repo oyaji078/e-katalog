@@ -4,6 +4,7 @@ import PublicNavbar from "@/components/layout/PublicNavbar";
 import ProductGrid from "@/components/ui/ProductGrid";
 import PublicFooter from "@/components/ui/PublicFooter";
 import { canSeeRetailPrice, productCardSelect, voucherWithScopeSelect } from "@/lib/catalog";
+import { getActiveCategories } from "@/lib/categories";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import { buildActiveFlashSaleMap, getFlashSaleDisplayForViewer } from "@/lib/flash-sale";
@@ -12,8 +13,6 @@ import { getCurrentUser } from "@/lib/session";
 import { getPublicSiteSettings } from "@/lib/site-settings";
 import { getStoreWhatsappNumberFromDB } from "@/lib/store-settings";
 import { buildWhatsappUrl } from "@/lib/whatsapp";
-
-export const dynamic = "force-dynamic";
 
 type CategoryPageProps = {
   params: Promise<{ slug: string }>;
@@ -84,11 +83,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           },
         })
       : Promise.resolve([]),
-    db.category.findMany({
-      where: { isActive: true },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-      select: { id: true, name: true, slug: true },
-    }),
+    getActiveCategories(),
   ]);
 
   const showRetailPrice = canSeeRetailPrice(user, retailPriceEnabled);
@@ -120,6 +115,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         whatsappUrl={generalWaUrl}
         session={user}
         announcementText={settings.announcementEnabled ? settings.announcementText : ""}
+        announcementSpeed={settings.announcementSpeed}
+        announcementLink={settings.announcementEnabled ? settings.announcementLink : null}
+        topCategories={topCategories}
       />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">

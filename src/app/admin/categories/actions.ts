@@ -1,6 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+
+import { CATEGORIES_CACHE_TAG } from "@/lib/cache-tags";
 
 import { getAdminSession, toUserRole } from "@/lib/admin-auth";
 import { logAdminActivity } from "@/lib/activity-log";
@@ -49,6 +51,9 @@ async function requireAdmin() {
 }
 
 function revalidateCategoryPaths(slug: string) {
+  // Invalidate the cross-request active-categories cache so navbar/footer/grid
+  // pick up the edit immediately (Next 16 read-your-own-writes from a Server Action).
+  updateTag(CATEGORIES_CACHE_TAG);
   revalidatePath("/");
   revalidatePath("/products");
   revalidatePath(`/categories/${slug}`);

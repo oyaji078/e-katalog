@@ -20,6 +20,26 @@ export async function getDatabaseHealth(): Promise<HealthCheck> {
   }
 }
 
+export async function getRedisHealth(): Promise<HealthCheck> {
+  const url = process.env.REDIS_URL || process.env.REDIS_TLS_URL;
+  if (!url) {
+    return { status: "WARN", detail: "Redis tidak dikonfigurasi (REDIS_URL tidak diset)." };
+  }
+  try {
+    const { default: Redis } = await import("ioredis");
+    const client = new Redis(url, {
+      maxRetriesPerRequest: 1,
+      lazyConnect: true,
+      retryStrategy: () => null,
+    });
+    await client.ping();
+    client.disconnect();
+    return { status: "OK", detail: "Redis dapat diakses." };
+  } catch {
+    return { status: "ERROR", detail: "Redis tidak dapat diakses." };
+  }
+}
+
 export async function getAuthHealth(): Promise<HealthCheck> {
   try {
     const db = getDb();

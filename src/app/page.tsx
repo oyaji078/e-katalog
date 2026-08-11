@@ -26,6 +26,7 @@ import {
   voucherLabel,
   voucherWithScopeSelect,
 } from "@/lib/catalog";
+import { getActiveCategories } from "@/lib/categories";
 import { getDb } from "@/lib/db";
 import { isFeatureEnabled } from "@/lib/feature-flags";
 import {
@@ -33,14 +34,12 @@ import {
   buildActiveFlashSaleMap,
   getFlashSaleDisplayForViewer,
 } from "@/lib/flash-sale";
+import { getActiveHeroBanner } from "@/lib/hero";
 import { toProductCardProps } from "@/lib/product-card-mapper";
 import { getCurrentUser } from "@/lib/session";
 import { getPublicSiteSettings } from "@/lib/site-settings";
 import { getStoreWhatsappNumberFromDB } from "@/lib/store-settings";
-import { isRenderablePromoBannerImageUrl } from "@/lib/promo-banner-url";
 import { buildWhatsappUrl } from "@/lib/whatsapp";
-
-export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 15;
 
@@ -81,15 +80,11 @@ export default async function Home({ searchParams }: HomePageProps) {
     products,
     vouchers,
     activeFlashSaleProducts,
-    activeHeroBanners,
+    heroBanner,
     settings,
     waNumber,
   ] = await Promise.all([
-    db.category.findMany({
-      where: { isActive: true },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-      select: { id: true, name: true, slug: true, logoUrl: true },
-    }),
+    getActiveCategories(),
     db.product.findMany({
       where: productWhere,
       select: productCardSelect,
@@ -118,45 +113,10 @@ export default async function Home({ searchParams }: HomePageProps) {
           take: 100,
         })
       : Promise.resolve([]),
-    db.heroBanner.findMany({
-      where: {
-        isActive: true,
-        OR: [
-          {
-            AND: [
-              { startsAt: { lte: now } },
-              { endsAt: { gte: now } },
-            ],
-          },
-          {
-            AND: [
-              { startsAt: null },
-              { endsAt: null },
-            ],
-          },
-          {
-            AND: [
-              { startsAt: null },
-              { endsAt: { gte: now } },
-            ],
-          },
-          {
-            AND: [
-              { startsAt: { lte: now } },
-              { endsAt: null },
-            ],
-          },
-        ],
-      },
-      orderBy: [{ sortOrder: "asc" }, { updatedAt: "desc" }],
-      select: { id: true, title: true, subtitle: true, imageUrl: true },
-      take: 1,
-    }),
+    getActiveHeroBanner(now),
     getPublicSiteSettings(),
     getStoreWhatsappNumberFromDB(),
   ]);
-
-  const heroBanner = resolveHeroBanner(activeHeroBanners);
 
   const showRetailPrice = canSeeRetailPrice(user, retailPriceEnabled);
   const canSeeRetailVouchers = canUseRetailVoucher(user);
@@ -193,6 +153,9 @@ export default async function Home({ searchParams }: HomePageProps) {
         whatsappUrl={generalWaUrl}
         session={user}
         announcementText={settings.announcementEnabled ? settings.announcementText : ""}
+        announcementSpeed={settings.announcementSpeed}
+        announcementLink={settings.announcementEnabled ? settings.announcementLink : null}
+        topCategories={categories}
       />
 
       {/* HERO — full viewport width, edge to edge, no container/radius */}
@@ -370,57 +333,6 @@ function firstParam(value: string | string[] | undefined) {
 function parseSort(value: string) {
   if (value === "popular" || value === "promo") return value;
   return "latest";
-}
-
-type ActiveHeroBannerRow = {
-  id: string;
-  title: string;
-  subtitle: string | null;
-  imageUrl: string | null;
-};
-
-type ResolvedHeroBanner = {
-  title: string;
-  subtitle: string | null;
-  image: string | null;
-};
-
-function resolveHeroBanner(rows: ActiveHeroBannerRow[]): ResolvedHeroBanner | null {
-  const selected = rows[0] ?? null;
-
-  if (process.env.NODE_ENV !== "production") {
-    if (!selected) {
-      console.info("[hero-banner] fallback used — no active HeroBanner matched current schedule");
-    } else {
-      const validImage =
-        selected.imageUrl && isRenderablePromoBannerImageUrl(selected.imageUrl);
-      console.info("[hero-banner] using HeroBanner", {
-        source: "HeroBanner",
-        id: selected.id,
-        title: selected.title,
-        imageUrl: selected.imageUrl,
-        imageRenderable: Boolean(validImage),
-        imageReason: !selected.imageUrl
-          ? "missing image — gradient fallback"
-          : validImage
-            ? "ok"
-            : "invalid path — gradient fallback",
-      });
-    }
-  }
-
-  if (!selected) return null;
-
-  const image =
-    selected.imageUrl && isRenderablePromoBannerImageUrl(selected.imageUrl)
-      ? selected.imageUrl
-      : null;
-
-  return {
-    title: selected.title,
-    subtitle: selected.subtitle,
-    image,
-  };
 }
 
 function parsePage(value: string) {

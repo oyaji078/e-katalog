@@ -8,6 +8,16 @@ import { getDb } from "@/lib/db";
  * Every isFeatureEnabled / getFeatureFlags call in the same request then shares
  * a single `findMany` instead of issuing one query per flag (pages check 4-5).
  * Fails closed: any DB error yields an empty map (all flags treated disabled).
+ *
+ * SCOPE NOTE: Flags are evaluated as GLOBAL on/off switches — only the `enabled`
+ * column is read. The FeatureFlag model also has `scope` / `roleTarget` /
+ * `userTargetId` columns, but these are reserved for a future scoped-evaluation
+ * feature and are intentionally NOT consulted here. Audience-specific behaviour
+ * that exists today (public vs. retail vouchers) is NOT driven by flag scope —
+ * it is enforced by the `showForPublic` / `showForRetail` columns on the Voucher
+ * model together with the global `enable_public_voucher` / `enable_retail_voucher`
+ * flags (see getVisibleVouchers in src/lib/catalog.ts). Do not assume role/user
+ * targeting works until the evaluator below is updated to read those columns.
  */
 export const getAllFeatureFlags = cache(async (): Promise<Record<string, boolean>> => {
   try {
@@ -76,13 +86,6 @@ export async function requireFeatureFlag(key: string, message?: string): Promise
  * Check if retail price can be displayed for a given user.
  * Combines feature flag check with user role/retail status.
  */
-export async function canUseRetailPrice(user?: { role?: string | null; retailStatus?: string | null } | null): Promise<boolean> {
-  const retailPriceEnabled = await isFeatureEnabled("enable_retail_price");
-  if (!retailPriceEnabled) return false;
-  if (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") return true;
-  return user?.retailStatus === "RETAIL_ACTIVE";
-}
-
 /**
  * Safely log admin activity.
  * Respects enable_admin_activity_log flag.
