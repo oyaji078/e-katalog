@@ -51,3 +51,7 @@ next-env.d.ts
 .claude/settings.local.json
 .vscode/settings.json
 results/
+
+# scratch / test output
+/tmp/
+/test-results/
