@@ -167,7 +167,16 @@ Karena hosting terkelola tidak selalu memberi shell ke direktori app, cara palin
 
 ## 3. Isi data awal (seed)
 
-Setelah migrasi berhasil, buat akun admin dan feature flag default:
+Setelah migrasi berhasil, isi feature flag dan store setting default:
+
+> **Perhatikan:** `prisma/seed.ts` **tidak membuat akun admin.** Isinya hanya `featureFlag.upsert` dan `storeSetting.upsert` — 13 feature flag dan 4 store setting. Untuk mendapatkan admin pertama, daftar lewat `/register` di situs, lalu naikkan perannya langsung di database:
+>
+> ```sql
+> UPDATE `user` SET role = 'SUPER_ADMIN' WHERE email = 'email-anda@contoh.com';
+> ```
+>
+> Cara ini memakai mekanisme hashing password milik better-auth sendiri, jadi tidak ada risiko hash yang tidak cocok — berbeda kalau baris user dibuat manual lewat SQL.
+
 
 ```powershell
 # PowerShell
@@ -308,6 +317,32 @@ Shared hosting tidak menyediakan Redis. `REDIS_URL` dibiarkan kosong, dan `src/l
 ### 8.4 Image optimizer dimatikan di produksi
 
 `next.config.ts` menyetel `unoptimized: !isDev` — disengaja. Gambar sudah dikonversi ke WebP saat upload, dan mematikan optimizer menghilangkan permukaan SSRF sekaligus beban CPU per request. Ini menguntungkan di shared hosting yang CPU-nya terbatas.
+
+---
+
+### 8.5 Riwayat migrasi tidak bisa membangun database dari nol — BELUM diperbaiki
+
+Ini cacat nyata di repo, bukan masalah Hostinger, dan ditemukan saat menyiapkan database produksi.
+
+`prisma migrate deploy` pada database kosong **selalu gagal** di migrasi kelima:
+
+```
+Migration name: 20260525000000_phase_24_reopen_fix
+Database error code: 1146
+Database error: Table 'FlashSale' doesn't exist
+```
+
+Sebabnya: migrasi itu menjalankan `ALTER TABLE FlashSale` dan `ALTER TABLE FlashSaleProduct`, tapi **tidak ada satu pun migrasi di `prisma/migrations/` yang membuat kedua tabel tersebut.** Dicek dengan:
+
+```bash
+grep -rl "CREATE TABLE.*FlashSale" prisma/migrations/    # tidak ada hasil
+```
+
+Kedua model itu ada di `schema.prisma`, jadi database pengembangan kemungkinan besar terbentuk lewat `prisma db push` — yang menyinkronkan skema tanpa menulis migrasi. Cacat ini tidak pernah terlihat di lokal karena database lokal tidak pernah dibangun ulang dari nol.
+
+**Penanganan sementara di produksi:** database dibangun dengan `prisma db push` (menghasilkan 23 tabel sesuai `schema.prisma`), lalu ke-15 migrasi ditandai sebagai sudah diterapkan dengan `prisma migrate resolve --applied`. Setelah itu `prisma migrate status` melaporkan *"Database schema is up to date!"*, dan deploy berikutnya tidak akan menyentuh migrasi yang rusak itu.
+
+**Perbaikan yang sebenarnya masih perlu dikerjakan:** tambahkan migrasi yang membuat `FlashSale` dan `FlashSaleProduct` sebelum `20260525000000_phase_24_reopen_fix`, atau susun ulang riwayat migrasi. Selama ini belum dilakukan, siapa pun yang mencoba membangun database baru dari migrasi akan menabrak error yang sama.
 
 ---
 
