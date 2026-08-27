@@ -10,6 +10,13 @@ import { getCurrentUser } from "@/lib/session";
 import { buildSiteThemeStyle, getPublicSiteSettings } from "@/lib/site-settings";
 import FigmaMobileBottomNav from "@/components/ui/FigmaMobileBottomNav";
 
+// The root layout reads site settings, feature flags and the session from the
+// database on every render, so no route under it can be statically prerendered.
+// Without this, `next build` tries to prerender pages and fails on a DB connection
+// (the try/catch around headers() and the .catch() on getCurrentUser() swallow the
+// signal Next would otherwise use to mark these routes dynamic).
+export const dynamic = "force-dynamic";
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",

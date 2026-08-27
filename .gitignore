@@ -35,7 +35,7 @@ _figma_export/
 
 # env files
 .env*
-!.env.example
+!.env*.example
 
 # vercel
 .vercel
