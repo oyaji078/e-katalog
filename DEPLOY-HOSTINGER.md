@@ -57,6 +57,45 @@ Dua akibat baiknya:
 1. **Build tidak lagi butuh database.** Ini penting karena build Hostinger bisa saja berjalan di kontainer terpisah yang tidak bisa menjangkau MySQL Anda di `localhost`. Tanpa perbaikan ini, deploy berisiko gagal di server dengan error yang sama.
 2. **Katalog selalu menampilkan data terkini.** Kalau halaman-halaman itu dibiarkan statis, produk baru yang ditambahkan admin tidak akan muncul di situs publik sampai ada redeploy — bug yang serius untuk aplikasi katalog.
 
+### Kegagalan kedua: `prisma generate` menuntut DATABASE_URL
+
+Deploy pertama di Hostinger tetap gagal, dengan sebab yang berbeda:
+
+```
+PrismaConfigEnvError: Cannot resolve environment variable: DATABASE_URL.
+ERROR: Failed to build the application
+```
+
+`prisma.config.ts` memakai helper `env("DATABASE_URL")` dari `prisma/config`, dan helper itu **melempar error kalau variabelnya tidak terdefinisi**. Di server build tidak ada `.env` (memang sengaja tidak diikutkan) dan variabel itu belum di-set, jadi `prisma generate` mati sebelum `next build` sempat jalan.
+
+Yang penting dipahami: `prisma generate` **tidak pernah membuka koneksi database** — ia hanya membaca `schema.prisma` untuk membuat client. Jadi menuntut `DATABASE_URL` di situ memang tidak perlu.
+
+**Perbaikan:** `prisma.config.ts` sekarang hanya meneruskan `datasource` ketika variabelnya benar-benar ada:
+
+```ts
+const databaseUrl = process.env.DATABASE_URL;
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  ...(databaseUrl ? { datasource: { url: databaseUrl } } : {}),
+});
+```
+
+Perilaku yang sudah diverifikasi setelah perubahan:
+
+| Perintah | Tanpa `DATABASE_URL` | Dengan `DATABASE_URL` |
+|---|---|---|
+| `prisma generate` | berhasil | berhasil |
+| `prisma migrate deploy` / `status` | gagal tegas: *"The datasource.url property is required"* | menyasar host yang benar |
+
+Jadi build tidak lagi bisa dijatuhkan oleh variabel yang hilang, tapi perintah migrasi tetap menolak berjalan tanpa target yang jelas — tidak ada risiko diam-diam menulis ke database yang salah.
+
+### Versi Node di Hostinger
+
+Log deploy menunjukkan build berjalan di **Node v20.19.4**, padahal `package.json` menuntut `">=24 <25"`. Ini muncul sebagai peringatan `EBADENGINE`, **bukan** penyebab kegagalan — `npm install` tetap berhasil memasang 548 paket. Tetap saja, setel versi Node ke **24.x** di hPanel agar sama dengan target pengembangan.
+
+---
+
 **Konsekuensinya:** setiap request ke halaman publik menembak database, tidak ada cache statis. Di paket shared yang CPU-nya terbatas ini perlu diperhatikan kalau trafik naik. Kalau nanti terasa berat, langkah lanjutannya adalah memperbaiki `getCurrentUser()` agar tidak menelan sinyal dinamis, lalu memakai cache per-komponen untuk bagian katalog yang tidak bergantung sesi — bukan sekadar mengembalikan halaman jadi statis.
 
 ---
