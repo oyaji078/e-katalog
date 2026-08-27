@@ -80,6 +80,14 @@ mysql://USER:PASSWORD@localhost:3306/DBNAME
 
 > **Awas password:** karakter yang punya makna khusus di URI harus di-encode — `@` jadi `%40`, `:` jadi `%3A`, `/` jadi `%2F`, `#` jadi `%23`, `?` jadi `%3F`. Password dengan `@` mentah akan membuat koneksi gagal dengan error yang menyesatkan.
 
+**Kalau koneksi ditolak dengan error soal RSA public key**, tambahkan parameter yang sama seperti yang dipakai `.env` lokal repo ini:
+
+```
+mysql://USER:PASSWORD@localhost:3306/DBNAME?allowPublicKeyRetrieval=true&connection_limit=10&pool_timeout=30
+```
+
+MySQL 8 memakai `caching_sha2_password`; tanpa `allowPublicKeyRetrieval=true`, koneksi non-TLS bisa ditolak. `connection_limit` juga layak dibatasi di shared hosting, karena kuota koneksi MySQL di paket bersama jauh lebih kecil daripada di server sendiri.
+
 ---
 
 ## 2. Jalankan migrasi database
@@ -96,19 +104,23 @@ Karena hosting terkelola tidak selalu memberi shell ke direktori app, cara palin
    DATABASE_URL="mysql://USER:PASSWORD@REMOTE_HOST:3306/DBNAME"
    ```
 
-3. Jalankan:
+3. Jalankan migrasi dengan menunjuk dotenv ke berkas itu:
+
+   ```powershell
+   # PowerShell
+   $env:DOTENV_CONFIG_PATH = ".env.migrate"; npx prisma migrate deploy
+   ```
 
    ```bash
-   npx dotenv -e .env.migrate -- npx prisma migrate deploy
+   # Git Bash / WSL
+   DOTENV_CONFIG_PATH=.env.migrate npx prisma migrate deploy
    ```
 
 4. Setelah selesai, **hapus lagi IP dari Remote MySQL** dan hapus `.env.migrate`.
 
-Repo ini sudah punya script pendek untuk langkah 3:
+**Kenapa `DOTENV_CONFIG_PATH`, bukan `npx dotenv -e`?** Repo ini memasang paket `dotenv` (pustaka), bukan `dotenv-cli` — tidak ada binary `dotenv`, jadi `npx dotenv -e ...` akan gagal. Yang berhasil adalah `DOTENV_CONFIG_PATH`, karena `prisma.config.ts` dan `prisma/seed.ts` sama-sama memakai `import "dotenv/config"`, dan preloader itu menghormati variabel tersebut. Keuntungan lain: password tetap di dalam berkas, tidak ikut tercatat di riwayat shell.
 
-```bash
-npm run migrate:deploy
-```
+> Perhatikan juga: `dotenv` **tidak menimpa** variabel yang sudah ada di environment. Kalau `DATABASE_URL` kebetulan sudah ter-set di shell Anda, nilai itulah yang dipakai, bukan isi `.env.migrate`. Perintah di atas selalu mencetak host tujuan sebelum berjalan — pastikan yang tampil host Hostinger, bukan `127.0.0.1`.
 
 > `migrate deploy` hanya menerapkan migrasi yang sudah ada — tidak pernah membuat migrasi baru dan tidak pernah menghapus data. Ini perintah yang benar untuk produksi. Jangan pakai `prisma migrate dev` di database produksi.
 
@@ -118,8 +130,14 @@ npm run migrate:deploy
 
 Setelah migrasi berhasil, buat akun admin dan feature flag default:
 
+```powershell
+# PowerShell
+$env:DOTENV_CONFIG_PATH = ".env.migrate"; npm run prisma:seed
+```
+
 ```bash
-npx dotenv -e .env.migrate -- npm run prisma:seed
+# Git Bash / WSL
+DOTENV_CONFIG_PATH=.env.migrate npm run prisma:seed
 ```
 
 Cek `prisma/seed.ts` untuk melihat kredensial admin yang dibuat, lalu **ganti passwordnya lewat UI** setelah login pertama.
