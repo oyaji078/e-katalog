@@ -320,7 +320,40 @@ Shared hosting tidak menyediakan Redis. `REDIS_URL` dibiarkan kosong, dan `src/l
 
 ---
 
-### 8.5 Riwayat migrasi tidak bisa membangun database dari nol — BELUM diperbaiki
+### 8.5 Aplikasi WAJIB memakai `localhost`, bukan hostname MySQL publik
+
+Ini menghabiskan waktu paling lama saat penyiapan, jadi catat baik-baik.
+
+hPanel menampilkan hostname MySQL `srv1417.hstgr.io` di halaman **Remote MySQL**. Hostname itu **hanya untuk koneksi dari luar** — dari laptop Anda, misalnya. Aplikasi Node.js yang berjalan di hosting yang sama **harus memakai `localhost`**.
+
+Kalau aplikasi memakai hostname publik, koneksinya keluar ke internet lalu masuk kembali, sehingga MySQL melihatnya datang dari IP keluar kontainer (di kasus ini `153.92.10.90`). Hak akses MySQL diberikan per-host, dan user hanya diberi izin dari `localhost` — jadi koneksinya ditolak.
+
+**Yang membuat ini sulit dilacak:** pool `mariadb` mencoba ulang setiap kegagalan pembuatan koneksi sampai `acquireTimeout` habis, sehingga error autentikasi yang sebenarnya tertutup. Yang muncul di log hanya:
+
+```
+pool timeout: failed to retrieve a connection from pool after 20001ms
+(pool connections: active=0 idle=0 limit=3)
+```
+
+Pesan itu terlihat seperti masalah jaringan atau pool, padahal sebenarnya izin. Dibuktikan dengan menguji kedua alamat dari dalam kontainer:
+
+| Alamat | TCP | MySQL |
+|---|---|---|
+| `srv1417.hstgr.io:3306` | OPEN (0 ms) | **access denied** |
+| `127.0.0.1:3306` | OPEN (1 ms) | **CONNECTED** |
+
+Jadi:
+
+- **Aplikasi di Hostinger** → `@localhost:3306`
+- **Migrasi dari komputer lokal** → `@srv1417.hstgr.io:3306`, dan IP publik Anda harus terdaftar di Remote MySQL
+
+Keduanya memakai username, password, dan nama database yang sama — hanya hostnya yang berbeda.
+
+> Perlu diingat juga: IP publik rumahan biasanya dinamis. Daftar Remote MySQL akan basi dengan sendirinya, dan koneksi dari lokal tiba-tiba ditolak walau tidak ada yang diubah. Ini tidak memengaruhi aplikasi, karena aplikasi memakai `localhost`.
+
+---
+
+### 8.6 Riwayat migrasi tidak bisa membangun database dari nol — BELUM diperbaiki
 
 Ini cacat nyata di repo, bukan masalah Hostinger, dan ditemukan saat menyiapkan database produksi.
 
