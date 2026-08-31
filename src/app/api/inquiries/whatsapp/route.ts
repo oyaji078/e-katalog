@@ -14,6 +14,7 @@ import { isFeatureEnabled } from "@/lib/feature-flags";
 import { logger } from "@/lib/logger";
 import { applyRateLimitHeaders, checkRateLimit, RATE_LIMITS, tooManyRequests } from "@/lib/ratelimit";
 import { getCurrentUser } from "@/lib/session";
+import { getPublicBaseUrl } from "@/lib/base-url";
 import {
   buildInquiryMessage,
   buildProductUrl,
@@ -210,7 +211,9 @@ export async function POST(request: NextRequest) {
       voucherInfo = "Voucher tersedia. Klaim voucher sebelum menghubungi admin.";
     }
 
-    const baseUrl = request.nextUrl.origin;
+    // Never the request origin on its own: behind the Hostinger proxy that is
+    // the bind address (0.0.0.0:3000) and produces links nobody can open.
+    const baseUrl = getPublicBaseUrl(request.nextUrl.origin);
     const productLink = buildProductUrl(product, baseUrl);
 
     const message = buildInquiryMessage({

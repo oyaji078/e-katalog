@@ -29,15 +29,14 @@
     "load:all": "npm run load:baseline && npm run load:api"
   },
   "dependencies": {
-    "@better-auth/prisma-adapter": "^1.6.11",
     "@prisma/adapter-mariadb": "^7.8.0",
     "@prisma/client": "^7.8.0",
-    "better-auth": "^1.6.11",
+    "better-auth": "~1.6.30",
     "clsx": "^2.1.1",
     "ioredis": "^5.11.1",
     "lucide-react": "^1.16.0",
-    "mariadb": "^3.5.2",
-    "next": "16.2.6",
+    "mariadb": "^3.5.3",
+    "next": "^16.3.3",
     "pino": "^10.3.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -53,11 +52,14 @@
     "@types/react-dom": "^19",
     "dotenv": "^17.4.2",
     "eslint": "^9",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "^16.3.3",
     "prisma": "^7.8.0",
     "puppeteer-core": "^25.0.4",
     "tailwindcss": "^4",
     "tsx": "^4.22.3",
     "typescript": "^5"
+  },
+  "overrides": {
+    "mariadb": "^3.5.3"
   }
 }
